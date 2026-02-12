@@ -1,0 +1,463 @@
+/* DoctorPortal.css */
+.doctor-portal-layout {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #f0fdfa 100%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* TopBar Styles */
+.doctor-portal-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  box-shadow: 0 4px 20px rgba(13, 148, 136, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.doctor-portal-topbar-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.doctor-brand-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.doctor-brand-logo {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.doctor-brand-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doctor-brand-subtitle {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Right Actions Container */
+.doctor-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.doctor-notification-btn {
+  margin-right: 0;
+}
+
+.doctor-user-menu-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.doctor-user-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.doctor-user-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.doctor-user-avatar {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.doctor-user-avatar.large {
+  width: 48px;
+  height: 48px;
+}
+
+.doctor-chevron {
+  transition: transform 0.2s;
+}
+
+.doctor-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.doctor-dropdown-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.doctor-user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  width: 280px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  z-index: 50;
+  overflow: hidden;
+  animation: doctorFadeIn 0.2s ease-out;
+}
+
+@keyframes doctorFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.doctor-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.doctor-user-name {
+  font-weight: 600;
+  color: #0f766e;
+  margin: 0;
+  font-size: 16px;
+}
+
+.doctor-user-role {
+  font-size: 14px;
+  color: #64748b;
+  margin: 4px 0 0 0;
+}
+
+.doctor-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  color: #334155;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-align: left;
+  font-size: 14px;
+}
+
+.doctor-dropdown-item:hover {
+  background: #f8fafc;
+}
+
+.doctor-dropdown-item svg {
+  color: #64748b;
+}
+
+.doctor-dropdown-item.logout {
+  color: #dc2626;
+}
+
+.doctor-dropdown-item.logout:hover {
+  background: #fef2f2;
+}
+
+.doctor-dropdown-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 8px 0;
+}
+
+/* Main Content */
+.doctor-portal-main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.doctor-dashboard-content {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.doctor-action-btn {
+  background: #14b8a6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.doctor-action-btn:hover:not(:disabled) {
+  background: #0d9488;
+  transform: translateY(-1px);
+}
+
+.doctor-action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.doctor-action-btn.secondary {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.doctor-action-btn.secondary:hover {
+  background: #cbd5e1;
+}
+
+.prescriptions-container {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.patient-details-section {
+  margin-top: 24px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.patient-details-section h3 {
+  margin-bottom: 16px;
+  color: #0d9488;
+}
+
+.patient-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.patient-info-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.patient-info-item svg {
+  color: #14b8a6;
+}
+
+.clinical-notes-section {
+  margin-top: 24px;
+}
+
+.clinical-notes-section h3 {
+  margin-bottom: 12px;
+  color: #0d9488;
+}
+
+.clinical-notes-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.clinical-notes-input:focus {
+  outline: none;
+  border-color: #14b8a6;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+}
+
+.notes-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* Remove sidebar and related styles */
+.doctor-dashboard-sidebar,
+.doctor-dashboard-nav,
+.sidebar-nav-list,
+.sidebar-nav-item {
+  display: none;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .doctor-portal-topbar-content {
+    padding: 0 20px;
+  }
+  
+  .doctor-brand-title {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .doctor-portal-topbar-content {
+    padding: 0 16px;
+    gap: 12px;
+  }
+  
+  .doctor-brand-section {
+    gap: 12px;
+  }
+  
+  .doctor-brand-logo {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .doctor-brand-title {
+    font-size: 16px;
+  }
+  
+  .doctor-brand-subtitle {
+    font-size: 11px;
+  }
+  
+  .doctor-right-actions {
+    gap: 12px;
+  }
+  
+  .doctor-user-avatar {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .doctor-portal-main {
+    padding: 24px 16px;
+  }
+  
+  .doctor-dashboard-content {
+    padding: 20px;
+  }
+  
+  .patient-info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .notes-actions {
+    flex-direction: column;
+  }
+  
+  .doctor-action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  /* Responsive select option styles for tablets */
+  select, option {
+    font-size: 0.95rem;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .doctor-portal-topbar-content {
+    padding: 0 12px;
+  }
+  
+  .doctor-brand-section {
+    gap: 8px;
+  }
+  
+  .doctor-brand-logo {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .doctor-brand-title {
+    font-size: 14px;
+  }
+  
+  .doctor-brand-subtitle {
+    font-size: 10px;
+  }
+  
+  .doctor-user-dropdown {
+    width: 260px;
+    right: -10px;
+  }
+  
+  .doctor-portal-main {
+    padding: 20px 12px;
+  }
+  
+  .doctor-dashboard-content {
+    padding: 16px;
+  }
+  
+  .prescriptions-container {
+    padding: 20px;
+  }
+  /* Responsive select option styles for mobile */
+  select, option {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.5rem;
+  }
+}

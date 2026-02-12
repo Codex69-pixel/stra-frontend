@@ -1,0 +1,137 @@
+<svg viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8F4F8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F5F5F5;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0D7377;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#14919B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bgGradient)"/>
+
+  <!-- Building outlines - very subtle background -->
+  <g opacity="0.08" stroke="#999999" stroke-width="1.5" fill="none">
+    <!-- Left building -->
+    <rect x="80" y="140" width="110" height="280"/>
+    <line x1="135" y1="140" x2="135" y2="420"/>
+    <line x1="80" y1="200" x2="190" y2="200"/>
+    <line x1="80" y1="260" x2="190" y2="260"/>
+    <line x1="80" y1="320" x2="190" y2="320"/>
+    <line x1="80" y1="380" x2="190" y2="380"/>
+
+    <!-- Center building -->
+    <rect x="280" y="160" width="120" height="260"/>
+    <line x1="340" y1="160" x2="340" y2="420"/>
+    <line x1="280" y1="230" x2="400" y2="230"/>
+    <line x1="280" y1="300" x2="400" y2="300"/>
+    <line x1="280" y1="370" x2="400" y2="370"/>
+
+    <!-- Right building -->
+    <rect x="520" y="140" width="100" height="280"/>
+    <line x1="570" y1="140" x2="570" y2="420"/>
+    <line x1="520" y1="210" x2="620" y2="210"/>
+    <line x1="520" y1="280" x2="620" y2="280"/>
+    <line x1="520" y1="350" x2="620" y2="350"/>
+  </g>
+
+  <!-- Decorative circular background -->
+  <circle cx="400" cy="300" r="200" fill="#B8E0E8" opacity="0.15"/>
+
+  <!-- Plant - Bottom Left -->
+  <g>
+    <!-- Pot -->
+    <path d="M 140 420 L 160 420 L 175 460 L 125 460 Z" fill="#4A3728" stroke="#3A2F1F" stroke-width="1"/>
+    <rect x="128" y="417" width="44" height="6" fill="#5A4738" opacity="0.6"/>
+    
+    <!-- Leaves -->
+    <ellipse cx="130" cy="385" rx="8" ry="18" fill="#0D7377" transform="rotate(-35 130 385)" opacity="0.9"/>
+    <ellipse cx="170" cy="385" rx="8" ry="18" fill="#0D7377" transform="rotate(35 170 385)" opacity="0.9"/>
+    <ellipse cx="128" cy="370" rx="6" ry="14" fill="#14919B" transform="rotate(-25 128 370)" opacity="0.8"/>
+    <ellipse cx="172" cy="370" rx="6" ry="14" fill="#14919B" transform="rotate(25 172 370)" opacity="0.8"/>
+  </g>
+
+  <!-- Doctor Figure - Left -->
+  <g>
+    <!-- Head -->
+    <circle cx="280" cy="220" r="24" fill="#D4A574" stroke="#C99060" stroke-width="1.5"/>
+    
+    <!-- Hair -->
+    <path d="M 256 220 Q 256 190 280 185 Q 304 190 304 220 Z" fill="#3D2F1F"/>
+    
+    <!-- Lab Coat -->
+    <path d="M 260 250 L 260 380 Q 260 390 270 390 L 290 390 Q 300 390 300 380 L 300 250 Q 290 240 280 240 Q 270 240 260 250 Z" fill="white" stroke="#E0E0E0" stroke-width="1.5"/>
+    
+    <!-- Stethoscope/Collar -->
+    <ellipse cx="280" cy="255" rx="12" ry="6" fill="#0D7377"/>
+    
+    <!-- Buttons -->
+    <circle cx="280" cy="280" r="2.5" fill="#999999"/>
+    <circle cx="280" cy="300" r="2.5" fill="#999999"/>
+    <circle cx="280" cy="320" r="2.5" fill="#999999"/>
+    
+    <!-- Arms -->
+    <rect x="245" y="270" width="15" height="60" rx="7" fill="#D4A574"/>
+    <rect x="305" y="270" width="15" height="60" rx="7" fill="#D4A574"/>
+    
+    <!-- Pants -->
+    <rect x="270" y="390" width="7" height="40" fill="#1A5C5C"/>
+    <rect x="283" y="390" width="7" height="40" fill="#1A5C5C"/>
+    
+    <!-- Shoes -->
+    <ellipse cx="273.5" cy="435" rx="5" ry="4" fill="#2A2A2A"/>
+    <ellipse cx="286.5" cy="435" rx="5" ry="4" fill="#2A2A2A"/>
+  </g>
+
+  <!-- Central Heart -->
+  <g>
+    <!-- Heart Circle Background -->
+    <circle cx="400" cy="260" r="65" fill="url(#heartGradient)" stroke="#0D7377" stroke-width="2" filter="drop-shadow(0 8px 16px rgba(0,0,0,0.15))"/>
+    
+    <!-- Heart Shape -->
+    <path d="M 400 310 C 380 295 365 285 365 270 C 365 260 372 253 380 253 C 387 253 393 258 400 265 C 407 258 413 253 420 253 C 428 253 435 260 435 270 C 435 285 420 295 400 310 Z" fill="white" opacity="0.95"/>
+    
+    <!-- Heartbeat Line -->
+    <g stroke="white" stroke-width="2.5" fill="none" opacity="0.6">
+      <polyline points="370,260 380,260 385,245 390,275 395,265 400,260 415,260"/>
+    </g>
+  </g>
+
+  <!-- Nurse Figure - Right -->
+  <g>
+    <!-- Head -->
+    <circle cx="520" cy="220" r="24" fill="#D4A574" stroke="#C99060" stroke-width="1.5"/>
+    
+    <!-- Hair - Long purple -->
+    <path d="M 500 220 Q 496 190 520 180 Q 540 185 545 220 Q 545 240 540 260 Q 520 270 500 260 Q 496 240 500 220 Z" fill="#3D2F1F"/>
+    
+    <!-- White Top -->
+    <path d="M 510 250 L 510 310 L 530 310 L 530 250 Q 520 242 510 250 Z" fill="white" stroke="#E0E0E0" stroke-width="1.5"/>
+    
+    <!-- Collar -->
+    <ellipse cx="520" cy="252" rx="10" ry="5" fill="#B8B8B8"/>
+    
+    <!-- Navy Skirt -->
+    <path d="M 505 310 L 535 310 Q 540 310 540 315 L 540 370 Q 535 375 520 375 Q 505 375 500 370 L 500 315 Q 500 310 505 310 Z" fill="#1A3A5C" stroke="#0D2540" stroke-width="1"/>
+    
+    <!-- Legs -->
+    <rect x="510" y="370" width="6" height="35" fill="#D4A574"/>
+    <rect x="524" y="370" width="6" height="35" fill="#D4A574"/>
+    
+    <!-- Shoes -->
+    <ellipse cx="513" cy="410" rx="5" ry="4" fill="#8B4789"/>
+    <ellipse cx="527" cy="410" rx="5" ry="4" fill="#8B4789"/>
+    
+    <!-- Legs below skirt - pink/salmon -->
+    <rect x="510" y="368" width="8" height="45" fill="#E89BA7" opacity="0.8"/>
+    <rect x="522" y="368" width="8" height="45" fill="#E89BA7" opacity="0.8"/>
+  </g>
+
+  <!-- Shadows on ground -->
+  <ellipse cx="280" cy="440" rx="35" ry="8" fill="#000000" opacity="0.08"/>
+  <ellipse cx="520" cy="440" rx="35" ry="8" fill="#000000" opacity="0.08"/>
+  <ellipse cx="400" cy="450" rx="25" ry="6" fill="#000000" opacity="0.05"/>
+</svg>

@@ -1,0 +1,1277 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "STRATEGIC Systems - Emergency Room Management API",
+    "version": "1.0.0",
+    "description": "Comprehensive API for managing emergency room operations including patient triage, doctor workflows, inventory management, and analytics",
+    "contact": {
+      "name": "API Support",
+      "email": "support@strategic-systems.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.strategic-systems.com",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Health check endpoints"
+    },
+    {
+      "name": "Authentication",
+      "description": "User authentication and authorization"
+    },
+    {
+      "name": "Triage",
+      "description": "Patient registration and triage operations"
+    },
+    {
+      "name": "Doctor",
+      "description": "Doctor workflows and patient management"
+    },
+    {
+      "name": "Analytics",
+      "description": "Analytics and reporting"
+    },
+    {
+      "name": "Inventory",
+      "description": "Medication and supply management"
+    },
+    {
+      "name": "Resources",
+      "description": "Resource allocation and management"
+    },
+    {
+      "name": "Users",
+      "description": "User management"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "example": "Error message"
+          },
+          "stack": {
+            "type": "string",
+            "description": "Error stack trace (only in development)"
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "healthy"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "service": {
+            "type": "string",
+            "example": "stra-backend"
+          },
+          "version": {
+            "type": "string",
+            "example": "1.0.0"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email", "example": "doctor@hospital.com" },
+          "password": { "type": "string", "format": "password", "example": "password123" }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["email", "password", "firstName", "lastName", "role"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "minLength": 6 },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "role": { "type": "string", "enum": ["admin", "doctor", "nurse", "pharmacist", "management", "lab_tech", "radiologist"] },
+          "department": { "type": "string" },
+          "phoneNumber": { "type": "string" },
+          "specialization": { "type": "string" },
+          "licenseNumber": { "type": "string" }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "token": {
+            "type": "string",
+            "description": "JWT access token"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "JWT refresh token"
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string",
+                "enum": ["admin", "doctor", "nurse", "pharmacist", "management"]
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "PatientRegistration": {
+        "type": "object",
+        "required": ["firstName", "lastName", "dateOfBirth", "gender", "phoneNumber"],
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "minLength": 1,
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Doe"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "example": "1990-01-15"
+          },
+          "gender": {
+            "type": "string",
+            "enum": ["Male", "Female", "Other"]
+          },
+          "phoneNumber": {
+            "type": "string",
+            "minLength": 10,
+            "example": "+254712345678"
+          },
+          "emergencyContact": {
+            "type": "string",
+            "example": "+254798765432"
+          },
+          "emergencyContactName": {
+            "type": "string",
+            "example": "Jane Doe"
+          },
+          "nationalId": {
+            "type": "string",
+            "example": "12345678"
+          },
+          "nhifNumber": {
+            "type": "string",
+            "example": "NHIF-123456"
+          },
+          "address": {
+            "type": "string",
+            "example": "123 Main St, Nairobi"
+          },
+          "county": {
+            "type": "string",
+            "example": "Nairobi"
+          },
+          "subCounty": {
+            "type": "string",
+            "example": "Westlands"
+          },
+          "bloodGroup": {
+            "type": "string",
+            "enum": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
+          },
+          "allergies": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["Penicillin", "Peanuts"]
+          },
+          "chronicConditions": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["Hypertension", "Diabetes"]
+          }
+        }
+      },
+      "TriageRequest": {
+        "type": "object",
+        "required": ["patientId", "nurseId", "vitals"],
+        "properties": {
+          "patientId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "nurseId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-12d3-a456-426614174001"
+          },
+          "vitals": {
+            "type": "object",
+            "properties": {
+              "temperature": { "type": "number", "minimum": 30, "maximum": 45, "example": 36.5 },
+              "systolicBp": { "type": "number", "minimum": 50, "maximum": 250, "example": 120 },
+              "diastolicBp": { "type": "number", "minimum": 30, "maximum": 150, "example": 80 },
+              "heartRate": { "type": "number", "minimum": 30, "maximum": 250, "example": 72 },
+              "respiratoryRate": { "type": "number", "minimum": 5, "maximum": 60, "example": 16 },
+              "oxygenSaturation": { "type": "number", "minimum": 70, "maximum": 100, "example": 98 },
+              "bloodGlucose": { "type": "number", "minimum": 1, "maximum": 50, "example": 5.6 },
+              "painScale": { "type": "number", "minimum": 0, "maximum": 10, "example": 3 },
+              "weight": { "type": "number", "minimum": 1, "maximum": 300, "example": 70 },
+              "height": { "type": "number", "minimum": 30, "maximum": 250, "example": 175 },
+              "avpu": { "type": "string", "enum": ["ALERT", "VOICE", "PAIN", "UNRESPONSIVE"] },
+              "mobility": { "type": "string", "enum": ["WALKING", "WITH_HELP", "STRETCHER"] }
+            }
+          },
+          "symptoms": {
+            "type": "object",
+            "properties": {
+              "notBreathing": { "type": "boolean" },
+              "seizureCurrent": { "type": "boolean" },
+              "burnFacialInhalation": { "type": "boolean" },
+              "cardiacArrest": { "type": "boolean" },
+              "airwayObstruction": { "type": "boolean" },
+              "reducedConsciousness": { "type": "boolean" },
+              "severeMechanismInjury": { "type": "boolean" },
+              "shortnessOfBreath": { "type": "boolean" },
+              "coughingBlood": { "type": "boolean" },
+              "chestPain": { "type": "boolean" },
+              "stabbedNeckOrChest": { "type": "boolean" },
+              "uncontrolledHemorrhage": { "type": "boolean" },
+              "seizurePostIctal": { "type": "boolean" },
+              "acuteStrokeSigns": { "type": "boolean" },
+              "aggression": { "type": "boolean" },
+              "threatenedLimb": { "type": "boolean" },
+              "dislocationLargeJoint": { "type": "boolean" },
+              "compoundFracture": { "type": "boolean" },
+              "burnOver20Percent": { "type": "boolean" },
+              "electricalBurn": { "type": "boolean" },
+              "circumferentialBurn": { "type": "boolean" },
+              "chemicalBurn": { "type": "boolean" },
+              "poisoningOverdose": { "type": "boolean" },
+              "vomitingFreshBlood": { "type": "boolean" },
+              "pregnancyAbdominalTrauma": { "type": "boolean" },
+              "pregnancyAbdominalPain": { "type": "boolean" },
+              "controlledHemorrhage": { "type": "boolean" },
+              "dislocationFingerToe": { "type": "boolean" },
+              "closedFracture": { "type": "boolean" },
+              "burnOther": { "type": "boolean" },
+              "abdominalPain": { "type": "boolean" },
+              "vomitingPersistently": { "type": "boolean" },
+              "pregnancyTrauma": { "type": "boolean" },
+              "pregnancyPvBleed": { "type": "boolean" },
+              "ketonuria": { "type": "boolean" },
+              "backache": { "type": "boolean" },
+              "diabetesHistory": { "type": "boolean" },
+              "moderatePain": { "type": "boolean" },
+              "severePain": { "type": "boolean" }
+            }
+          },
+          "chiefComplaint": {
+            "type": "string",
+            "example": "Severe headache and fever"
+          }
+        }
+      },
+      "QueueUpdate": {
+        "type": "object",
+        "required": ["position"],
+        "properties": {
+          "position": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 2
+          }
+        }
+      },
+      "ResourceAllocation": {
+        "type": "object",
+        "required": ["patientId"],
+        "properties": {
+          "patientId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          }
+        }
+      },
+      "MaintenanceRequest": {
+        "type": "object",
+        "required": ["maintenanceDate", "estimatedCompletion"],
+        "properties": {
+          "maintenanceDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-15T09:00:00Z"
+          },
+          "estimatedCompletion": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-15T17:00:00Z"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Routine maintenance and calibration"
+          }
+        }
+      },
+      "LabOrder": {
+        "type": "object",
+        "required": ["patientId", "tests"],
+        "properties": {
+          "patientId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["testCode", "testName", "specimenType", "urgency"],
+              "properties": {
+                "testCode": {
+                  "type": "string",
+                  "example": "CBC"
+                },
+                "testName": {
+                  "type": "string",
+                  "example": "Complete Blood Count"
+                },
+                "specimenType": {
+                  "type": "string",
+                  "example": "Blood"
+                },
+                "urgency": {
+                  "type": "string",
+                  "enum": ["ROUTINE", "URGENT", "STAT"]
+                },
+                "instructions": {
+                  "type": "string",
+                  "example": "Fasting required"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Prescription": {
+        "type": "object",
+        "required": ["patientId", "medications", "diagnosis"],
+        "properties": {
+          "patientId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "diagnosis": {
+            "type": "string",
+            "example": "Upper respiratory tract infection"
+          },
+          "instructions": {
+            "type": "string",
+            "example": "Take with food"
+          },
+          "medications": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["medicationId", "name", "dosage", "frequency", "duration"],
+              "properties": {
+                "medicationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string",
+                  "example": "Amoxicillin"
+                },
+                "dosage": {
+                  "type": "string",
+                  "example": "500mg"
+                },
+                "frequency": {
+                  "type": "string",
+                  "example": "Every 8 hours"
+                },
+                "duration": {
+                  "type": "string",
+                  "example": "7 days"
+                },
+                "instructions": {
+                  "type": "string",
+                  "example": "Take with plenty of water"
+                }
+              }
+            }
+          }
+        }
+      },
+      "VitalSigns": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "type": "number",
+            "minimum": 30,
+            "maximum": 45
+          },
+          "systolicBp": {
+            "type": "number",
+            "minimum": 50,
+            "maximum": 250
+          },
+          "diastolicBp": {
+            "type": "number",
+            "minimum": 30,
+            "maximum": 150
+          },
+          "heartRate": {
+            "type": "number",
+            "minimum": 30,
+            "maximum": 250
+          },
+          "respiratoryRate": {
+            "type": "number",
+            "minimum": 5,
+            "maximum": 60
+          },
+          "oxygenSaturation": {
+            "type": "number",
+            "minimum": 70,
+            "maximum": 100
+          },
+          "bloodGlucose": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 50
+          },
+          "painScale": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 300
+          },
+          "height": {
+            "type": "number",
+            "minimum": 30,
+            "maximum": 250
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "StockUpdate": {
+        "type": "object",
+        "required": ["adjustment", "reason", "transactionType"],
+        "properties": {
+          "adjustment": {
+            "type": "integer",
+            "example": 50
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Restock from supplier"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Received new shipment"
+          },
+          "transactionType": {
+            "type": "string",
+            "enum": ["RESTOCK", "DISPENSE", "ADJUSTMENT", "WASTE"]
+          },
+          "referenceId": {
+            "type": "string",
+            "example": "PO-12345"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "patientId": {
+        "name": "patientId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": "Patient unique identifier"
+      },
+      "departmentId": {
+        "name": "departmentId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Department identifier"
+      },
+      "medicationId": {
+        "name": "medicationId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": "Medication identifier"
+      },
+      "resourceId": {
+        "name": "resourceId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Resource identifier"
+      },
+      "queueId": {
+        "name": "queueId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": "Queue entry identifier"
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Authentication required",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Insufficient permissions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Validation failed",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "TooManyRequests": {
+        "description": "Rate limit exceeded",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health check",
+        "description": "Returns the health status of the server",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Server is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health/db": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Database health check",
+        "description": "Checks the status of database and Redis connections",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Database and Redis connection status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "database": {
+                      "type": "string",
+                      "example": "connected"
+                    },
+                    "redis": {
+                      "type": "string",
+                      "example": "disconnected"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User login",
+        "description": "Authenticate user and return JWT tokens",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User registration",
+        "description": "Register a new user",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegisterRequest" } } }
+        },
+        "responses": { "201": { "description": "User registered successfully" }, "400": { "$ref": "#/components/responses/ValidationError" } }
+      }
+    },
+    "/api/v1/auth/profile": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get user profile",
+        "description": "Get current authenticated user's profile",
+        "responses": {
+          "200": { "description": "User profile retrieved" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      },
+      "put": {
+        "tags": ["Authentication"],
+        "summary": "Update user profile",
+        "description": "Update current user's profile information",
+        "responses": {
+          "200": { "description": "Profile updated successfully" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/api/v1/auth/refresh-token": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Refresh JWT token",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "object", "required": ["refreshToken"], "properties": { "refreshToken": { "type": "string" } } } } }
+        },
+        "responses": { "200": { "description": "Token refreshed" }, "400": { "$ref": "#/components/responses/ValidationError" }, "401": { "$ref": "#/components/responses/Unauthorized" } }
+      }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Request password reset",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["email"], "properties": { "email": { "type": "string", "format": "email" } } } } } },
+        "responses": { "200": { "description": "Reset requested" } }
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Reset password",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["resetToken", "newPassword"], "properties": { "resetToken": { "type": "string" }, "newPassword": { "type": "string", "minLength": 6 } } } } } },
+        "responses": { "200": { "description": "Password reset" }, "400": { "$ref": "#/components/responses/ValidationError" } }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": { "tags": ["Authentication"], "summary": "Logout", "responses": { "200": { "description": "Logged out" } } }
+    },
+    "/api/v1/auth/change-password": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Change password",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["currentPassword", "newPassword"], "properties": { "currentPassword": { "type": "string" }, "newPassword": { "type": "string", "minLength": 6 } } } } } },
+        "responses": { "200": { "description": "Password changed" }, "401": { "$ref": "#/components/responses/Unauthorized" } }
+      }
+    },
+    "/api/v1/auth/users": {
+      "get": { "tags": ["Users"], "summary": "List users (admin)", "responses": { "200": { "description": "User list retrieved" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } } }
+    },
+    "/api/v1/triage/patients": {
+      "post": {
+        "tags": ["Triage"],
+        "summary": "Register patient",
+        "description": "Register a new patient in the system",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatientRegistration"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Patient registered successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/triage/triage": {
+      "post": {
+        "tags": ["Triage"],
+        "summary": "Perform triage",
+        "description": "Perform triage assessment on a patient",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TriageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Triage completed successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/triage/patients/{patientId}": {
+      "get": {
+        "tags": ["Triage"],
+        "summary": "Get patient details",
+        "description": "Get detailed information about a patient",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/patientId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Patient details retrieved"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/triage/queue/{departmentId}": {
+      "get": {
+        "tags": ["Triage"],
+        "summary": "Get department queue",
+        "description": "Get the current patient queue for a department",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/departmentId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Queue retrieved successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/triage/queue/{queueId}/position": {
+      "patch": {
+        "tags": ["Triage"],
+        "summary": "Update queue position",
+        "description": "Update a patient's position in the queue",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queueId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueueUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Queue position updated"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/triage/statistics": {
+      "get": {
+        "tags": ["Triage"],
+        "summary": "Get triage statistics",
+        "description": "Get statistics for triage operations",
+        "responses": { "200": { "description": "Statistics retrieved successfully" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } }
+      }
+    },
+    "/api/v1/triage/triage": {
+      "post": {
+        "tags": ["Triage"],
+        "summary": "Legacy triage",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TriageRequest" } } } },
+        "responses": { "201": { "description": "Triage completed" } }
+      }
+    },
+    "/api/v1/triage/triage/smart": {
+      "post": {
+        "tags": ["Triage"],
+        "summary": "Smart triage",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TriageRequest" } } } },
+        "responses": { "201": { "description": "Smart triage completed" }, "400": { "$ref": "#/components/responses/ValidationError" } }
+      }
+    },
+    "/api/v1/triage/queue/{departmentId}/prioritize": {
+      "post": { "tags": ["Triage"], "summary": "Prioritize critical patients", "parameters": [{ "$ref": "#/components/parameters/departmentId" }], "responses": { "200": { "description": "Queue prioritized" } } }
+    },
+    "/api/v1/triage/session/{sessionId}": {
+      "get": { "tags": ["Triage"], "summary": "Get triage session", "parameters": [{ "name": "sessionId", "in": "path", "required": true, "schema": { "type": "string" } }], "responses": { "501": { "description": "Not implemented" }, "401": { "$ref": "#/components/responses/Unauthorized" } } }
+    },
+    "/api/v1/triage/patient/{patientId}/history": {
+      "get": { "tags": ["Triage"], "summary": "Patient triage history", "parameters": [{ "$ref": "#/components/parameters/patientId" }], "responses": { "501": { "description": "Not implemented" } } }
+    },
+    "/api/v1/triage/investigations/{investigationId}": {
+      "put": {
+        "tags": ["Triage"],
+        "summary": "Update investigation",
+        "parameters": [{ "name": "investigationId", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "status": { "type": "string" }, "results": { "type": "string" }, "notes": { "type": "string" }, "completedBy": { "type": "string" } } } } } },
+        "responses": { "501": { "description": "Not implemented" }, "400": { "$ref": "#/components/responses/ValidationError" } }
+      }
+    },
+    "/api/v1/triage/queue/{departmentId}/call-next": {
+      "post": {
+        "tags": ["Triage"],
+        "summary": "Call next patient",
+        "parameters": [{ "$ref": "#/components/parameters/departmentId" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["doctorId"], "properties": { "doctorId": { "type": "string", "format": "uuid" } } } } } },
+        "responses": { "200": { "description": "Next patient called" }, "400": { "$ref": "#/components/responses/ValidationError" } }
+      }
+    },
+    "/api/v1/triage/queue/{queueId}/complete": {
+      "post": { "tags": ["Triage"], "summary": "Complete patient treatment", "parameters": [{ "$ref": "#/components/parameters/queueId" }], "responses": { "200": { "description": "Patient completed" } } }
+    },
+    "/api/v1/doctor/queue": {
+      "get": {
+        "tags": ["Doctor"],
+        "summary": "Get doctor queue",
+        "description": "Get the current patient queue for doctors",
+        "responses": { "200": { "description": "Doctor queue retrieved" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } }
+      }
+    },
+    "/api/v1/doctor/patients/{patientId}": {
+      "get": { "tags": ["Doctor"], "summary": "Get patient details", "parameters": [{ "$ref": "#/components/parameters/patientId" }], "responses": { "200": { "description": "Patient details retrieved" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "404": { "$ref": "#/components/responses/NotFound" } } }
+    },
+    "/api/v1/doctor/imaging": {
+      "post": {
+        "tags": ["Doctor"],
+        "summary": "Order diagnostic imaging",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["patientId", "type", "anatomicalSite", "urgency"], "properties": { "patientId": { "type": "string", "format": "uuid" }, "type": { "type": "string" }, "anatomicalSite": { "type": "string" }, "urgency": { "type": "string", "enum": ["ROUTINE", "URGENT", "STAT"] }, "notes": { "type": "string" } } } } } },
+        "responses": { "201": { "description": "Imaging order created" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } }
+      }
+    },
+    "/api/v1/doctor/patients/{patientId}/disposition": {
+      "put": { "tags": ["Doctor"], "summary": "Update patient disposition", "parameters": [{ "$ref": "#/components/parameters/patientId" }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["disposition"], "properties": { "disposition": { "type": "string" }, "notes": { "type": "string" } } } } } }, "responses": { "200": { "description": "Disposition updated" } } }
+    },
+    "/api/v1/doctor/statistics": {
+      "get": { "tags": ["Doctor"], "summary": "Doctor statistics", "responses": { "200": { "description": "Statistics retrieved" }, "401": { "$ref": "#/components/responses/Unauthorized" } } }
+    },
+    "/api/v1/doctor/patients/{patientId}/lab-results": {
+      "get": { "tags": ["Doctor"], "summary": "Get patient lab results", "parameters": [{ "$ref": "#/components/parameters/patientId" }], "responses": { "200": { "description": "Lab results retrieved" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } } }
+    },
+    "/api/v1/doctor/lab-orders": {
+      "post": {
+        "tags": ["Doctor"],
+        "summary": "Order lab tests",
+        "description": "Order laboratory tests for a patient",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LabOrder"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Lab order created successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/doctor/prescriptions": {
+      "post": {
+        "tags": ["Doctor"],
+        "summary": "Create prescription",
+        "description": "Create a medication prescription for a patient",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Prescription"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Prescription created successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/doctor/patients/{patientId}/vitals": {
+      "post": {
+        "tags": ["Doctor"],
+        "summary": "Record vital signs",
+        "description": "Record vital signs for a patient",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/patientId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VitalSigns"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vital signs recorded"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/inventory/medications": {
+      "get": {
+        "tags": ["Inventory"],
+        "summary": "Get medication stock",
+        "description": "Get current medication inventory levels",
+        "responses": {
+          "200": {
+            "description": "Medication stock retrieved"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/inventory/medications/{medicationId}/stock": {
+      "put": {
+        "tags": ["Inventory"],
+        "summary": "Update stock level",
+        "description": "Update medication stock level",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/medicationId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StockUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stock updated successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/inventory/alerts/low-stock": {
+      "get": {
+        "tags": ["Inventory"],
+        "summary": "Get low stock alerts",
+        "description": "Get medications with low stock levels",
+        "responses": { "200": { "description": "Low stock alerts retrieved" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } }
+      }
+    },
+    "/api/v1/inventory/analytics/consumption": {
+      "get": {
+        "tags": ["Inventory"],
+        "summary": "Medication consumption analytics",
+        "responses": { "200": { "description": "Consumption analytics retrieved" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } }
+      }
+    },
+    "/api/v1/resources/dashboard": {
+      "get": {
+        "tags": ["Resources"],
+        "summary": "Resource dashboard",
+        "description": "Get resource utilization dashboard",
+        "responses": {
+          "200": {
+            "description": "Resource dashboard data retrieved"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/resources/{resourceId}/allocate": {
+      "post": {
+        "tags": ["Resources"],
+        "summary": "Allocate resource",
+        "description": "Allocate a resource to a patient",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/resourceId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResourceAllocation"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resource allocated successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/resources/availability": {
+      "get": {
+        "tags": ["Resources"],
+        "summary": "Resource availability",
+        "description": "Get current resource availability status",
+        "responses": { "200": { "description": "Resource availability retrieved" }, "401": { "$ref": "#/components/responses/Unauthorized" } }
+      }
+    },
+    "/api/v1/resources/predictive-load": {
+      "get": { "tags": ["Resources"], "summary": "Predictive resource load", "responses": { "200": { "description": "Predictive load retrieved" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } } }
+    },
+    "/api/v1/resources/{resourceId}/release": {
+      "post": { "tags": ["Resources"], "summary": "Release resource", "parameters": [{ "$ref": "#/components/parameters/resourceId" }], "responses": { "200": { "description": "Resource released" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } } }
+    },
+    "/api/v1/resources/{resourceId}/maintenance": {
+      "post": {
+        "tags": ["Resources"],
+        "summary": "Set maintenance",
+        "parameters": [{ "$ref": "#/components/parameters/resourceId" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MaintenanceRequest" } } } },
+        "responses": { "200": { "description": "Maintenance set" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" }, "400": { "$ref": "#/components/responses/ValidationError" } }
+      }
+    }
+  }
+}

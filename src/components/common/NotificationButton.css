@@ -1,0 +1,13 @@
+.notification-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.notification-btn:hover {
+  background: #f0f0f0;
+}
