@@ -36,13 +36,29 @@ export default function AdminDashboard({ onNavigate }) {
   if (error) return <div className="p-8 text-red-600">{error}</div>;
 
   return (
-    <div className="p-8 space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+    <>
+      {/* Fixed TopBar for Admin Dashboard */}
+      <header style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        zIndex: 50,
+        background: 'linear-gradient(to right, #6366f1, #0ea5e9)',
+        color: '#fff',
+        height: '56px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+        padding: '0 24px',
+        marginBottom: 32
+      }}>
+        <h1 style={{fontWeight: 700, fontSize: '1.3rem', letterSpacing: '0.01em', margin: 0}}>Admin Dashboard</h1>
         {/* Go to module dropdown for admin */}
         {onNavigate && (
           <select
-            style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid #14b8a6', background: '#fff', color: '#0d9488', fontWeight: 600 }}
+            style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid #6366f1', background: '#fff', color: '#0ea5e9', fontWeight: 600 }}
             onChange={e => onNavigate(e.target.value)}
             defaultValue=""
           >
@@ -55,8 +71,9 @@ export default function AdminDashboard({ onNavigate }) {
             <option value="analytics">Analytics</option>
           </select>
         )}
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      </header>
+      <div className="p-8 space-y-8" style={{paddingTop: 72}}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white rounded-xl shadow p-6">
           <h2 className="text-lg font-semibold mb-2">Total Users</h2>
           <div className="text-4xl font-bold">{userStats?.count ?? "-"}</div>

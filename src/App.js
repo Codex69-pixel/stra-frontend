@@ -6,6 +6,7 @@ import { ResourceDashboard } from './components/ResourceDashboard';
 import { DoctorPortal } from './components/DoctorPortal';
 import { InventoryManagement } from './components/InventoryManagement';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
+import AdminDashboard from './components/AdminDashboard';
 import ErrorBoundary from './components/common/ErrorBoundary';
 // Set to true to bypass authentication during development
 const DEV_MODE = true;
