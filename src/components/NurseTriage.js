@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiService } from '../services/api';
 import NotificationButton from './common/NotificationButton';
 import { logout } from '../utils/logout';
 import {
@@ -199,26 +200,15 @@ export function NurseTriage({ onNavigate }) {
     };
 
     try {
-      const response = await fetch('http://localhost:3000/api/v1/triage/patients', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2Nzk0MTRiYy04NjFiLTQwNGItYmNmNi1lZDZlMjBhMzY2NzIiLCJlbWFpbCI6Im5qdWd1bmFAYWRtaW4uY29tIiwicm9sZSI6ImFkbWluIiwiZGVwYXJ0bWVudCI6ImFkbWluaXN0cmF0aW9uIiwiZmlyc3ROYW1lIjoiQ3lydXMiLCJsYXN0TmFtZSI6Im5qdWd1bmEiLCJpYXQiOjE3NzE0MDkyNjgsImV4cCI6MTc3MTQ5NTY2OH0.PtL-sjAxzp-FtASPWdAmUa-1UUuC8leT0-ATKC7LYqM'
-        },
-        body: JSON.stringify(patientData),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        setSubmitError(errorData.error || 'Failed to register patient');
-        setLoading(false);
-        return;
-      }
+      // Use centralized apiService for patient registration
+      // Import at top: import { apiService } from '../services/api';
+      const result = await apiService.registerPatient(patientData);
       setSubmitSuccess('Patient registered successfully!');
       setLoading(false);
       // Optionally reset form or navigate
       // onNavigate && onNavigate('nextStep');
     } catch (err) {
-      setSubmitError('Network error: ' + err.message);
+      setSubmitError(err.message || 'Failed to register patient');
       setLoading(false);
     }
   };
