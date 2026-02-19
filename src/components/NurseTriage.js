@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { apiService } from '../services/api';
+import apiService from '../services/api';
 import NotificationButton from './common/NotificationButton';
 import { logout } from '../utils/logout';
 import {
@@ -174,26 +174,40 @@ export function NurseTriage({ onNavigate }) {
   // Example: Simulate loading on submit
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+
+  // Helper: get nurseId from localStorage or context (assume stored at login)
+  function getNurseId() {
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      return user && user.id ? user.id : '';
+    } catch {
+      return '';
+    }
+  }
+
+  // Helper: get auth token
+  function getToken() {
+    return localStorage.getItem('token') || '';
+  }
+
+  // Strict sequential patient registration and triage submission
+  const handleSubmit = async (e, isEmergency = false) => {
+    if (e) e.preventDefault();
     setLoading(true);
     setSubmitError(null);
     setSubmitSuccess(null);
 
-    // Build patient registration payload with validation
+    // 1. Validate required fields (minimal for demo)
     const nameParts = formData.name.trim().split(' ');
     const firstName = nameParts[0] || '';
     const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
-    // Validate required fields
     if (!firstName || !lastName) {
       setSubmitError('First and last name are required.');
       setLoading(false);
       return;
     }
-    // Format dateOfBirth to YYYY-MM-DD
     let dateOfBirth = formData.dob;
     if (dateOfBirth && !/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth)) {
-      // Try to parse and format
       const d = new Date(dateOfBirth);
       if (!isNaN(d.getTime())) {
         dateOfBirth = d.toISOString().slice(0, 10);
@@ -204,21 +218,21 @@ export function NurseTriage({ onNavigate }) {
       setLoading(false);
       return;
     }
-    // Validate gender
     const gender = formData.gender;
     if (!['Male', 'Female', 'Other'].includes(gender)) {
       setSubmitError('Gender must be Male, Female, or Other.');
       setLoading(false);
       return;
     }
-    // Validate phone number
     const phoneNumber = (formData.mobilePhone || formData.homePhone || '').trim();
     if (!phoneNumber || phoneNumber.length < 10) {
       setSubmitError('Phone number must be at least 10 digits.');
       setLoading(false);
       return;
     }
-    const patientData = {
+
+    // 2. Register patient
+    const patientPayload = {
       firstName,
       lastName,
       dateOfBirth,
@@ -236,55 +250,117 @@ export function NurseTriage({ onNavigate }) {
       chronicConditions: Array.isArray(formData.pastConditions) ? formData.pastConditions : formData.pastConditions ? [formData.pastConditions] : [],
     };
 
+    let patientId = '';
     try {
-      // Use centralized apiService for patient registration
-      // Import at top: import { apiService } from '../services/api';
-      const result = await apiService.registerPatient(patientData);
-      // Save patient name and ID to localStorage for search (case-insensitive, trimmed)
-      if (result && result.id) {
-        const patientName = `${patientData.firstName} ${patientData.lastName}`.trim().toLowerCase();
+      const res = await fetch('/api/v1/triage/patients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + getToken(),
+        },
+        body: JSON.stringify(patientPayload),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to register patient');
+      }
+      const patient = await res.json();
+      patientId = patient.id;
+      // Save patient name and ID to localStorage for search
+      if (patientId) {
+        const patientName = `${firstName} ${lastName}`.trim().toLowerCase();
         let patientMap = {};
         try {
           patientMap = JSON.parse(localStorage.getItem('patientMap') || '{}');
         } catch (e) { patientMap = {}; }
-        patientMap[patientName] = result.id;
+        patientMap[patientName] = patientId;
         localStorage.setItem('patientMap', JSON.stringify(patientMap));
       }
-      setSubmitSuccess('Patient registered successfully!');
-      setLoading(false);
-      // Optionally reset form or navigate
-      // onNavigate && onNavigate('nextStep');
     } catch (err) {
       setSubmitError(err.message || 'Failed to register patient');
+      setLoading(false);
+      return;
+    }
+
+    // 3. Submit triage
+    const nurseId = getNurseId();
+    // Emergency override: force severe symptoms/vitals
+    let vitals = {
+      temperature: formData.temperature,
+      heartRate: formData.heartRate,
+      bloodPressureSystolic: formData.bloodPressureSystolic,
+      bloodPressureDiastolic: formData.bloodPressureDiastolic,
+      respiratoryRate: formData.respiratoryRate,
+      spo2: formData.spo2,
+      height: formData.height,
+      weight: formData.weight,
+    };
+    let symptoms = formData.symptoms;
+    let chiefComplaint = formData.chiefComplaint;
+    if (isEmergency) {
+      // Set extreme vitals and symptoms for emergency
+      vitals = {
+        ...vitals,
+        temperature: 42,
+        heartRate: 200,
+        bloodPressureSystolic: 60,
+        bloodPressureDiastolic: 40,
+        respiratoryRate: 40,
+        spo2: 80,
+      };
+      symptoms = [...new Set([...(symptoms || []), 'Unresponsive', 'Seizure', 'Not Breathing'])];
+      chiefComplaint = 'EMERGENCY: ' + (chiefComplaint || 'Emergency override');
+    }
+    const triagePayload = {
+      patientId,
+      nurseId,
+      vitals,
+      symptoms,
+      chiefComplaint,
+      triageNotes: formData.triageNotes || '',
+    };
+    try {
+      const res = await fetch('/api/v1/triage/triage/smart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + getToken(),
+        },
+        body: JSON.stringify(triagePayload),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to submit triage');
+      }
+      setSubmitSuccess('Triage submitted successfully! Patient is now in the queue.');
+      setLoading(false);
+      // Optionally, redirect to queue view
+      if (onNavigate) onNavigate('queue');
+    } catch (err) {
+      setSubmitError(err.message || 'Failed to submit triage');
       setLoading(false);
     }
   };
   // ...existing code...
 
-  // Emergency submit handler
-  const handleEmergencySubmit = () => {
+  // Emergency submit handler (bypasses normal flow, forces emergency)
+  const handleEmergencySubmit = async () => {
     if (!emergencyReason || (emergencyReason === 'Others' && !emergencyNotes.trim())) {
       setEmergencyError('Please select a reason and provide notes if "Others".');
       return;
     }
     setEmergencyError('');
-    // Simulate sending to Doctor Portal (replace with API call as needed)
-    const emergencyData = {
-      reason: emergencyReason,
-      notes: emergencyReason === 'Others' ? emergencyNotes : '',
-      timestamp: new Date().toISOString(),
-      nurse: formData.name || 'N/A',
-      phone: formData.mobilePhone || '',
-    };
-    // Here you would send emergencyData to the backend or doctor portal
-    // For now, just alert and reset
-    alert('Emergency sent to Doctor Portal!\nReason: ' + emergencyData.reason + (emergencyData.notes ? ('\nNotes: ' + emergencyData.notes) : ''));
+    // Set chief complaint to emergency reason
+    setFormData(prev => ({
+      ...prev,
+      chiefComplaint: `EMERGENCY: ${emergencyReason}${emergencyNotes ? ' - ' + emergencyNotes : ''}`
+    }));
     setShowEmergencyModal(false);
     setEmergencyReason('');
     setEmergencyNotes('');
     setEmergencyError('');
-    // Optionally, navigate to Doctor Portal
-    if (onNavigate) onNavigate('doctor');
+    // Submit triage as emergency
+    await handleSubmit(null, true);
   };
 
   return (
@@ -353,44 +429,64 @@ export function NurseTriage({ onNavigate }) {
             </select>
           )}
 
-          <button
-            style={{background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, marginLeft: 16}}
-            onClick={() => setShowLogout(prev => !prev)}
-            aria-label="User menu"
-          >
-            <User size={28} />
-          </button>
-          {showLogout && (
-            <div style={{
-              position: 'absolute',
-              right: 0,
-              top: 'calc(100% + 8px)',
-              background: '#fff',
-              color: '#222',
-              borderRadius: 8,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-              minWidth: 120,
-              zIndex: 100,
-              padding: 8
-            }}>
-              <button
-                style={{
-                  width: '100%',
-                  background: 'none',
-                  border: 'none',
-                  color: '#0d9488',
-                  fontWeight: 600,
-                  fontSize: 16,
-                  padding: '8px 0',
-                  cursor: 'pointer',
-                  borderRadius: 4
-                }}
-                onClick={logout}
-              >
-                Logout
-              </button>
-            </div>
-          )}
+          {/* Nurse dropdown: add Queue button above Logout */}
+          <div style={{ position: 'relative' }}>
+            <button
+              style={{background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, marginLeft: 16}}
+              onClick={() => setShowLogout(prev => !prev)}
+              aria-label="User menu"
+            >
+              <User size={28} />
+            </button>
+            {showLogout && (
+              <div style={{
+                position: 'absolute',
+                right: 0,
+                top: 'calc(100% + 8px)',
+                background: '#fff',
+                color: '#222',
+                borderRadius: 8,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                minWidth: 120,
+                zIndex: 100,
+                padding: 8
+              }}>
+                <button
+                  style={{
+                    width: '100%',
+                    background: '#14b8a6',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: 16,
+                    padding: '8px 0',
+                    cursor: 'pointer',
+                    border: 'none',
+                    borderRadius: 4,
+                    marginBottom: 6
+                  }}
+                  onClick={() => { setShowLogout(false); if (onNavigate) onNavigate('queue'); }}
+                >
+                  Queue
+                </button>
+                <button
+                  style={{
+                    width: '100%',
+                    background: 'none',
+                    border: 'none',
+                    color: '#0d9488',
+                    fontWeight: 600,
+                    fontSize: 16,
+                    padding: '8px 0',
+                    cursor: 'pointer',
+                    borderRadius: 4
+                  }}
+                  onClick={logout}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
         {/* Emergency Modal */}
         {showEmergencyModal && (
