@@ -287,24 +287,7 @@ export function InventoryManagement({ onNavigate }) {
           </div>
         </div>
 
-        {/* Desktop Navigation - Simplified (only module select) */}
-        <nav className="desktop-nav">
-          {onNavigate && (
-            <select
-              className="module-select"
-              onChange={e => onNavigate(e.target.value)}
-              defaultValue=""
-              aria-label="Navigate to module"
-            >
-              <option value="" disabled>Go to module...</option>
-              <option value="nurse">Nurse Triage</option>
-              <option value="queue">Queue Management</option>
-              <option value="doctor">Doctor Portal</option>
-              <option value="resources">Resource Dashboard</option>
-              <option value="analytics">Analytics</option>
-            </select>
-          )}
-        </nav>
+        {/* Desktop Navigation removed for pharmacy topbar */}
 
         {/* Right Side Actions - Notification and User Menu */}
         <div className="right-actions">
