@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import NotificationButton from './common/NotificationButton';
 import { logout } from '../utils/logout';
 import {
-  FileText, User, Users, Activity, ChevronRight, ChevronDown, Home, Clipboard, Stethoscope, LogOut, X, Save
+  FileText, User, Users, Activity, ChevronRight, ChevronDown, Stethoscope, LogOut, X, Save
 } from 'lucide-react';
 import './DoctorPortal.css';
 import LoadingSpinner from './common/LoadingSpinner';
@@ -123,9 +123,6 @@ export function DoctorPortal({ onNavigate }) {
               aria-label="User menu"
               aria-expanded={showUserMenu}
             >
-              <div className="doctor-user-avatar">
-                <User size={20} />
-              </div>
               <ChevronDown className={`doctor-chevron ${showUserMenu ? 'rotated' : ''}`} size={16} />
             </button>
 
@@ -137,27 +134,6 @@ export function DoctorPortal({ onNavigate }) {
                   aria-hidden="true"
                 />
                 <div className="doctor-user-dropdown">
-                  <div className="doctor-user-info">
-                    <div className="doctor-user-avatar large">
-                      <User size={24} />
-                    </div>
-                    <div>
-                      <p className="doctor-user-name">Dr. Sarah Johnson</p>
-                      <p className="doctor-user-role">Senior Physician</p>
-                    </div>
-                  </div>
-                  
-                  <div className="doctor-dropdown-divider" />
-                  
-                  <button
-                    onClick={() => handleNavigation('queue')}
-                    className="doctor-dropdown-item"
-                    aria-label="Queue Management"
-                  >
-                    <Users size={18} />
-                    <span>Queue Management</span>
-                  </button>
-                  
                   <button
                     onClick={() => handleNavigation('doctor')}
                     className="doctor-dropdown-item"
@@ -166,7 +142,14 @@ export function DoctorPortal({ onNavigate }) {
                     <Activity size={18} />
                     <span>Patient Dashboard</span>
                   </button>
-                  
+                  <button
+                    onClick={() => handleNavigation('queue')}
+                    className="doctor-dropdown-item"
+                    aria-label="Queue Management"
+                  >
+                    <Users size={18} />
+                    <span>Queue Management</span>
+                  </button>
                   <button
                     onClick={() => {
                       setShowPrescriptions(true);
@@ -178,30 +161,7 @@ export function DoctorPortal({ onNavigate }) {
                     <FileText size={18} />
                     <span>Prescriptions</span>
                   </button>
-                  
-                  <button
-                    onClick={() => handleNavigation('reports')}
-                    className="doctor-dropdown-item"
-                    aria-label="Reports"
-                  >
-                    <Clipboard size={18} />
-                    <span>Reports</span>
-                  </button>
-                  
-                  <button
-                    onClick={() => {
-                      // Navigate to home if needed
-                      window.location.href = '/';
-                    }}
-                    className="doctor-dropdown-item"
-                    aria-label="Home"
-                  >
-                    <Home size={18} />
-                    <span>Home</span>
-                  </button>
-                  
                   <div className="doctor-dropdown-divider" />
-                  
                   <button
                     onClick={() => handleNavigation('logout')}
                     className="doctor-dropdown-item logout"
