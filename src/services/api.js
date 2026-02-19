@@ -93,7 +93,9 @@ export const apiService = {
       method: 'POST',
       body: JSON.stringify({ email, password })
     });
+    // Support both data.token and data.data.token for flexibility
     if (data.token) setAuthToken(data.token);
+    else if (data.data && data.data.token) setAuthToken(data.data.token);
     return data;
   },
 
