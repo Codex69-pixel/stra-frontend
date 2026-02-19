@@ -14,13 +14,13 @@ import apiService from '../services/api';
 
 
 export function DoctorPortal({ onNavigate }) {
-  const [patients, setPatients] = useState([]);
+  // Removed unused: patients, setPatients
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [clinicalNotes, setClinicalNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPrescriptions, setShowPrescriptions] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [error, setError] = useState(null);
+  // Removed unused: error, setError
   const [searchName, setSearchName] = useState('');
   const [searchError, setSearchError] = useState('');
 
