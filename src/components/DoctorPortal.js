@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import NotificationButton from './common/NotificationButton';
 import { logout } from '../utils/logout';
 import {
-  FileText, User, Users, Activity, AlertCircle, ChevronRight, ChevronDown, Home, Clipboard, Stethoscope, LogOut, X, Save
+  FileText, User, Users, Activity, ChevronRight, ChevronDown, Home, Clipboard, Stethoscope, LogOut, X, Save
 } from 'lucide-react';
 import './DoctorPortal.css';
 import LoadingSpinner from './common/LoadingSpinner';
@@ -22,37 +22,37 @@ export function DoctorPortal({ onNavigate }) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch doctor queue on mount
+  // Fetch all registered patients on mount
   useEffect(() => {
-    async function fetchQueue() {
+    async function fetchPatients() {
       setLoading(true);
       setError(null);
       try {
-        const queue = await apiService.getDoctorQueue();
-        setPatients(queue || []);
-        setSelectedPatient(queue && queue.length > 0 ? queue[0] : null);
+        const patientsList = await apiService.getPatients();
+        setPatients(patientsList || []);
+        setSelectedPatient(patientsList && patientsList.length > 0 ? patientsList[0] : null);
       } catch (err) {
-        setError('Failed to load doctor queue');
+        setError('Failed to load patients');
       } finally {
         setLoading(false);
       }
     }
-    fetchQueue();
+    fetchPatients();
   }, []);
 
-  // Fetch patient details when selectedPatient changes (if needed)
+  // Fetch patient details when selectedPatient changes
   useEffect(() => {
     async function fetchPatientDetails() {
       if (selectedPatient && selectedPatient.id) {
         try {
-          const details = await apiService.getDoctorPatientById(selectedPatient.id);
+          const details = await apiService.getPatientById(selectedPatient.id);
           setSelectedPatient(prev => ({ ...prev, ...details }));
         } catch (err) {
           // Ignore for now
         }
       }
     }
-    if (selectedPatient && !selectedPatient.detailsLoaded) {
+    if (selectedPatient && selectedPatient.id) {
       fetchPatientDetails();
     }
   }, [selectedPatient]);
@@ -260,15 +260,46 @@ export function DoctorPortal({ onNavigate }) {
                 <div className="patient-info-grid">
                   <div className="patient-info-item">
                     <User size={16} />
-                    <span>{selectedPatient.name}</span>
+                    <span>Name: {selectedPatient.name || `${selectedPatient.firstName || ''} ${selectedPatient.lastName || ''}`}</span>
                   </div>
                   <div className="patient-info-item">
-                    <Activity size={16} />
-                    <span>Vitals: {selectedPatient.vitals ? selectedPatient.vitals.heartRate : ''}, {selectedPatient.vitals ? selectedPatient.vitals.bloodPressure : ''}</span>
+                    <span>DOB: {selectedPatient.dateOfBirth || selectedPatient.dob || ''}</span>
                   </div>
                   <div className="patient-info-item">
-                    <AlertCircle size={16} />
-                    <span>Symptoms: {selectedPatient.symptoms ? selectedPatient.symptoms.join(', ') : ''}</span>
+                    <span>Gender: {selectedPatient.gender || ''}</span>
+                  </div>
+                  <div className="patient-info-item">
+                    <span>Phone: {selectedPatient.phoneNumber || ''}</span>
+                  </div>
+                  <div className="patient-info-item">
+                    <span>Emergency Contact: {selectedPatient.emergencyContactName || ''} ({selectedPatient.emergencyContact || ''})</span>
+                  </div>
+                  <div className="patient-info-item">
+                    <span>Address: {selectedPatient.address || ''}</span>
+                  </div>
+                  <div className="patient-info-item">
+                    <span>County: {selectedPatient.county || ''}</span>
+                  </div>
+                  <div className="patient-info-item">
+                    <span>SubCounty: {selectedPatient.subCounty || ''}</span>
+                  </div>
+                  <div className="patient-info-item">
+                    <span>Blood Group: {selectedPatient.bloodGroup || ''}</span>
+                  </div>
+                  <div className="patient-info-item">
+                    <span>Allergies: {Array.isArray(selectedPatient.allergies) ? selectedPatient.allergies.join(', ') : selectedPatient.allergies || ''}</span>
+                  </div>
+                  <div className="patient-info-item">
+                    <span>Chronic Conditions: {Array.isArray(selectedPatient.chronicConditions) ? selectedPatient.chronicConditions.join(', ') : selectedPatient.chronicConditions || ''}</span>
+                  </div>
+                  <div className="patient-info-item">
+                    <span>Symptoms: {Array.isArray(selectedPatient.symptoms) ? selectedPatient.symptoms.join(', ') : selectedPatient.symptoms || ''}</span>
+                  </div>
+                  <div className="patient-info-item">
+                    <span>Chief Complaint: {selectedPatient.chiefComplaint || ''}</span>
+                  </div>
+                  <div className="patient-info-item">
+                    <span>Vitals: {selectedPatient.vitals ? JSON.stringify(selectedPatient.vitals) : ''}</span>
                   </div>
                 </div>
               </div>
