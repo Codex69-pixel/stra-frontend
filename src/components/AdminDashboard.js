@@ -36,7 +36,7 @@ export default function AdminDashboard({ onNavigate }) {
   if (error) return <div className="p-8 text-red-600">{error}</div>;
 
   return (
-    <>
+    <div>
       {/* Fixed TopBar for Admin Dashboard */}
       <header style={{
         position: 'fixed',
@@ -74,17 +74,18 @@ export default function AdminDashboard({ onNavigate }) {
       </header>
       <div className="p-8 space-y-8" style={{paddingTop: 72}}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-lg font-semibold mb-2">Total Users</h2>
-          <div className="text-4xl font-bold">{userStats?.count ?? "-"}</div>
-        </div>
-        <div className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-lg font-semibold mb-2">Resource Utilization</h2>
-          <pre className="text-xs text-gray-700 whitespace-pre-wrap">{JSON.stringify(resourceStats, null, 2)}</pre>
-        </div>
-        <div className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-lg font-semibold mb-2">Inventory Analytics</h2>
-          <pre className="text-xs text-gray-700 whitespace-pre-wrap">{JSON.stringify(inventoryStats, null, 2)}</pre>
+          <div className="bg-white rounded-xl shadow p-6">
+            <h2 className="text-lg font-semibold mb-2">Total Users</h2>
+            <div className="text-4xl font-bold">{userStats?.count ?? "-"}</div>
+          </div>
+          <div className="bg-white rounded-xl shadow p-6">
+            <h2 className="text-lg font-semibold mb-2">Resource Utilization</h2>
+            <pre className="text-xs text-gray-700 whitespace-pre-wrap">{JSON.stringify(resourceStats, null, 2)}</pre>
+          </div>
+          <div className="bg-white rounded-xl shadow p-6">
+            <h2 className="text-lg font-semibold mb-2">Inventory Analytics</h2>
+            <pre className="text-xs text-gray-700 whitespace-pre-wrap">{JSON.stringify(inventoryStats, null, 2)}</pre>
+          </div>
         </div>
       </div>
     </div>
