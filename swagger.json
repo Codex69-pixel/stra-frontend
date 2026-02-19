@@ -837,7 +837,7 @@
         }
       }
     },
-    // ...existing code...
+    
     "/api/v1/triage/patients/{patientId}": {
       "get": {
         "tags": ["Triage"],

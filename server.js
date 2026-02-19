@@ -134,11 +134,7 @@ const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); // Us
 const validatePhone = (phone) => /^\+?[\d\s\-()]+$/.test(phone); // Used in register
 
 // Generate STRA ID for patients
-// const generateStraId = () => { /* ... */ } // Removed unused
-  const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-  const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-  return `STRA-${date}-${random}`;
-};
+// Removed unused generateStraId function
 
 // Calculate triage score
 const calculateTriageScore = (vitals, symptoms = {}) => { // Used in triage
@@ -176,7 +172,7 @@ const authenticateToken = (req, res, next) => { // Used in API routes
   const token = authHeader && authHeader.split(' ')[1];
     
   if (!token) {
-  // const assignPriority = (score) => { /* ... */ } // Removed unused
+    return res.status(401).json({
       success: false,
       error: 'Authentication token required'
     });
@@ -224,7 +220,6 @@ const authorizeRoles = (...roles) => { // Used in API routes
 
 // ==================== WEBSOCKET SERVER ====================
 const wss = new WebSocket.Server({ port: WS_PORT });
-  // const authorizeRoles = (...roles) => { /* ... */ } // Removed unused
 
 wss.on('connection', (ws) => {
   console.log('WebSocket client connected');
