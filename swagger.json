@@ -837,37 +837,7 @@
         }
       }
     },
-    "/api/v1/triage/triage": {
-      "post": {
-        "tags": ["Triage"],
-        "summary": "Perform triage",
-        "description": "Perform triage assessment on a patient",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TriageRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Triage completed successfully"
-          },
-          "400": {
-            "$ref": "#/components/responses/ValidationError"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          }
-        }
-      }
-    },
+    // ...existing code...
     "/api/v1/triage/patients/{patientId}": {
       "get": {
         "tags": ["Triage"],
