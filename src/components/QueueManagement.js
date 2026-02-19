@@ -173,23 +173,18 @@ const QueueManagement = ({ onNavigate, portalType }) => {
   return (
     <div className="w-full bg-gradient-to-br from-gray-50 to-teal-50/30 p-4 md:p-6 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        {/* Back to Dashboard Button */}
-        <div className="flex items-center justify-between mb-6 gap-4">
-          <button
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-colors shadow"
-            style={{ minWidth: 160 }}
-            onClick={() => {
-              if (onNavigate) {
-                if (portalType === 'doctor') {
-                  onNavigate('doctor');
-                } else if (portalType === 'nurse') {
-                  onNavigate('medicalForm');
-                }
-              }
-            }}
-          >
-            ← Back to Dashboard
-          </button>
+        {/* Back to Dashboard Button (only for nurse portal) */}
+        {portalType === 'nurse' && (
+          <div className="flex items-center justify-between mb-6 gap-4">
+            <button
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-colors shadow"
+              style={{ minWidth: 160 }}
+              onClick={() => onNavigate && onNavigate('medicalForm')}
+            >
+              ← Back to Dashboard
+            </button>
+          </div>
+        )}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Patient Queue Management</h1>
