@@ -14,7 +14,6 @@ const PRESCRIPTION_STATUS = {
 
 
 function Prescriptions({ userRole = "doctor", selectedPatient }) {
-  const [search] = useState("");
   const [prescriptions, setPrescriptions] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
@@ -29,8 +28,6 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
   // Fetch prescriptions for selected patient or all (pharmacy)
   useEffect(() => {
     async function fetchPrescriptions() {
-      setLoading(true);
-      setError(null);
       try {
         let data = [];
         if (userRole === 'pharmacy') {
@@ -42,9 +39,7 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
         }
         setPrescriptions(Array.isArray(data) ? data : []);
       } catch (err) {
-        setError('Failed to load prescriptions');
-      } finally {
-        setLoading(false);
+        // Optionally handle error
       }
     }
     fetchPrescriptions();
@@ -53,14 +48,10 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
   // Filter prescriptions based on search and status
   const filteredPrescriptions = useCallback(() => {
     return prescriptions.filter(p => {
-      const matchesSearch =
-        search === "" ||
-        (p.diagnosis && p.diagnosis.toLowerCase().includes(search.toLowerCase())) ||
-        (p.medications && p.medications.some(med => med.name.toLowerCase().includes(search.toLowerCase())));
       const matchesStatus = filterStatus === "ALL" || p.status === filterStatus;
-      return matchesSearch && matchesStatus;
+      return matchesStatus;
     });
-  }, [prescriptions, search, filterStatus]);
+  }, [prescriptions, filterStatus]);
 
 
   // Handle form input changes (for diagnosis/instructions)
@@ -112,11 +103,10 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
     };
     try {
       await apiService.createPrescription(payload);
-      // Optionally refetch prescriptions after create
       setShowForm(false);
       resetForm();
     } catch (err) {
-      setError('Failed to create prescription');
+      // Optionally handle error
     }
   };
 
@@ -129,7 +119,6 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
         { medicationId: "", name: "", dosage: "", frequency: "", duration: "", instructions: "" }
       ]
     });
-    setEditingId(prescription.id);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
