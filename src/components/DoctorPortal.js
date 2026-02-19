@@ -24,30 +24,42 @@ export function DoctorPortal({ onNavigate }) {
   const [searchName, setSearchName] = useState('');
   const [searchError, setSearchError] = useState('');
 
-  // Remove fetching all patients, since backend does not support it
-  // Search patient by name using localStorage
+  // Strict patient search by name using backend, then fetch details and lab results
+  const [labResults, setLabResults] = useState(null);
   const handleSearch = async (e) => {
     e.preventDefault();
     setSearchError('');
     setSelectedPatient(null);
+    setLabResults(null);
     if (!searchName.trim()) {
       setSearchError('Please enter a patient name.');
       return;
     }
-    let patientMap = {};
-    try {
-      patientMap = JSON.parse(localStorage.getItem('patientMap') || '{}');
-    } catch (e) { patientMap = {}; }
-    const searchKey = searchName.trim().toLowerCase();
-    const id = patientMap[searchKey];
-    if (!id) {
-      setSearchError('Patient not found. Make sure the name is correct and registered.');
-      return;
-    }
     setLoading(true);
     try {
-      const details = await apiService.getPatientById(id);
+      // 1. Get all patients (API returns array)
+      const allPatients = await apiService.getPatients();
+      const searchKey = searchName.trim().toLowerCase();
+      // 2. Find patient by name (case-insensitive, full match)
+      const found = allPatients.find(
+        p => (p.name && p.name.toLowerCase() === searchKey) ||
+             ((p.firstName && p.lastName) && (`${p.firstName} ${p.lastName}`.toLowerCase() === searchKey))
+      );
+      if (!found) {
+        setSearchError('Patient not found. Make sure the name is correct and registered.');
+        setLoading(false);
+        return;
+      }
+      // 3. Fetch full details
+      const details = await apiService.getPatientById(found.id || found.patientId);
       setSelectedPatient(details);
+      // 4. Fetch lab results
+      try {
+        const labs = await apiService.getLabResults(found.id || found.patientId);
+        setLabResults(labs);
+      } catch (err) {
+        setLabResults(null);
+      }
     } catch (err) {
       setSearchError('Failed to fetch patient details.');
     } finally {
@@ -282,6 +294,18 @@ export function DoctorPortal({ onNavigate }) {
                   </div>
                   <div className="patient-info-item">
                     <span>Vitals: {selectedPatient.vitals ? JSON.stringify(selectedPatient.vitals) : ''}</span>
+                  </div>
+                  <div className="patient-info-item">
+                    <span>Triage Summary: {selectedPatient.triageSummary || ''}</span>
+                  </div>
+                  <div className="patient-info-item">
+                    <span>Previous Notes: {selectedPatient.notes || ''}</span>
+                  </div>
+                </div>
+                {/* Lab Results Section */}
+                <div className="patient-info-grid">
+                  <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
+                    <span><b>Lab Results:</b> {labResults ? JSON.stringify(labResults) : 'No lab results found.'}</span>
                   </div>
                 </div>
               </div>
