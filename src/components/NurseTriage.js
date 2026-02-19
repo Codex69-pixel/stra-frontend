@@ -240,9 +240,9 @@ export function NurseTriage({ onNavigate }) {
       // Use centralized apiService for patient registration
       // Import at top: import { apiService } from '../services/api';
       const result = await apiService.registerPatient(patientData);
-      // Save patient name and ID to localStorage for search
+      // Save patient name and ID to localStorage for search (case-insensitive, trimmed)
       if (result && result.id) {
-        const patientName = `${patientData.firstName} ${patientData.lastName}`.trim();
+        const patientName = `${patientData.firstName} ${patientData.lastName}`.trim().toLowerCase();
         let patientMap = {};
         try {
           patientMap = JSON.parse(localStorage.getItem('patientMap') || '{}');

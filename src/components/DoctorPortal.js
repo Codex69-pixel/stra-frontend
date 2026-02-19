@@ -38,7 +38,8 @@ export function DoctorPortal({ onNavigate }) {
     try {
       patientMap = JSON.parse(localStorage.getItem('patientMap') || '{}');
     } catch (e) { patientMap = {}; }
-    const id = patientMap[searchName.trim()];
+    const searchKey = searchName.trim().toLowerCase();
+    const id = patientMap[searchKey];
     if (!id) {
       setSearchError('Patient not found. Make sure the name is correct and registered.');
       return;
