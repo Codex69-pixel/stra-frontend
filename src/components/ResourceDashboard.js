@@ -57,7 +57,7 @@ export function ResourceDashboard({ onNavigate }) {
           </select>
         </div>
       )}
-      {/* Top Bar */}
+      {/* Top Bar with Responsive Go to Module */}
       <header style={{
         position: 'fixed',
         top: 0,
@@ -71,9 +71,41 @@ export function ResourceDashboard({ onNavigate }) {
         alignItems: 'center',
         justifyContent: 'space-between',
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        padding: '0 24px'
+        padding: '0 24px',
+        flexWrap: 'wrap',
+        rowGap: 8
       }}>
-        <h1 style={{fontWeight: 700, fontSize: '1.3rem', letterSpacing: '0.01em', margin: 0}}>Hospital Resources</h1>
+        <div style={{display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap'}}>
+          <h1 style={{fontWeight: 700, fontSize: '1.3rem', letterSpacing: '0.01em', margin: 0}}>Hospital Resources</h1>
+          {onNavigate && (
+            <select
+              className="module-select"
+              style={{
+                marginLeft: 0,
+                padding: '6px 12px',
+                borderRadius: 8,
+                border: '1px solid #fff',
+                background: '#fff',
+                color: '#0d9488',
+                fontWeight: 600,
+                minWidth: 160,
+                fontSize: 15,
+                outline: 'none',
+                marginTop: 4
+              }}
+              onChange={e => onNavigate(e.target.value)}
+              defaultValue=""
+              aria-label="Navigate to module"
+            >
+              <option value="" disabled>Go to module...</option>
+              <option value="nurse">Nurse Triage</option>
+              <option value="queue">Queue Management</option>
+              <option value="doctor">Doctor Portal</option>
+              <option value="inventory">Inventory</option>
+              <option value="analytics">Analytics</option>
+            </select>
+          )}
+        </div>
         <div style={{position: 'relative', display: 'flex', alignItems: 'center', gap: 12}}>
           {/* Notification Button */}
           <NotificationButton onClick={() => alert('Notifications will appear here. (Backend integration pending)')} />
