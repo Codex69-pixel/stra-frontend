@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import CustomRoleSelect from './CustomRoleSelect';
 import { User as UserIcon, Eye, EyeOff } from 'lucide-react';
 import './LoginScreen.css';
 import apiService from '../services/api';
 
 export function LoginScreen({ onLogin, devMode }) {
+  const devLoginBtnRef = useRef(null);
+    // Hide Dev Login button if needed
+    useEffect(() => {
+      if (devLoginBtnRef.current) {
+        devLoginBtnRef.current.style.display = 'none';
+      }
+    }, []); // Run once on mount
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [selectedRole, setSelectedRole] = useState('doctor');
@@ -156,9 +163,10 @@ export function LoginScreen({ onLogin, devMode }) {
             {devMode && (
               <button
                 type="button"
-                className="login-button dev-login"
+                className="login-button dev-login ai-style-change-1"
                 style={{ marginTop: 8, background: '#888' }}
                 onClick={handleDevLogin}
+                ref={devLoginBtnRef}
               >
                 Dev Login (Bypass Auth)
               </button>
