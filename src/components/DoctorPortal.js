@@ -237,7 +237,7 @@ export function DoctorPortal({ onNavigate }) {
     <div className="doctor-portal-layout">
       <TopBar />
       <main className="doctor-portal-main" role="main">
-        {error && <div className="alert alert-error">{error}</div>}
+        {/* Removed error display as error variable is no longer used */}
         {showPrescriptions ? (
           <div className="prescriptions-container">
             <button
