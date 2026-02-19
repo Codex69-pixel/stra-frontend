@@ -5,8 +5,10 @@ import {
   FileText, User, Users, Activity, ChevronRight, ChevronDown, Stethoscope, LogOut, X, Save
 } from 'lucide-react';
 import './DoctorPortal.css';
+
 import LoadingSpinner from './common/LoadingSpinner';
 import Prescriptions from './prescription';
+import QueueManagement from './QueueManagement';
 import apiService from '../services/api';
 
 
@@ -20,24 +22,10 @@ export function DoctorPortal({ onNavigate }) {
   const [showPrescriptions, setShowPrescriptions] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showQueue, setShowQueue] = useState(false);
-  const [queue, setQueue] = useState([]);
-  const [queueLoading, setQueueLoading] = useState(false);
-  const [queueError, setQueueError] = useState('');
   const [searchName, setSearchName] = useState('');
   const [searchError, setSearchError] = useState('');
   const [labResults, setLabResults] = useState(null);
-  const [doctorId, setDoctorId] = useState(null);
 
-  // Fetch doctorId from profile on mount
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const profile = await apiService.getProfile();
-        setDoctorId(profile?.id || profile?._id || profile?.doctorId || null);
-      } catch {}
-    }
-    fetchProfile();
-  }, []);
   const handleSearch = async (e) => {
     e.preventDefault();
     setSearchError('');
@@ -108,7 +96,6 @@ export function DoctorPortal({ onNavigate }) {
       case 'queue':
         setShowPrescriptions(false);
         setShowQueue(true);
-        fetchQueue();
         break;
       case 'prescriptions':
         setShowPrescriptions(true);
@@ -122,46 +109,7 @@ export function DoctorPortal({ onNavigate }) {
     }
   };
 
-  // Fetch doctor queue
-  const fetchQueue = async () => {
-    setQueueLoading(true);
-    setQueueError('');
-    try {
-      const data = await apiService.getDoctorQueue();
-      setQueue(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setQueueError('Failed to load queue.');
-    } finally {
-      setQueueLoading(false);
-    }
-  };
 
-  // Call next patient
-  const handleCallNext = async (departmentId) => {
-    if (!doctorId) return;
-    setQueueLoading(true);
-    try {
-      await apiService.callNextPatient(departmentId, doctorId);
-      await fetchQueue();
-    } catch (err) {
-      setQueueError('Failed to call next patient.');
-    } finally {
-      setQueueLoading(false);
-    }
-  };
-
-  // Complete patient treatment
-  const handleComplete = async (queueId) => {
-    setQueueLoading(true);
-    try {
-      await apiService.completePatient(queueId);
-      await fetchQueue();
-    } catch (err) {
-      setQueueError('Failed to complete patient.');
-    } finally {
-      setQueueLoading(false);
-    }
-  };
 
   // Ensure Patient Dashboard is default view on mount
   useEffect(() => {
@@ -277,45 +225,7 @@ export function DoctorPortal({ onNavigate }) {
       <main className="doctor-portal-main" role="main">
         {/* Removed error display as error variable is no longer used */}
         {showQueue ? (
-          <div className="doctor-dashboard-content">
-            <h2>Doctor Queue</h2>
-            {queueLoading && <LoadingSpinner text="Loading queue..." />}
-            {queueError && <div className="alert alert-error">{queueError}</div>}
-            <button className="doctor-action-btn" onClick={fetchQueue} style={{marginBottom: 16}}>Refresh Queue</button>
-            <div style={{overflowX: 'auto'}}>
-              <table className="queue-table" style={{width: '100%', minWidth: 600}}>
-                <thead>
-                  <tr>
-                    <th>Order</th>
-                    <th>Name</th>
-                    <th>Severity</th>
-                    <th>Status</th>
-                    <th>Department</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {queue.map((q, idx) => (
-                    <tr key={q.queueId || q.id || idx}>
-                      <td>{idx + 1}</td>
-                      <td>{q.name || q.patientName || '-'}</td>
-                      <td>{q.urgency || q.severity || '-'}</td>
-                      <td>{q.status || '-'}</td>
-                      <td>{q.department || '-'}</td>
-                      <td>
-                        {q.status === 'WAITING' && (
-                          <button className="doctor-action-btn" onClick={() => handleCallNext(q.departmentId || q.department)} disabled={queueLoading}>Call Next</button>
-                        )}
-                        {q.status === 'IN_PROGRESS' && (
-                          <button className="doctor-action-btn secondary" onClick={() => handleComplete(q.queueId || q.id)} disabled={queueLoading}>Complete</button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <QueueManagement onNavigate={onNavigate} />
         ) : showPrescriptions ? (
           <div className="prescriptions-container">
             <button
