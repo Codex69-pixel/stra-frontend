@@ -12,7 +12,7 @@ const PRESCRIPTION_STATUS = {
 };
 
 
-function Prescriptions({ userRole = "doctor" }) {
+function Prescriptions({ userRole = "doctor", selectedPatient }) {
   const [search, setSearch] = useState("");
   const [prescriptions, setPrescriptions] = useState([]);
   const [showForm, setShowForm] = useState(false);
