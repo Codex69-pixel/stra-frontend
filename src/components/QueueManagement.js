@@ -34,7 +34,7 @@ const urgencyConfig = {
 };
 
 
-const QueueManagement = ({ onNavigate }) => {
+const QueueManagement = ({ onNavigate, portalType }) => {
   const [departments, setDepartments] = useState([]);
   const [selectedDept, setSelectedDept] = useState('ALL');
   const [patients, setPatients] = useState([]);
@@ -178,7 +178,15 @@ const QueueManagement = ({ onNavigate }) => {
           <button
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-colors shadow"
             style={{ minWidth: 160 }}
-            onClick={() => onNavigate && onNavigate('nurse')}
+            onClick={() => {
+              if (onNavigate) {
+                if (portalType === 'doctor') {
+                  onNavigate('doctor');
+                } else if (portalType === 'nurse') {
+                  onNavigate('medicalForm');
+                }
+              }
+            }}
           >
             ← Back to Dashboard
           </button>

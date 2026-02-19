@@ -225,7 +225,7 @@ export function DoctorPortal({ onNavigate }) {
       <main className="doctor-portal-main" role="main">
         {/* Removed error display as error variable is no longer used */}
         {showQueue ? (
-          <QueueManagement onNavigate={onNavigate} />
+          <QueueManagement onNavigate={onNavigate} portalType="doctor" />
         ) : showPrescriptions ? (
           <div className="prescriptions-container">
             <button
