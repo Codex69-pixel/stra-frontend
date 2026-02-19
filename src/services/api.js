@@ -1,3 +1,10 @@
+  /**
+   * Get doctor queue (GET /api/v1/doctor/queue)
+   * @returns {Promise<Array>}
+   */
+  async getDoctorQueue() {
+    return apiRequest('/api/v1/doctor/queue', { method: 'GET' });
+  },
 
 /**
  * API Service Module
