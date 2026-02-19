@@ -178,7 +178,7 @@ const QueueManagement = ({ onNavigate }) => {
           <button
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-colors shadow"
             style={{ minWidth: 160 }}
-            onClick={() => onNavigate && onNavigate('resources')}
+            onClick={() => onNavigate && onNavigate('nurse')}
           >
             ← Back to Dashboard
           </button>
