@@ -12,118 +12,126 @@ const PRESCRIPTION_STATUS = {
 };
 
 
+
 function Prescriptions({ userRole = "doctor", selectedPatient }) {
-  const [search] = useState("");
+  const [search, setSearch] = useState("");
   const [prescriptions, setPrescriptions] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ 
-    patientName: "", 
-    patientId: "",
-    medication: "", 
-    dosage: "", 
-    frequency: "",
-    duration: "",
+  const [form, setForm] = useState({
+    diagnosis: "",
     instructions: "",
-    refills: 0
+    medications: [
+      { medicationId: "", name: "", dosage: "", frequency: "", duration: "", instructions: "" }
+    ]
   });
   const [editingId, setEditingId] = useState(null);
   const [filterStatus, setFilterStatus] = useState("ALL");
-  // const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Fetch prescriptions from backend (placeholder: implement actual fetch if endpoint exists)
+  // Fetch prescriptions for selected patient or all (pharmacy)
   useEffect(() => {
     async function fetchPrescriptions() {
+      setLoading(true);
+      setError(null);
       try {
-        // TODO: Replace with actual backend call when available
-        // Example: const data = await apiService.getPrescriptions();
-        // setPrescriptions(data);
-        setPrescriptions([]); // No endpoint yet, so empty
+        let data = [];
+        if (userRole === 'pharmacy') {
+          // TODO: Replace with actual API call for all prescriptions if available
+          // data = await apiService.getAllPrescriptions();
+        } else if (selectedPatient && selectedPatient.id) {
+          // TODO: Replace with actual API call for patient prescriptions if available
+          // data = await apiService.getPrescriptionsByPatient(selectedPatient.id);
+        }
+        setPrescriptions(Array.isArray(data) ? data : []);
       } catch (err) {
-        // Optionally handle error
+        setError('Failed to load prescriptions');
+      } finally {
+        setLoading(false);
       }
     }
     fetchPrescriptions();
-  }, []);
+  }, [selectedPatient, userRole]);
 
   // Filter prescriptions based on search and status
   const filteredPrescriptions = useCallback(() => {
     return prescriptions.filter(p => {
-      const matchesSearch = search === "" || 
-        p.patientName.toLowerCase().includes(search.toLowerCase()) ||
-        p.medication.toLowerCase().includes(search.toLowerCase()) ||
-        p.patientId.toLowerCase().includes(search.toLowerCase());
-      
+      const matchesSearch =
+        search === "" ||
+        (p.diagnosis && p.diagnosis.toLowerCase().includes(search.toLowerCase())) ||
+        (p.medications && p.medications.some(med => med.name.toLowerCase().includes(search.toLowerCase())));
       const matchesStatus = filterStatus === "ALL" || p.status === filterStatus;
-      
       return matchesSearch && matchesStatus;
     });
   }, [prescriptions, search, filterStatus]);
 
-  // Handle form input changes
+
+  // Handle form input changes (for diagnosis/instructions)
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
-    setForm(prev => ({
-      ...prev,
-      [name]: type === 'number' ? parseInt(value) || 0 : value
-    }));
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
   };
+
+  // Handle medication input changes
+  const handleMedicationChange = (idx, e) => {
+    const { name, value } = e.target;
+    setForm(prev => {
+      const meds = prev.medications.map((med, i) =>
+        i === idx ? { ...med, [name]: value } : med
+      );
+      return { ...prev, medications: meds };
+    });
+  };
+
 
   // Reset form
   const resetForm = () => {
-    setForm({ 
-      patientName: "", 
-      patientId: "",
-      medication: "", 
-      dosage: "", 
-      frequency: "",
-      duration: "",
+    setForm({
+      diagnosis: "",
       instructions: "",
-      refills: 0
+      medications: [
+        { medicationId: "", name: "", dosage: "", frequency: "", duration: "", instructions: "" }
+      ]
     });
     setEditingId(null);
   };
 
+
   // Handle prescription submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingId) {
-      // TODO: Implement update prescription if backend supports
-      // For now, just update locally
-      setPrescriptions(prev => prev.map(p => p.id === editingId ? { ...p, ...form } : p));
-    } else {
-      // Create new prescription via backend
-      const payload = {
-        ...form,
-        patientId: form.patientId || `P${String(Date.now()).slice(-4)}`,
-        prescribedBy: "Dr. Sarah Johnson", // Replace with real user
-        datePrescribed: new Date().toISOString().split('T')[0],
-        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        status: PRESCRIPTION_STATUS.ACTIVE,
-        allergies: []
-      };
-      try {
-        const created = await apiService.createPrescription(payload);
-        setPrescriptions(prev => [...prev, created]);
-      } catch (err) {
-        // Fallback: add locally if backend fails
-        setPrescriptions(prev => [...prev, payload]);
-      }
+    if (!selectedPatient || !selectedPatient.id) return;
+    const payload = {
+      patientId: selectedPatient.id,
+      diagnosis: form.diagnosis,
+      instructions: form.instructions,
+      medications: form.medications.map(med => ({
+        medicationId: med.medicationId,
+        name: med.name,
+        dosage: med.dosage,
+        frequency: med.frequency,
+        duration: med.duration,
+        instructions: med.instructions
+      }))
+    };
+    try {
+      await apiService.createPrescription(payload);
+      // Optionally refetch prescriptions after create
+      setShowForm(false);
+      resetForm();
+    } catch (err) {
+      setError('Failed to create prescription');
     }
-    resetForm();
-    setShowForm(false);
   };
 
-  // Handle edit prescription
+  // Handle edit prescription (placeholder, as update API not available)
   const handleEdit = (prescription) => {
     setForm({
-      patientName: prescription.patientName,
-      patientId: prescription.patientId,
-      medication: prescription.medication,
-      dosage: prescription.dosage,
-      frequency: prescription.frequency,
-      duration: prescription.duration,
-      instructions: prescription.instructions,
-      refills: prescription.refills
+      diagnosis: prescription.diagnosis || "",
+      instructions: prescription.instructions || "",
+      medications: prescription.medications || [
+        { medicationId: "", name: "", dosage: "", frequency: "", duration: "", instructions: "" }
+      ]
     });
     setEditingId(prescription.id);
     setShowForm(true);
@@ -234,8 +242,8 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
           <div className="modal-content">
             <div className="modal-header">
               <h2>New Prescription</h2>
-              <button 
-                className="close-modal" 
+              <button
+                className="close-modal"
                 onClick={() => {
                   setShowForm(false);
                   resetForm();
@@ -255,35 +263,43 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
                   <label>Diagnosis *</label>
                   <input type="text" name="diagnosis" value={form.diagnosis} onChange={handleChange} required />
                 </div>
+                <div className="form-group">
+                  <label>Instructions</label>
+                  <input type="text" name="instructions" value={form.instructions} onChange={handleChange} />
+                </div>
                 {form.medications.map((med, idx) => (
-                  <div key={idx} style={{border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, marginBottom: 8}}>
+                  <div key={idx} style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, marginBottom: 8 }}>
                     <div className="form-group">
                       <label>Medication Name *</label>
-                      <input type="text" name="medications.name" value={med.name} onChange={e => handleChange(e, idx)} required />
+                      <input type="text" name="name" value={med.name} onChange={e => handleMedicationChange(idx, e)} required />
                     </div>
                     <div className="form-group">
                       <label>Medication ID</label>
-                      <input type="text" name="medications.medicationId" value={med.medicationId} onChange={e => handleChange(e, idx)} />
+                      <input type="text" name="medicationId" value={med.medicationId} onChange={e => handleMedicationChange(idx, e)} />
                     </div>
                     <div className="form-group">
                       <label>Dosage *</label>
-                      <input type="text" name="medications.dosage" value={med.dosage} onChange={e => handleChange(e, idx)} required />
+                      <input type="text" name="dosage" value={med.dosage} onChange={e => handleMedicationChange(idx, e)} required />
                     </div>
                     <div className="form-group">
                       <label>Frequency *</label>
-                      <input type="text" name="medications.frequency" value={med.frequency} onChange={e => handleChange(e, idx)} required />
+                      <input type="text" name="frequency" value={med.frequency} onChange={e => handleMedicationChange(idx, e)} required />
                     </div>
                     <div className="form-group">
                       <label>Duration *</label>
-                      <input type="text" name="medications.duration" value={med.duration} onChange={e => handleChange(e, idx)} required />
+                      <input type="text" name="duration" value={med.duration} onChange={e => handleMedicationChange(idx, e)} required />
+                    </div>
+                    <div className="form-group">
+                      <label>Instructions</label>
+                      <input type="text" name="instructions" value={med.instructions} onChange={e => handleMedicationChange(idx, e)} />
                     </div>
                   </div>
                 ))}
-                <button type="button" className="btn-secondary" onClick={() => setForm(prev => ({...prev, medications: [...prev.medications, { medicationId: "", name: "", dosage: "", frequency: "", duration: "" }] }))}>Add Medication</button>
+                <button type="button" className="btn-secondary" onClick={() => setForm(prev => ({ ...prev, medications: [...prev.medications, { medicationId: "", name: "", dosage: "", frequency: "", duration: "", instructions: "" }] }))}>Add Medication</button>
               </div>
               <div className="form-actions">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="btn-secondary"
                   onClick={() => {
                     setShowForm(false);
