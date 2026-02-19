@@ -180,13 +180,50 @@ export function NurseTriage({ onNavigate }) {
     setSubmitError(null);
     setSubmitSuccess(null);
 
-    // Build patient registration payload
+    // Build patient registration payload with validation
+    const nameParts = formData.name.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+    // Validate required fields
+    if (!firstName || !lastName) {
+      setSubmitError('First and last name are required.');
+      setLoading(false);
+      return;
+    }
+    // Format dateOfBirth to YYYY-MM-DD
+    let dateOfBirth = formData.dob;
+    if (dateOfBirth && !/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth)) {
+      // Try to parse and format
+      const d = new Date(dateOfBirth);
+      if (!isNaN(d.getTime())) {
+        dateOfBirth = d.toISOString().slice(0, 10);
+      }
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth)) {
+      setSubmitError('Date of birth must be in YYYY-MM-DD format.');
+      setLoading(false);
+      return;
+    }
+    // Validate gender
+    const gender = formData.gender;
+    if (!['Male', 'Female', 'Other'].includes(gender)) {
+      setSubmitError('Gender must be Male, Female, or Other.');
+      setLoading(false);
+      return;
+    }
+    // Validate phone number
+    const phoneNumber = (formData.mobilePhone || formData.homePhone || '').trim();
+    if (!phoneNumber || phoneNumber.length < 10) {
+      setSubmitError('Phone number must be at least 10 digits.');
+      setLoading(false);
+      return;
+    }
     const patientData = {
-      firstName: formData.name.split(' ')[0] || '',
-      lastName: formData.name.split(' ')[1] || '',
-      dateOfBirth: formData.dob,
-      gender: formData.gender,
-      phoneNumber: formData.mobilePhone || formData.homePhone,
+      firstName,
+      lastName,
+      dateOfBirth,
+      gender,
+      phoneNumber,
       emergencyContact: formData.emergencyContactPhone,
       emergencyContactName: formData.emergencyContactName,
       nationalId: formData.nationalId || '',

@@ -1,3 +1,42 @@
+.patient-search-form {
+  margin-bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.patient-search-input {
+  flex: 1;
+  min-width: 180px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 16px;
+  margin-bottom: 4px;
+  transition: border-color 0.2s;
+}
+.patient-search-input:focus {
+  outline: none;
+  border-color: #14b8a6;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+}
+@media (max-width: 768px) {
+  .patient-search-form {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .patient-search-input {
+    min-width: 120px;
+    font-size: 15px;
+    padding: 10px;
+  }
+}
+@media (max-width: 480px) {
+  .patient-search-input {
+    min-width: 80px;
+    font-size: 14px;
+    padding: 8px;
+  }
+}
 /* DoctorPortal.css */
 .doctor-portal-layout {
   min-height: 100vh;

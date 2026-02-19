@@ -253,16 +253,17 @@ export function DoctorPortal({ onNavigate }) {
         ) : (
           <div className="doctor-dashboard-content">
             {/* Search Bar for Patient Name */}
-            <form onSubmit={handleSearch} className="patient-search-form" style={{ marginBottom: 24, display: 'flex', gap: 8 }}>
+            <form onSubmit={handleSearch} className="patient-search-form" style={{ marginBottom: 24, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               <input
                 type="text"
                 value={searchName}
                 onChange={e => setSearchName(e.target.value)}
                 placeholder="Enter patient name (e.g. John Doe)"
                 className="patient-search-input"
-                style={{ flex: 1, padding: 8, borderRadius: 6, border: '1px solid #ccc' }}
+                style={{ flex: 1, minWidth: 180, padding: 12, borderRadius: 8, border: '1px solid #cbd5e1', fontSize: 16, marginBottom: 4 }}
+                aria-label="Patient name search"
               />
-              <button type="submit" className="doctor-action-btn">Search</button>
+              <button type="submit" className="doctor-action-btn" style={{ minWidth: 100, fontSize: 16, borderRadius: 8 }}>Search</button>
             </form>
             {searchError && <div className="alert alert-error">{searchError}</div>}
             {/* Patient Details Section */}
