@@ -372,12 +372,6 @@ export const apiService = {
    * @returns {Promise<object>}
    */
 
-  /**
-   * Get doctor queue (GET /api/v1/doctor/queue)
-   */
-  async getDoctorQueue() {
-    return apiRequest('/api/v1/doctor/queue', { method: 'GET' });
-  },
 
   /**
    * Get patient details (GET /api/v1/doctor/patients/{patientId})
