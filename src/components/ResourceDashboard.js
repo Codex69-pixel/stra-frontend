@@ -109,6 +109,7 @@ export function ResourceDashboard({ onNavigate }) {
           )}
           {/* Notification Button */}
           <NotificationButton onClick={() => alert('Notifications will appear here. (Backend integration pending)')} />
+          {/* Persona/User Icon */}
           <button
             style={{background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, marginLeft: 16}}
             onClick={() => setShowDropdown(prev => !prev)}
