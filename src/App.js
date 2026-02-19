@@ -50,7 +50,7 @@ export default function App() {
       <ErrorBoundary>
         <main className="flex-1 overflow-auto w-full bg-gray-50">
           {(currentScreen === 'nurse' || currentScreen === 'nastriage') && <NurseTriage onNavigate={handleNavigate} />}
-          {currentScreen === 'queue' && <QueueManagement onNavigate={handleNavigate} />}
+          {currentScreen === 'queue' && <QueueManagement onNavigate={handleNavigate} portalType={user?.role === 'doctor' ? 'doctor' : 'nurse'} />}
           {currentScreen === 'resources' && <ResourceDashboard onNavigate={handleNavigate} />}
           {currentScreen === 'admin' && <AdminDashboard onNavigate={handleNavigate} />}
           {currentScreen === 'doctor' && <DoctorPortal onNavigate={handleNavigate} />}
