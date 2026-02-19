@@ -197,18 +197,6 @@ function Prescriptions({ userRole = "doctor" }) {
       </div>
 
       <div className="prescriptions-controls">
-        <div className="search-container">
-          <Search className="search-icon" size={20} />
-          <input
-            type="text"
-            placeholder="Search by patient name, ID, or medication..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="prescription-search"
-            aria-label="Search prescriptions"
-          />
-        </div>
-
         <div className="filter-controls">
           <select 
             value={filterStatus} 
@@ -222,7 +210,7 @@ function Prescriptions({ userRole = "doctor" }) {
             <option value={PRESCRIPTION_STATUS.CANCELLED}>Cancelled</option>
           </select>
 
-          {userRole === "doctor" && (
+          {userRole === "doctor" && selectedPatient && (
             <button
               className="add-prescription-btn"
               onClick={() => setShowForm(true)}
@@ -233,14 +221,19 @@ function Prescriptions({ userRole = "doctor" }) {
             </button>
           )}
         </div>
+        {!selectedPatient && (
+          <div style={{color: '#dc2626', marginTop: 8}}>
+            Select a patient before creating a prescription.
+          </div>
+        )}
       </div>
 
       {/* Prescription Form Modal */}
-      {showForm && (
+      {showForm && selectedPatient && (
         <div className="prescription-form-modal">
           <div className="modal-content">
             <div className="modal-header">
-              <h2>{editingId ? "Edit Prescription" : "New Prescription"}</h2>
+              <h2>New Prescription</h2>
               <button 
                 className="close-modal" 
                 onClick={() => {
@@ -252,124 +245,42 @@ function Prescriptions({ userRole = "doctor" }) {
                 <X size={24} />
               </button>
             </div>
-            
             <form onSubmit={handleSubmit} className="prescription-form">
               <div className="form-grid">
                 <div className="form-group">
-                  <label htmlFor="patientName">
-                    <User size={16} />
-                    Patient Name *
-                  </label>
-                  <input
-                    type="text"
-                    id="patientName"
-                    name="patientName"
-                    placeholder="Enter patient name"
-                    value={form.patientName}
-                    onChange={handleChange}
-                    required
-                  />
+                  <label>Patient</label>
+                  <input type="text" value={selectedPatient.name || selectedPatient.firstName + ' ' + selectedPatient.lastName} disabled />
                 </div>
-
                 <div className="form-group">
-                  <label htmlFor="patientId">Patient ID</label>
-                  <input
-                    type="text"
-                    id="patientId"
-                    name="patientId"
-                    placeholder="Auto-generated if empty"
-                    value={form.patientId}
-                    onChange={handleChange}
-                  />
+                  <label>Diagnosis *</label>
+                  <input type="text" name="diagnosis" value={form.diagnosis} onChange={handleChange} required />
                 </div>
-
-                <div className="form-group">
-                  <label htmlFor="medication">
-                    <Pill size={16} />
-                    Medication *
-                  </label>
-                  <input
-                    type="text"
-                    id="medication"
-                    name="medication"
-                    placeholder="Enter medication name"
-                    value={form.medication}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="dosage">Dosage *</label>
-                  <input
-                    type="text"
-                    id="dosage"
-                    name="dosage"
-                    placeholder="e.g., 200mg, 500mg"
-                    value={form.dosage}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="frequency">Frequency *</label>
-                  <select
-                    id="frequency"
-                    name="frequency"
-                    value={form.frequency}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="">Select frequency</option>
-                    <option value="Once daily">Once daily</option>
-                    <option value="Twice daily">Twice daily</option>
-                    <option value="Three times daily">Three times daily</option>
-                    <option value="Every 6 hours">Every 6 hours</option>
-                    <option value="Every 8 hours">Every 8 hours</option>
-                    <option value="As needed">As needed</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="duration">Duration *</label>
-                  <input
-                    type="text"
-                    id="duration"
-                    name="duration"
-                    placeholder="e.g., 7 days, 30 days"
-                    value={form.duration}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group full-width">
-                  <label htmlFor="instructions">Instructions</label>
-                  <textarea
-                    id="instructions"
-                    name="instructions"
-                    placeholder="Special instructions for the patient..."
-                    value={form.instructions}
-                    onChange={handleChange}
-                    rows="3"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="refills">Refills</label>
-                  <input
-                    type="number"
-                    id="refills"
-                    name="refills"
-                    min="0"
-                    max="10"
-                    value={form.refills}
-                    onChange={handleChange}
-                  />
-                </div>
+                {form.medications.map((med, idx) => (
+                  <div key={idx} style={{border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, marginBottom: 8}}>
+                    <div className="form-group">
+                      <label>Medication Name *</label>
+                      <input type="text" name="medications.name" value={med.name} onChange={e => handleChange(e, idx)} required />
+                    </div>
+                    <div className="form-group">
+                      <label>Medication ID</label>
+                      <input type="text" name="medications.medicationId" value={med.medicationId} onChange={e => handleChange(e, idx)} />
+                    </div>
+                    <div className="form-group">
+                      <label>Dosage *</label>
+                      <input type="text" name="medications.dosage" value={med.dosage} onChange={e => handleChange(e, idx)} required />
+                    </div>
+                    <div className="form-group">
+                      <label>Frequency *</label>
+                      <input type="text" name="medications.frequency" value={med.frequency} onChange={e => handleChange(e, idx)} required />
+                    </div>
+                    <div className="form-group">
+                      <label>Duration *</label>
+                      <input type="text" name="medications.duration" value={med.duration} onChange={e => handleChange(e, idx)} required />
+                    </div>
+                  </div>
+                ))}
+                <button type="button" className="btn-secondary" onClick={() => setForm(prev => ({...prev, medications: [...prev.medications, { medicationId: "", name: "", dosage: "", frequency: "", duration: "" }] }))}>Add Medication</button>
               </div>
-
               <div className="form-actions">
                 <button 
                   type="button" 
@@ -382,7 +293,7 @@ function Prescriptions({ userRole = "doctor" }) {
                   Cancel
                 </button>
                 <button type="submit" className="btn-primary">
-                  {editingId ? "Update Prescription" : "Create Prescription"}
+                  Create Prescription
                 </button>
               </div>
             </form>
