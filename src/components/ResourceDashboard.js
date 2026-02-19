@@ -77,6 +77,10 @@ export function ResourceDashboard({ onNavigate }) {
       }}>
         <div style={{display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap'}}>
           <h1 style={{fontWeight: 700, fontSize: '1.3rem', letterSpacing: '0.01em', margin: 0}}>Hospital Resources</h1>
+        </div>
+        <div style={{position: 'relative', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap'}}>
+          {/* Notification Button */}
+          <NotificationButton onClick={() => alert('Notifications will appear here. (Backend integration pending)')} />
           {onNavigate && (
             <select
               className="module-select"
@@ -105,10 +109,6 @@ export function ResourceDashboard({ onNavigate }) {
               <option value="analytics">Analytics</option>
             </select>
           )}
-        </div>
-        <div style={{position: 'relative', display: 'flex', alignItems: 'center', gap: 12}}>
-          {/* Notification Button */}
-          <NotificationButton onClick={() => alert('Notifications will appear here. (Backend integration pending)')} />
           <button
             style={{background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, marginLeft: 16}}
             onClick={() => setShowDropdown(prev => !prev)}
