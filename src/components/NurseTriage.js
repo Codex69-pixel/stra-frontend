@@ -429,7 +429,7 @@ export function NurseTriage({ onNavigate }) {
             </select>
           )}
 
-          {/* Nurse dropdown: add Queue button above Logout */}
+          {/* Nurse dropdown: add Medical Form and Queue buttons above Logout */}
           <div style={{ position: 'relative' }}>
             <button
               style={{background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, marginLeft: 16}}
@@ -447,10 +447,27 @@ export function NurseTriage({ onNavigate }) {
                 color: '#222',
                 borderRadius: 8,
                 boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-                minWidth: 120,
+                minWidth: 140,
                 zIndex: 100,
                 padding: 8
               }}>
+                <button
+                  style={{
+                    width: '100%',
+                    background: '#0d9488',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: 16,
+                    padding: '8px 0',
+                    cursor: 'pointer',
+                    border: 'none',
+                    borderRadius: 4,
+                    marginBottom: 6
+                  }}
+                  onClick={() => { setShowLogout(false); if (onNavigate) onNavigate('nastriage'); }}
+                >
+                  Medical Form
+                </button>
                 <button
                   style={{
                     width: '100%',
