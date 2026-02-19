@@ -308,7 +308,6 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
           <div className="no-prescriptions">
             <Pill size={48} />
             <p>No prescriptions found</p>
-            {search && <p>Try adjusting your search terms</p>}
           </div>
         ) : (
           <div className="prescriptions-grid">
