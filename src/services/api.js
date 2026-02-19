@@ -1,3 +1,4 @@
+
 /**
  * API Service Module
  * 
@@ -75,6 +76,13 @@ async function apiRequest(endpoint, options = {}) {
  * Contains all API methods organized by module
  */
 export const apiService = {
+    /**
+     * Get all registered patients (GET /api/v1/triage/patients)
+     * @returns {Promise<Array>}
+     */
+    async getPatients() {
+      return apiRequest('/api/v1/triage/patients', { method: 'GET' });
+    },
   
   // ==================== AUTHENTICATION ====================
   // ==================== AUTHENTICATION ====================
