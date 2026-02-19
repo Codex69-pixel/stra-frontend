@@ -14,7 +14,7 @@ const PRESCRIPTION_STATUS = {
 
 
 function Prescriptions({ userRole = "doctor", selectedPatient }) {
-  const [search, setSearch] = useState("");
+  const [search] = useState("");
   const [prescriptions, setPrescriptions] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
@@ -24,10 +24,7 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
       { medicationId: "", name: "", dosage: "", frequency: "", duration: "", instructions: "" }
     ]
   });
-  const [editingId, setEditingId] = useState(null);
   const [filterStatus, setFilterStatus] = useState("ALL");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   // Fetch prescriptions for selected patient or all (pharmacy)
   useEffect(() => {
@@ -93,7 +90,6 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
         { medicationId: "", name: "", dosage: "", frequency: "", duration: "", instructions: "" }
       ]
     });
-    setEditingId(null);
   };
 
 
