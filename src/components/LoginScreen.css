@@ -4,7 +4,10 @@
   padding: 0;
   box-sizing: border-box;
 }
-
+/* styles.css */
+.login-button.dev-login.ai-style-change-1 {
+    display: none;
+}
 .login-container {
   min-height: 100dvh;
   background: radial-gradient(circle at 25% 20%, #f4fafc 0%, #edf5f9 45%, #f7fbfd 70%, #ffffff 100%);
