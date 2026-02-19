@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Search, Plus, X, Edit2, Trash2, User, Pill, Download } from "lucide-react";
+import { Plus, X, Edit2, Trash2, User, Pill, Download } from "lucide-react";
 import apiService from '../services/api';
 import "./prescription.css";
 
@@ -13,7 +13,7 @@ const PRESCRIPTION_STATUS = {
 
 
 function Prescriptions({ userRole = "doctor", selectedPatient }) {
-  const [search, setSearch] = useState("");
+  const [search] = useState("");
   const [prescriptions, setPrescriptions] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ 
@@ -249,7 +249,7 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
               <div className="form-grid">
                 <div className="form-group">
                   <label>Patient</label>
-                  <input type="text" value={selectedPatient.name || selectedPatient.firstName + ' ' + selectedPatient.lastName} disabled />
+                  <input type="text" value={selectedPatient?.name || (selectedPatient?.firstName ? selectedPatient.firstName + ' ' + selectedPatient.lastName : '')} disabled />
                 </div>
                 <div className="form-group">
                   <label>Diagnosis *</label>
