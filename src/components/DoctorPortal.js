@@ -76,10 +76,12 @@ export function DoctorPortal({ onNavigate }) {
   const handleNavigation = (itemId) => {
     setShowUserMenu(false);
     switch (itemId) {
-      case 'queue':
       case 'doctor':
-      case 'reports':
-        if (onNavigate) onNavigate(itemId);
+        setShowPrescriptions(false);
+        setSelectedPatient(null);
+        break;
+      case 'queue':
+        if (onNavigate) onNavigate('queue');
         break;
       case 'prescriptions':
         setShowPrescriptions(true);
@@ -91,6 +93,12 @@ export function DoctorPortal({ onNavigate }) {
         break;
     }
   };
+
+  // Ensure Patient Dashboard is default view on mount
+  useEffect(() => {
+    setShowPrescriptions(false);
+    setSelectedPatient(null);
+  }, []);
 
   // TopBar Component
   const TopBar = () => (
