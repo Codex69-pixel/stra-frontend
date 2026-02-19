@@ -34,17 +34,26 @@ export default function App() {
     return <LoginScreen onLogin={handleLogin} devMode={DEV_MODE} />;
   }
 
+  const handleNavigate = (screen) => {
+    // Allow both 'nurse' and 'nastriage' to show NurseTriage
+    if (screen === 'nastriage') {
+      setCurrentScreen('nurse');
+    } else {
+      setCurrentScreen(screen);
+    }
+  };
+
   return (
     <div className="h-screen w-full flex flex-col bg-gray-50">
       {/* Wrap main content in ErrorBoundary */}
       <ErrorBoundary>
         <main className="flex-1 overflow-auto w-full bg-gray-50">
-          {currentScreen === 'nurse' && <NurseTriage />}
-          {currentScreen === 'queue' && <QueueManagement />}
-          {currentScreen === 'resources' && <ResourceDashboard />}
-          {currentScreen === 'doctor' && <DoctorPortal />}
-          {currentScreen === 'inventory' && <InventoryManagement />}
-          {currentScreen === 'analytics' && <AnalyticsDashboard />}
+          {(currentScreen === 'nurse' || currentScreen === 'nastriage') && <NurseTriage onNavigate={handleNavigate} />}
+          {currentScreen === 'queue' && <QueueManagement onNavigate={handleNavigate} />}
+          {currentScreen === 'resources' && <ResourceDashboard onNavigate={handleNavigate} />}
+          {currentScreen === 'doctor' && <DoctorPortal onNavigate={handleNavigate} />}
+          {currentScreen === 'inventory' && <InventoryManagement onNavigate={handleNavigate} />}
+          {currentScreen === 'analytics' && <AnalyticsDashboard onNavigate={handleNavigate} />}
         </main>
       </ErrorBoundary>
     </div>
