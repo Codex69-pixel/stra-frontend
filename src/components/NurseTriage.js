@@ -10,6 +10,31 @@ import {
 import LoadingSpinner from './common/LoadingSpinner';
 
 export function NurseTriage({ onNavigate }) {
+    // Toggle a symptom in the symptoms array
+    const handleSymptomToggle = (symptom) => {
+      setFormData((prev) => {
+        const symptoms = prev.symptoms.includes(symptom)
+          ? prev.symptoms.filter((s) => s !== symptom)
+          : [...prev.symptoms, symptom];
+        return { ...prev, symptoms };
+      });
+    };
+
+    // Toggle a condition in the pastConditions array
+    const handleConditionToggle = (condition) => {
+      setFormData((prev) => {
+        const pastConditions = prev.pastConditions.includes(condition)
+          ? prev.pastConditions.filter((c) => c !== condition)
+          : [...prev.pastConditions, condition];
+        return { ...prev, pastConditions };
+      });
+    };
+
+    // Go to the next step, with optional validation
+    const handleNext = () => {
+      // If you have step validation, add it here
+      setStep((prev) => Math.min(prev + 1, 5));
+    };
   const [step, setStep] = useState(1);
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
   const [emergencyReason, setEmergencyReason] = useState('');
@@ -144,66 +169,6 @@ export function NurseTriage({ onNavigate }) {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const handleSymptomToggle = (symptom) => {
-    setFormData(prev => ({
-      ...prev,
-      symptoms: prev.symptoms.includes(symptom)
-        ? prev.symptoms.filter(s => s !== symptom)
-        : [...prev.symptoms, symptom]
-    }));
-  };
-
-  const handleConditionToggle = (condition) => {
-    setFormData(prev => ({
-      ...prev,
-      pastConditions: prev.pastConditions.includes(condition)
-        ? prev.pastConditions.filter(c => c !== condition)
-        : [...prev.pastConditions, condition]
-    }));
-  };
-
-  const validateStep = () => {
-    const newErrors = {};
-    
-    switch(step) {
-      case 1:
-        if (!formData.name) newErrors.name = 'Name is required';
-        if (!formData.dob) newErrors.dob = 'DOB is required';
-        if (!formData.gender) newErrors.gender = 'Gender is required';
-        if (!formData.mobilePhone) newErrors.mobilePhone = 'Mobile phone is required';
-        break;
-      case 2:
-        if (!formData.temperature) newErrors.temperature = 'Temperature is required';
-        if (!formData.heartRate) newErrors.heartRate = 'Heart rate is required';
-        if (!formData.bloodPressureSystolic) newErrors.bloodPressureSystolic = 'Systolic BP is required';
-        if (!formData.bloodPressureDiastolic) newErrors.bloodPressureDiastolic = 'Diastolic BP is required';
-        if (!formData.respiratoryRate) newErrors.respiratoryRate = 'Respiratory rate is required';
-        if (!formData.spo2) newErrors.spo2 = 'SpO2 is required';
-        break;
-      case 3:
-        if (!formData.chiefComplaint) newErrors.chiefComplaint = 'Chief complaint is required';
-        if (formData.symptoms.length === 0) newErrors.symptoms = 'Select at least one symptom';
-        break;
-      case 4:
-        if (!formData.allergies) newErrors.allergies = 'Allergy information is required';
-        break;
-      default:
-        break;
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleNext = () => {
-    if (validateStep()) {
-      if (step < 5) setStep(step + 1);
-    }
   };
 
   // Example: Simulate loading on submit
@@ -211,67 +176,54 @@ export function NurseTriage({ onNavigate }) {
   const [submitSuccess, setSubmitSuccess] = useState(null);
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setSubmitError(null);
     setSubmitSuccess(null);
-    if (!validateStep()) return;
-    setLoading(true);
+
+    // Build patient registration payload
+    const patientData = {
+      firstName: formData.name.split(' ')[0] || '',
+      lastName: formData.name.split(' ')[1] || '',
+      dateOfBirth: formData.dob,
+      gender: formData.gender,
+      phoneNumber: formData.mobilePhone || formData.homePhone,
+      emergencyContact: formData.emergencyContactPhone,
+      emergencyContactName: formData.emergencyContactName,
+      nationalId: formData.nationalId || '',
+      nhifNumber: formData.nhifNumber || '',
+      address: formData.address,
+      county: formData.city,
+      subCounty: formData.subCounty,
+      bloodGroup: formData.bloodGroup || '',
+      allergies: Array.isArray(formData.allergies) ? formData.allergies : formData.allergies ? [formData.allergies] : [],
+      chronicConditions: Array.isArray(formData.pastConditions) ? formData.pastConditions : formData.pastConditions ? [formData.pastConditions] : [],
+    };
+
     try {
-      // Map formData to backend schema for registration
-      const payload = {
-        firstName: formData.name.split(' ')[0] || formData.name,
-        lastName: formData.name.split(' ').slice(1).join(' ') || '',
-        dateOfBirth: formData.dob,
-        gender: formData.gender ? formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1).toLowerCase() : '',
-        phoneNumber: formData.mobilePhone,
-        emergencyContact: formData.emergencyContactPhone,
-        emergencyContactName: formData.emergencyContactName,
-        nationalId: '',
-        nhifNumber: '',
-        address: formData.address,
-        county: formData.city,
-        subCounty: formData.subCounty,
-        bloodGroup: '',
-        allergies: formData.allergies ? formData.allergies.split(',').map(a => a.trim()) : [],
-        chronicConditions: formData.pastConditions,
-      };
-      const response = await apiService.registerPatient(payload);
-      // Now perform triage for the registered patient
-      if (response && response.id) {
-        const triagePayload = {
-          patientId: response.id,
-          nurseId: '', // Set nurseId if available from user context
-          vitals: {
-            temperature: parseFloat(formData.temperature),
-            systolicBp: parseInt(formData.bloodPressureSystolic),
-            diastolicBp: parseInt(formData.bloodPressureDiastolic),
-            heartRate: parseInt(formData.heartRate),
-            respiratoryRate: parseInt(formData.respiratoryRate),
-            oxygenSaturation: parseInt(formData.spo2),
-            weight: formData.weight ? parseFloat(formData.weight) : undefined,
-            height: formData.height ? parseFloat(formData.height) : undefined,
-            // Add other vitals if needed
-          },
-          symptoms: {}, // Map symptoms to backend schema if needed
-          chiefComplaint: formData.chiefComplaint,
-        };
-        await apiService.performTriage(triagePayload);
-      }
-      setSubmitSuccess('Patient registered and triage completed successfully!');
-      setStep(1);
-      setFormData({
-        name: '', dob: '', gender: '', homePhone: '', mobilePhone: '', email: '',
-        emergencyContactName: '', emergencyContactPhone: '', address: '', city: '', subCounty: '',
-        temperature: '', heartRate: '', bloodPressureSystolic: '', bloodPressureDiastolic: '',
-        respiratoryRate: '', spo2: '', height: '', weight: '',
-        chiefComplaint: '', symptoms: [], symptomDuration: '', severity: '',
-        allergies: '', medications: '', pastConditions: [], surgicalHistory: '', familyHistory: '', triageNotes: ''
+      const response = await fetch('http://localhost:3000/api/v1/triage/patients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2Nzk0MTRiYy04NjFiLTQwNGItYmNmNi1lZDZlMjBhMzY2NzIiLCJlbWFpbCI6Im5qdWd1bmFAYWRtaW4uY29tIiwicm9sZSI6ImFkbWluIiwiZGVwYXJ0bWVudCI6ImFkbWluaXN0cmF0aW9uIiwiZmlyc3ROYW1lIjoiQ3lydXMiLCJsYXN0TmFtZSI6Im5qdWd1bmEiLCJpYXQiOjE3NzE0MDkyNjgsImV4cCI6MTc3MTQ5NTY2OH0.PtL-sjAxzp-FtASPWdAmUa-1UUuC8leT0-ATKC7LYqM'
+        },
+        body: JSON.stringify(patientData),
       });
+      if (!response.ok) {
+        const errorData = await response.json();
+        setSubmitError(errorData.error || 'Failed to register patient');
+        setLoading(false);
+        return;
+      }
+      setSubmitSuccess('Patient registered successfully!');
+      setLoading(false);
+      // Optionally reset form or navigate
+      // onNavigate && onNavigate('nextStep');
     } catch (err) {
-      setSubmitError(err.message || 'Registration/triage failed');
-    } finally {
+      setSubmitError('Network error: ' + err.message);
       setLoading(false);
     }
   };
+  // ...existing code...
 
   // Emergency submit handler
   const handleEmergencySubmit = () => {
