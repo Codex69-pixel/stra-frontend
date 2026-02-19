@@ -51,7 +51,7 @@
     ]
   },
   "description": "A comprehensive React.js application for hospital management, patient triage, resource allocation, and inventory management.",
-  "main": "server.js",
+  
   "devDependencies": {
     "jest": "^27.5.1"
   },
