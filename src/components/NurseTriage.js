@@ -202,7 +202,7 @@ export function NurseTriage({ onNavigate }) {
     try {
       // Use centralized apiService for patient registration
       // Import at top: import { apiService } from '../services/api';
-      const result = await apiService.registerPatient(patientData);
+      await apiService.registerPatient(patientData);
       setSubmitSuccess('Patient registered successfully!');
       setLoading(false);
       // Optionally reset form or navigate
