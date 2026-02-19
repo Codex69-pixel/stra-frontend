@@ -287,6 +287,7 @@ app.get('/api/v1/health', (req, res) => {
   });
 });
 
+
 app.get('/api/v1/health/db', (req, res) => {
   res.json({
     success: true,
@@ -296,4 +297,7 @@ app.get('/api/v1/health/db', (req, res) => {
   });
 });
 
-// ...existing code...
+// Start the Express server
+app.listen(HTTP_PORT, () => {
+  console.log(`Express server running on http://localhost:${HTTP_PORT}`);
+});

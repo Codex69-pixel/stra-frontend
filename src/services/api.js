@@ -11,7 +11,7 @@
 
 // API Base Configuration
 const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_URL || 'http://localhost:5000',
+  BASE_URL: 'https://stra-sys-backend-production.up.railway.app',
   TIMEOUT: 30000,
   HEADERS: {
     'Content-Type': 'application/json',
