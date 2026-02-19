@@ -32,6 +32,14 @@ import {
 export function Sidebar({ isOpen, onClose, currentScreen, onNavigate, user, onLogout }) {
   // Define menu items with their access control
   const menuItems = [
+    {
+      id: 'admin-dashboard',
+      label: 'Admin Dashboard',
+      icon: LayoutDashboard,
+      roles: ['admin'],
+      color: 'text-purple-200',
+      bgColor: 'bg-white/10'
+    },
     { 
       id: 'nurse', 
       label: 'Nurse Triage', 
