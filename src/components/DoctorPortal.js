@@ -21,24 +21,38 @@ export function DoctorPortal({ onNavigate }) {
   const [showPrescriptions, setShowPrescriptions] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [error, setError] = useState(null);
+  const [searchName, setSearchName] = useState('');
+  const [searchError, setSearchError] = useState('');
 
-  // Fetch all registered patients on mount
-  useEffect(() => {
-    async function fetchPatients() {
-      setLoading(true);
-      setError(null);
-      try {
-        const patientsList = await apiService.getPatients();
-        setPatients(patientsList || []);
-        setSelectedPatient(patientsList && patientsList.length > 0 ? patientsList[0] : null);
-      } catch (err) {
-        setError('Failed to load patients');
-      } finally {
-        setLoading(false);
-      }
+  // Remove fetching all patients, since backend does not support it
+  // Search patient by name using localStorage
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    setSearchError('');
+    setSelectedPatient(null);
+    if (!searchName.trim()) {
+      setSearchError('Please enter a patient name.');
+      return;
     }
-    fetchPatients();
-  }, []);
+    let patientMap = {};
+    try {
+      patientMap = JSON.parse(localStorage.getItem('patientMap') || '{}');
+    } catch (e) { patientMap = {}; }
+    const id = patientMap[searchName.trim()];
+    if (!id) {
+      setSearchError('Patient not found. Make sure the name is correct and registered.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const details = await apiService.getPatientById(id);
+      setSelectedPatient(details);
+    } catch (err) {
+      setSearchError('Failed to fetch patient details.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Fetch patient details when selectedPatient changes
   useEffect(() => {
@@ -238,21 +252,19 @@ export function DoctorPortal({ onNavigate }) {
           </div>
         ) : (
           <div className="doctor-dashboard-content">
-            {/* Patient List */}
-            <div className="patient-list-section">
-              <h3>Doctor Queue</h3>
-              <ul className="patient-list">
-                {patients.map((p) => (
-                  <li
-                    key={p.id}
-                    className={`patient-list-item${selectedPatient && selectedPatient.id === p.id ? ' selected' : ''}`}
-                    onClick={() => setSelectedPatient(p)}
-                  >
-                    <span>{p.name || p.id}</span> - <span>{p.urgency || ''}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {/* Search Bar for Patient Name */}
+            <form onSubmit={handleSearch} className="patient-search-form" style={{ marginBottom: 24, display: 'flex', gap: 8 }}>
+              <input
+                type="text"
+                value={searchName}
+                onChange={e => setSearchName(e.target.value)}
+                placeholder="Enter patient name (e.g. John Doe)"
+                className="patient-search-input"
+                style={{ flex: 1, padding: 8, borderRadius: 6, border: '1px solid #ccc' }}
+              />
+              <button type="submit" className="doctor-action-btn">Search</button>
+            </form>
+            {searchError && <div className="alert alert-error">{searchError}</div>}
             {/* Patient Details Section */}
             {selectedPatient && (
               <div className="patient-details-section">

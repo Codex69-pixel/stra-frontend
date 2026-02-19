@@ -202,7 +202,17 @@ export function NurseTriage({ onNavigate }) {
     try {
       // Use centralized apiService for patient registration
       // Import at top: import { apiService } from '../services/api';
-      await apiService.registerPatient(patientData);
+      const result = await apiService.registerPatient(patientData);
+      // Save patient name and ID to localStorage for search
+      if (result && result.id) {
+        const patientName = `${patientData.firstName} ${patientData.lastName}`.trim();
+        let patientMap = {};
+        try {
+          patientMap = JSON.parse(localStorage.getItem('patientMap') || '{}');
+        } catch (e) { patientMap = {}; }
+        patientMap[patientName] = result.id;
+        localStorage.setItem('patientMap', JSON.stringify(patientMap));
+      }
       setSubmitSuccess('Patient registered successfully!');
       setLoading(false);
       // Optionally reset form or navigate
