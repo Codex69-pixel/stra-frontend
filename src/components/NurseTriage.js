@@ -413,21 +413,7 @@ export function NurseTriage({ onNavigate }) {
             <AlertCircle className="w-5 h-5" style={{marginRight: 4}} /> Emergency
           </button>
 
-          {/* Quick navigation dropdown for modules */}
-          {onNavigate && (
-            <select
-              style={{ marginLeft: 8, padding: '6px 12px', borderRadius: 8, border: '1px solid #14b8a6', background: '#fff', color: '#0d9488', fontWeight: 600 }}
-              onChange={e => onNavigate(e.target.value)}
-              defaultValue=""
-            >
-              <option value="" disabled>Go to module...</option>
-              <option value="queue">Queue Management</option>
-              <option value="doctor">Doctor Portal</option>
-              <option value="resources">Resource Dashboard</option>
-              <option value="inventory">Inventory</option>
-              <option value="analytics">Analytics</option>
-            </select>
-          )}
+
 
           {/* Nurse dropdown: add Medical Form and Queue buttons above Logout */}
           <div style={{ position: 'relative' }}>

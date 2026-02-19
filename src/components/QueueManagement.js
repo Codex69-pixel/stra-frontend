@@ -34,7 +34,7 @@ const urgencyConfig = {
 };
 
 
-const QueueManagement = () => {
+const QueueManagement = ({ onNavigate }) => {
   const [departments, setDepartments] = useState([]);
   const [selectedDept, setSelectedDept] = useState('ALL');
   const [patients, setPatients] = useState([]);
@@ -173,26 +173,34 @@ const QueueManagement = () => {
   return (
     <div className="w-full bg-gradient-to-br from-gray-50 to-teal-50/30 p-4 md:p-6 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Patient Queue Management</h1>
-            <p className="text-gray-600 mt-2">Monitor and manage patient queues in real-time</p>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            <button 
-              className="md:hidden p-2 bg-white rounded-lg border border-gray-200 shadow-sm"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-            >
-              {sidebarOpen ? <X className="w-5 h-5" /> : <Filter className="w-5 h-5" />}
-            </button>
-            <button 
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-              onClick={handleRefresh}
-            >
-              Refresh Queue
-            </button>
+        {/* Back to Dashboard Button */}
+        <div className="flex items-center justify-between mb-6 gap-4">
+          <button
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-colors shadow"
+            style={{ minWidth: 160 }}
+            onClick={() => onNavigate && onNavigate('resources')}
+          >
+            ← Back to Dashboard
+          </button>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Patient Queue Management</h1>
+              <p className="text-gray-600 mt-2">Monitor and manage patient queues in real-time</p>
+            </div>
+            <div className="flex items-center space-x-3 mt-4 md:mt-0">
+              <button 
+                className="md:hidden p-2 bg-white rounded-lg border border-gray-200 shadow-sm"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              >
+                {sidebarOpen ? <X className="w-5 h-5" /> : <Filter className="w-5 h-5" />}
+              </button>
+              <button 
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                onClick={handleRefresh}
+              >
+                Refresh Queue
+              </button>
+            </div>
           </div>
         </div>
 

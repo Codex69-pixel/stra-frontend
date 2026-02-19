@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState } from "react";
 import apiService from "../services/api";
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ onNavigate }) {
   const [userStats, setUserStats] = useState(null);
   const [resourceStats, setResourceStats] = useState(null);
   const [inventoryStats, setInventoryStats] = useState(null);
@@ -36,7 +37,25 @@ export default function AdminDashboard() {
 
   return (
     <div className="p-8 space-y-8">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        {/* Go to module dropdown for admin */}
+        {onNavigate && (
+          <select
+            style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid #14b8a6', background: '#fff', color: '#0d9488', fontWeight: 600 }}
+            onChange={e => onNavigate(e.target.value)}
+            defaultValue=""
+          >
+            <option value="" disabled>Go to module...</option>
+            <option value="nurse">Nurse Triage</option>
+            <option value="queue">Queue Management</option>
+            <option value="doctor">Doctor Portal</option>
+            <option value="resources">Resource Dashboard</option>
+            <option value="inventory">Inventory</option>
+            <option value="analytics">Analytics</option>
+          </select>
+        )}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white rounded-xl shadow p-6">
           <h2 className="text-lg font-semibold mb-2">Total Users</h2>

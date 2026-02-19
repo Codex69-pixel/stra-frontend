@@ -51,6 +51,7 @@ export default function App() {
           {(currentScreen === 'nurse' || currentScreen === 'nastriage') && <NurseTriage onNavigate={handleNavigate} />}
           {currentScreen === 'queue' && <QueueManagement onNavigate={handleNavigate} />}
           {currentScreen === 'resources' && <ResourceDashboard onNavigate={handleNavigate} />}
+          {currentScreen === 'admin' && <AdminDashboard onNavigate={handleNavigate} />}
           {currentScreen === 'doctor' && <DoctorPortal onNavigate={handleNavigate} />}
           {currentScreen === 'inventory' && <InventoryManagement onNavigate={handleNavigate} />}
           {currentScreen === 'analytics' && <AnalyticsDashboard onNavigate={handleNavigate} />}
