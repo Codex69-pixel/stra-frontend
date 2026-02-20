@@ -78,7 +78,7 @@ export function ResourceDashboard({ onNavigate }) {
         <div style={{display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap'}}>
           <h1 style={{fontWeight: 700, fontSize: '1.3rem', letterSpacing: '0.01em', margin: 0}}>Hospital Resources</h1>
         </div>
-        <div style={{position: 'relative', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap'}}>
+        <div style={{position: 'relative', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', height: '64px'}}>
           {onNavigate && (
             <select
               className="module-select"
@@ -111,7 +111,17 @@ export function ResourceDashboard({ onNavigate }) {
           <NotificationButton onClick={() => alert('Notifications will appear here. (Backend integration pending)')} />
           {/* Persona/User Icon */}
           <button
-            style={{background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, marginLeft: 16}}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'inherit',
+              cursor: 'pointer',
+              padding: 0,
+              marginLeft: 0,
+              display: 'flex',
+              alignItems: 'center',
+              height: '64px',
+            }}
             onClick={() => setShowDropdown(prev => !prev)}
             aria-label="User menu"
           >
