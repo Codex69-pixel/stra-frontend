@@ -6,12 +6,12 @@ import apiService from '../services/api';
 
 export function LoginScreen({ onLogin, devMode }) {
   const devLoginBtnRef = useRef(null);
-    // Hide Dev Login button if needed
-    useEffect(() => {
-      if (devLoginBtnRef.current) {
-        devLoginBtnRef.current.style.display = 'none';
-      }
-    }, []); // Run once on mount
+  // Hide Dev Login button if needed
+  useEffect(() => {
+    if (devLoginBtnRef.current) {
+      devLoginBtnRef.current.style.display = 'none';
+    }
+  }, []); // Run once on mount
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [selectedRole, setSelectedRole] = useState('doctor');
@@ -24,6 +24,53 @@ export function LoginScreen({ onLogin, devMode }) {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Registration state
+  const [showSignup, setShowSignup] = useState(false);
+  const [signupData, setSignupData] = useState({
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    role: 'doctor',
+    department: '',
+    phoneNumber: '',
+    specialization: '',
+    licenseNumber: ''
+  });
+  const [signupError, setSignupError] = useState(null);
+  const [signupLoading, setSignupLoading] = useState(false);
+
+  const handleSignupChange = (e) => {
+    const { name, value } = e.target;
+    setSignupData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSignupSubmit = async (e) => {
+    e.preventDefault();
+    setSignupError(null);
+    setSignupLoading(true);
+    try {
+      // Replace with your baseUrl
+      const baseUrl = process.env.REACT_APP_BASE_URL || '';
+      const response = await fetch(`${baseUrl}/api/v1/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(signupData)
+      });
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Registration failed');
+      }
+      setShowSignup(false);
+      alert('Registration successful! You can now log in.');
+    } catch (err) {
+      setSignupError(err.message || 'Registration failed');
+    } finally {
+      setSignupLoading(false);
+    }
+  };
+
+  // Login handlers
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -76,41 +123,40 @@ export function LoginScreen({ onLogin, devMode }) {
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="login-form">
-            
             {/* Username Input */}
             <div>
               <div className="input-container">
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="max.alan@hkgeneral.com"
-                    className="form-input"
-                    style={{ paddingRight: '2.5rem' }}
-                  />
-                  <div style={{ position: 'absolute', right: '1.25rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', display: 'flex', alignItems: 'center', height: '100%' }}>
-                    <UserIcon className="input-icon" style={{ color: '#9ca3af', width: '1.25rem', height: '1.25rem' }} />
-                  </div>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="max.alan@hkgeneral.com"
+                  className="form-input"
+                  style={{ paddingRight: '2.5rem' }}
+                />
+                <div style={{ position: 'absolute', right: '1.25rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', display: 'flex', alignItems: 'center', height: '100%' }}>
+                  <UserIcon className="input-icon" style={{ color: '#9ca3af', width: '1.25rem', height: '1.25rem' }} />
+                </div>
               </div>
             </div>
 
             {/* Password Input */}
             <div>
               <div className="input-container">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••••••••••"
-                    className="form-input password-input"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="password-toggle"
-                  >
-                    {showPassword ? <EyeOff className="input-icon" /> : <Eye className="input-icon" />}
-                  </button>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••••••••••"
+                  className="form-input password-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="password-toggle"
+                >
+                  {showPassword ? <EyeOff className="input-icon" /> : <Eye className="input-icon" />}
+                </button>
               </div>
             </div>
 
@@ -145,7 +191,6 @@ export function LoginScreen({ onLogin, devMode }) {
                 Need Help?
               </button>
             </div>
-
 
             {/* Error Message */}
             {error && <div className="login-error">{error}</div>}
@@ -191,17 +236,42 @@ export function LoginScreen({ onLogin, devMode }) {
                 <button
                   type="button"
                   className="alternative-button"
+                  onClick={() => setShowSignup(true)}
                 >
-                  <svg className="alternative-button-icon twitter-icon" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                  </svg>
-                  <span className="alternative-button-text">Login with Twitter</span>
+                  <span className="alternative-button-text">Register</span>
                 </button>
               </div>
             </div>
           </form>
         </div>
       </div>
+      {/* Signup Modal */}
+      {showSignup && (
+        <div className="signup-modal" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.2)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="signup-card" style={{ background: 'white', borderRadius: '1rem', padding: '2rem', maxWidth: 500, width: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+            <h2 style={{ marginBottom: '1rem', textAlign: 'center' }}>Register</h2>
+            <form onSubmit={handleSignupSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <input name="email" type="email" value={signupData.email} onChange={handleSignupChange} placeholder="Email" required className="form-input" />
+              <input name="password" type="password" value={signupData.password} onChange={handleSignupChange} placeholder="Password" required className="form-input" />
+              <input name="firstName" type="text" value={signupData.firstName} onChange={handleSignupChange} placeholder="First Name" required className="form-input" />
+              <input name="lastName" type="text" value={signupData.lastName} onChange={handleSignupChange} placeholder="Last Name" required className="form-input" />
+              <select name="role" value={signupData.role} onChange={handleSignupChange} className="form-input">
+                <option value="doctor">Doctor</option>
+                <option value="nurse">Nurse</option>
+                <option value="admin">Admin</option>
+                <option value="pharmacy">Pharmacy</option>
+              </select>
+              <input name="department" type="text" value={signupData.department} onChange={handleSignupChange} placeholder="Department" className="form-input" />
+              <input name="phoneNumber" type="text" value={signupData.phoneNumber} onChange={handleSignupChange} placeholder="Phone Number" className="form-input" />
+              <input name="specialization" type="text" value={signupData.specialization} onChange={handleSignupChange} placeholder="Specialization" className="form-input" />
+              <input name="licenseNumber" type="text" value={signupData.licenseNumber} onChange={handleSignupChange} placeholder="License Number" className="form-input" />
+              {signupError && <div className="login-error">{signupError}</div>}
+              <button type="submit" className="login-button" disabled={signupLoading}>{signupLoading ? 'Registering...' : 'Register'}</button>
+              <button type="button" className="login-button" style={{ background: '#888', marginTop: 8 }} onClick={() => setShowSignup(false)}>Cancel</button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
