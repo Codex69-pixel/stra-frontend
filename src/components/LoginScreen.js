@@ -313,8 +313,7 @@ export function LoginScreen({ onLogin, devMode }) {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 8,
-                    borderTopRightRadius: '0.75rem',
-                    borderBottomRightRadius: '0.75rem',
+                    padding: '1rem',
                   }}
                   disabled={signupLoading}
                 >
@@ -333,9 +332,7 @@ export function LoginScreen({ onLogin, devMode }) {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 8,
-                    borderTopLeftRadius: '0.75rem',
-                    borderBottomLeftRadius: '0.75rem',
-                    border: '1.5px solid #e5e7eb',
+                    padding: '1rem',
                   }}
                   onClick={() => setShowSignup(false)}
                 >
