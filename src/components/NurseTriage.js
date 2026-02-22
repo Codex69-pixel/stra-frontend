@@ -198,7 +198,7 @@ export function NurseTriage({ onNavigate }) {
   const [registering, setRegistering] = useState(false);
   const [registerError, setRegisterError] = useState(null);
   const [registerSuccess, setRegisterSuccess] = useState(null);
-  const [registeredPatientId, setRegisteredPatientId] = useState(null);
+  // Removed unused registeredPatientId to fix ESLint error
 
   const handleRegisterPatient = async () => {
     setRegistering(true);
@@ -251,8 +251,8 @@ export function NurseTriage({ onNavigate }) {
         throw new Error(err.message || 'Failed to register patient');
       }
       const patient = await res.json();
-      const patientId = patient.id || patient.patientId;
-      setRegisteredPatientId(patientId);
+      // const patientId = patient.id || patient.patientId;
+      // setRegisteredPatientId(patientId); // removed, no longer needed
       setRegisterSuccess('Patient registered successfully!');
       setRegistering(false);
       setTimeout(() => {
