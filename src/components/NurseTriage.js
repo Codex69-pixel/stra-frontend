@@ -23,23 +23,24 @@ export function NurseTriage({ onNavigate }) {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    name: '',
-    dateOfBirth: '',
+    name: '', // Added for step 5
     dob: '',
     gender: '',
     phoneNumber: '',
-    mobilePhone: '',
-    homePhone: '',
-    email: '',
+    mobilePhone: '', // Added for step 5
+    emergencyContact: '',
+    emergencyContactName: '',
+    nationalId: '',
+    nhifNumber: '',
     address: '',
     county: '',
     subCounty: '',
-    emergencyContact: '',
-    emergencyContactName: '',
-    emergencyContactPhone: '',
     bloodGroup: '',
     allergies: '',
+    allergyInput: '',
     chronicConditions: [],
+    conditionInput: '',
+    // The rest for later steps
     medications: '',
     surgicalHistory: '',
     familyHistory: '',
@@ -59,7 +60,7 @@ export function NurseTriage({ onNavigate }) {
     avpu: '',
     mobility: '',
     chiefComplaint: '',
-    symptoms: [],
+    symptoms: [], // Initialize as array for step 3 and 5
     symptomDuration: '',
     severity: '',
     triageNotes: ''
@@ -94,11 +95,6 @@ export function NurseTriage({ onNavigate }) {
   // SATS Triage Calculation
   const [selectedDiscriminator, setSelectedDiscriminator] = useState('');
   const [discriminatorNotes, setDiscriminatorNotes] = useState('');
-
-  // Patient search handler
-  // ...existing code...
-
-  // ...existing code...
 
   // SATS vital sign cutoffs (simplified for demo)
   function getSATSLevel() {
@@ -155,7 +151,18 @@ export function NurseTriage({ onNavigate }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      const newData = { ...prev, [name]: value };
+      // Update name field when firstName/lastName change
+      if (name === 'firstName' || name === 'lastName') {
+        newData.name = `${newData.firstName} ${newData.lastName}`.trim();
+      }
+      // Update mobilePhone when phoneNumber changes
+      if (name === 'phoneNumber') {
+        newData.mobilePhone = value;
+      }
+      return newData;
+    });
   };
 
   const handleSymptomToggle = (symptom) => {
@@ -176,6 +183,7 @@ export function NurseTriage({ onNavigate }) {
     }));
   };
 
+  // Step navigation handler
   const handleNext = () => {
     const validation = validateStep(step);
     if (validation.valid) {
@@ -183,6 +191,77 @@ export function NurseTriage({ onNavigate }) {
       setErrors({});
     } else {
       setErrors(validation.errors);
+    }
+  };
+
+  // Step 1: Register patient before moving to step 2
+  const [registering, setRegistering] = useState(false);
+  const [registerError, setRegisterError] = useState(null);
+  const [registerSuccess, setRegisterSuccess] = useState(null);
+  const [registeredPatientId, setRegisteredPatientId] = useState(null);
+
+  const handleRegisterPatient = async () => {
+    setRegistering(true);
+    setRegisterError(null);
+    setRegisterSuccess(null);
+    // Validate only registration fields
+    const errors = {};
+    if (!formData.firstName) errors.firstName = 'First name is required.';
+    if (!formData.lastName) errors.lastName = 'Last name is required.';
+    if (!formData.dob) errors.dob = 'Date of birth is required.';
+    if (!formData.gender) errors.gender = 'Gender is required.';
+    if (!formData.phoneNumber) errors.phoneNumber = 'Phone number is required.';
+    if (!formData.county) errors.county = 'County is required.';
+    if (!formData.subCounty) errors.subCounty = 'Sub-county is required.';
+    if (!formData.bloodGroup) errors.bloodGroup = 'Blood group is required.';
+    setErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      setRegistering(false);
+      return;
+    }
+    // Prepare payload
+    const patientPayload = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      dateOfBirth: formData.dob,
+      gender: formData.gender,
+      phoneNumber: formData.phoneNumber,
+      emergencyContact: formData.emergencyContact,
+      emergencyContactName: formData.emergencyContactName,
+      nationalId: formData.nationalId,
+      nhifNumber: formData.nhifNumber,
+      address: formData.address,
+      county: formData.county,
+      subCounty: formData.subCounty,
+      bloodGroup: formData.bloodGroup,
+      allergies: formData.allergies,
+      chronicConditions: formData.chronicConditions,
+    };
+    try {
+      const res = await fetch('/api/v1/triage/patients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + getToken(),
+        },
+        body: JSON.stringify(patientPayload),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to register patient');
+      }
+      const patient = await res.json();
+      const patientId = patient.id || patient.patientId;
+      setRegisteredPatientId(patientId);
+      setRegisterSuccess('Patient registered successfully!');
+      setRegistering(false);
+      setTimeout(() => {
+        setStep(2);
+        setRegisterSuccess(null);
+      }, 1000);
+    } catch (err) {
+      setRegisterError(err.message || 'Failed to register patient');
+      setRegistering(false);
     }
   };
 
@@ -205,23 +284,22 @@ export function NurseTriage({ onNavigate }) {
   function validateStep(step) {
     const errors = {};
     if (step === 1) {
-      if (!formData.firstName && !formData.name) errors.firstName = 'First name is required.';
+      if (!formData.firstName) errors.firstName = 'First name is required.';
       if (!formData.lastName) errors.lastName = 'Last name is required.';
-      if (!formData.dateOfBirth && !formData.dob) errors.dateOfBirth = 'Date of birth is required (YYYY-MM-DD).';
+      if (!formData.dob) errors.dob = 'Date of birth is required (YYYY-MM-DD).';
       if (!formData.gender) errors.gender = 'Gender must be Male, Female, or Other.';
-      if (!formData.phoneNumber && !formData.mobilePhone) errors.phoneNumber = 'Phone number is required.';
-      if (!formData.address) errors.address = 'Address is required.';
+      if (!formData.phoneNumber) errors.phoneNumber = 'Phone number is required.';
       if (!formData.county) errors.county = 'County is required.';
       if (!formData.subCounty) errors.subCounty = 'Sub-county is required.';
       if (!formData.bloodGroup) errors.bloodGroup = 'Blood group is required.';
     }
     if (step === 2) {
       if (!formData.temperature) errors.temperature = 'Temperature is required.';
-      if (!formData.systolicBp && !formData.bloodPressureSystolic) errors.systolicBp = 'Systolic BP is required.';
-      if (!formData.diastolicBp && !formData.bloodPressureDiastolic) errors.diastolicBp = 'Diastolic BP is required.';
+      if (!formData.bloodPressureSystolic && !formData.systolicBp) errors.bloodPressureSystolic = 'Systolic BP is required.';
+      if (!formData.bloodPressureDiastolic && !formData.diastolicBp) errors.bloodPressureDiastolic = 'Diastolic BP is required.';
       if (!formData.heartRate) errors.heartRate = 'Heart rate is required.';
       if (!formData.respiratoryRate) errors.respiratoryRate = 'Respiratory rate is required.';
-      if (!formData.oxygenSaturation && !formData.spo2) errors.oxygenSaturation = 'Oxygen saturation is required.';
+      if (!formData.spo2 && !formData.oxygenSaturation) errors.spo2 = 'Oxygen saturation is required.';
       if (!formData.weight) errors.weight = 'Weight is required.';
       if (!formData.height) errors.height = 'Height is required.';
       if (!formData.avpu) errors.avpu = 'AVPU is required.';
@@ -265,11 +343,11 @@ export function NurseTriage({ onNavigate }) {
 
     // 1. Register patient
     const patientPayload = {
-      firstName: formData.firstName || formData.name,
+      firstName: formData.firstName,
       lastName: formData.lastName,
-      dateOfBirth: formData.dateOfBirth || formData.dob,
+      dateOfBirth: formData.dob,
       gender: formData.gender,
-      phoneNumber: formData.phoneNumber || formData.mobilePhone,
+      phoneNumber: formData.phoneNumber,
       emergencyContact: formData.emergencyContact,
       emergencyContactName: formData.emergencyContactName,
       nationalId: formData.nationalId,
@@ -300,7 +378,7 @@ export function NurseTriage({ onNavigate }) {
       patientId = patient.id || patient.patientId;
       // Save patient name and ID to localStorage for search
       if (patientId) {
-        const patientName = `${formData.firstName || formData.name} ${formData.lastName}`.trim().toLowerCase();
+        const patientName = `${formData.firstName} ${formData.lastName}`.trim().toLowerCase();
         let patientMap = {};
         try {
           patientMap = JSON.parse(localStorage.getItem('patientMap') || '{}');
@@ -628,28 +706,38 @@ export function NurseTriage({ onNavigate }) {
 
           {/* Step Content */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8 animate-fadeIn">
-            {/* Step 1: Demographics */}
+            {/* Step 1: Patient Registration */}
             {step === 1 && (
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-gray-900 flex items-center mb-6">
                   <User className="w-6 h-6 mr-2 text-blue-600" />
-                  Patient Demographics
+                  Patient Registration
                 </h2>
-
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="input-group">
-                    <label className="input-label">Full Name *</label>
+                    <label className="input-label">First Name *</label>
                     <input
                       type="text"
-                      name="name"
-                      value={formData.name}
+                      name="firstName"
+                      value={formData.firstName}
                       onChange={handleInputChange}
-                      placeholder="Enter patient's full name"
+                      placeholder="First Name"
                       className="input-field"
                     />
-                    {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
+                    {errors.firstName && <p className="text-red-600 text-sm mt-1">{errors.firstName}</p>}
                   </div>
-
+                  <div className="input-group">
+                    <label className="input-label">Last Name *</label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      placeholder="Last Name"
+                      className="input-field"
+                    />
+                    {errors.lastName && <p className="text-red-600 text-sm mt-1">{errors.lastName}</p>}
+                  </div>
                   <div className="input-group">
                     <label className="input-label">Date of Birth *</label>
                     <input
@@ -661,7 +749,6 @@ export function NurseTriage({ onNavigate }) {
                     />
                     {errors.dob && <p className="text-red-600 text-sm mt-1">{errors.dob}</p>}
                   </div>
-
                   <div className="input-group">
                     <label className="input-label">Gender *</label>
                     <select
@@ -677,144 +764,302 @@ export function NurseTriage({ onNavigate }) {
                     </select>
                     {errors.gender && <p className="text-red-600 text-sm mt-1">{errors.gender}</p>}
                   </div>
-
                   <div className="input-group">
-                    <label className="input-label">Mobile Phone *</label>
+                    <label className="input-label">Phone Number *</label>
                     <input
                       type="tel"
-                      name="mobilePhone"
-                      value={formData.mobilePhone}
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
                       onChange={handleInputChange}
                       placeholder="+254 712 345 678"
                       className="input-field"
                     />
-                    {errors.mobilePhone && <p className="text-red-600 text-sm mt-1">{errors.mobilePhone}</p>}
+                    {errors.phoneNumber && <p className="text-red-600 text-sm mt-1">{errors.phoneNumber}</p>}
                   </div>
-
                   <div className="input-group">
-                    <label className="input-label">Home Phone</label>
+                    <label className="input-label">Emergency Contact</label>
                     <input
-                      type="tel"
-                      name="homePhone"
-                      value={formData.homePhone}
+                      type="text"
+                      name="emergencyContact"
+                      value={formData.emergencyContact}
                       onChange={handleInputChange}
-                      placeholder="Optional"
+                      placeholder="Emergency Contact"
                       className="input-field"
                     />
                   </div>
-
                   <div className="input-group">
-                    <label className="input-label">Email</label>
+                    <label className="input-label">Emergency Contact Name</label>
                     <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
+                      type="text"
+                      name="emergencyContactName"
+                      value={formData.emergencyContactName}
                       onChange={handleInputChange}
-                      placeholder="patient@email.com"
+                      placeholder="Contact person name"
                       className="input-field"
                     />
                   </div>
-
                   <div className="input-group">
-                    <label className="input-label">Sub-County</label>
+                    <label className="input-label">National ID</label>
+                    <input
+                      type="text"
+                      name="nationalId"
+                      value={formData.nationalId}
+                      onChange={handleInputChange}
+                      placeholder="National ID"
+                      className="input-field"
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">NHIF Number</label>
+                    <input
+                      type="text"
+                      name="nhifNumber"
+                      value={formData.nhifNumber}
+                      onChange={handleInputChange}
+                      placeholder="NHIF Number"
+                      className="input-field"
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">Address</label>
+                    <input
+                      type="text"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      placeholder="Address"
+                      className="input-field"
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">County</label>
+                    <input
+                      type="text"
+                      name="county"
+                      value={formData.county}
+                      onChange={handleInputChange}
+                      placeholder="County"
+                      className="input-field"
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">Sub County</label>
                     <input
                       type="text"
                       name="subCounty"
                       value={formData.subCounty}
                       onChange={handleInputChange}
-                      placeholder="Sub-county (optional)"
+                      placeholder="Sub County"
                       className="input-field"
                     />
                   </div>
-                </div>
-
-                <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 mt-6">
-                  <h3 className="font-semibold text-gray-900 mb-4">Emergency Contact</h3>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="input-group">
-                      <label className="input-label">Name</label>
-                      <input
-                        type="text"
-                        name="emergencyContactName"
-                        value={formData.emergencyContactName}
-                        onChange={handleInputChange}
-                        placeholder="Contact person name"
-                        className="input-field"
-                      />
-                    </div>
-                    <div className="input-group">
-                      <label className="input-label">Phone</label>
-                      <input
-                        type="tel"
-                        name="emergencyContactPhone"
-                        value={formData.emergencyContactPhone}
-                        onChange={handleInputChange}
-                        placeholder="Contact number"
-                        className="input-field"
-                      />
-                    </div>
+                  <div className="input-group">
+                    <label className="input-label">Blood Group</label>
+                    <select
+                      name="bloodGroup"
+                      value={formData.bloodGroup}
+                      onChange={handleInputChange}
+                      className="input-field"
+                    >
+                      <option value="">Select Blood Group</option>
+                      <option value="A+">A+</option>
+                      <option value="A-">A-</option>
+                      <option value="B+">B+</option>
+                      <option value="B-">B-</option>
+                      <option value="AB+">AB+</option>
+                      <option value="AB-">AB-</option>
+                      <option value="O+">O+</option>
+                      <option value="O-">O-</option>
+                    </select>
                   </div>
                 </div>
+                {/* Allergies Section */}
+                <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 mt-6">
+                  <h3 className="font-semibold text-gray-900 mb-2">Allergies</h3>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {(formData.allergies || '').split(',').filter(a => a.trim()).map((allergy, idx) => (
+                      <span key={idx} className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
+                        {allergy}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      name="allergyInput"
+                      value={formData.allergyInput || ''}
+                      onChange={e => setFormData(prev => ({ ...prev, allergyInput: e.target.value }))}
+                      placeholder="Allergy"
+                      className="input-field flex-1"
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => {
+                        if (formData.allergyInput && formData.allergyInput.trim()) {
+                          setFormData(prev => ({
+                            ...prev,
+                            allergies: prev.allergies ? prev.allergies + ',' + prev.allergyInput.trim() : prev.allergyInput.trim(),
+                            allergyInput: ''
+                          }));
+                        }
+                      }}
+                    >Add Allergy</button>
+                  </div>
+                </div>
+                {/* Chronic Conditions Section */}
+                <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 mt-6">
+                  <h3 className="font-semibold text-gray-900 mb-2">Chronic Conditions</h3>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {(formData.chronicConditions || []).map((condition, idx) => (
+                      <span key={idx} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                        {condition}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      name="conditionInput"
+                      value={formData.conditionInput || ''}
+                      onChange={e => setFormData(prev => ({ ...prev, conditionInput: e.target.value }))}
+                      placeholder="Condition"
+                      className="input-field flex-1"
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => {
+                        if (formData.conditionInput && formData.conditionInput.trim()) {
+                          setFormData(prev => ({
+                            ...prev,
+                            chronicConditions: [...(prev.chronicConditions || []), prev.conditionInput.trim()],
+                            conditionInput: ''
+                          }));
+                        }
+                      }}
+                    >Add Condition</button>
+                  </div>
+                </div>
+                {/* Register Patient Button */}
+                    <div className="flex flex-col items-end mt-8 gap-2">
+                      {registerError && <div className="text-red-600 font-semibold mb-2">{registerError}</div>}
+                      {registerSuccess && <div className="text-green-600 font-semibold mb-2">{registerSuccess}</div>}
+                      <button
+                        type="button"
+                        className="btn btn-success px-8 py-3 text-lg font-bold"
+                        onClick={handleRegisterPatient}
+                        disabled={registering}
+                      >
+                        {registering ? 'Registering...' : 'Register Patient'}
+                      </button>
+                    </div>
               </div>
             )}
 
-            {/* Step 2: Vital Signs */}
+            {/* Step 2: Vitals & Symptoms */}
             {step === 2 && (
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-gray-900 flex items-center mb-6">
                   <Heart className="w-6 h-6 mr-2 text-red-600" />
-                  Vital Signs Assessment
+                  Vitals & Symptoms
                 </h2>
-
                 <div className="grid md:grid-cols-2 gap-4 mb-6">
-                  {[
-                    { label: 'Temperature (°C)', name: 'temperature', icon: Thermometer, color: 'text-red-600' },
-                    { label: 'Heart Rate (bpm)', name: 'heartRate', icon: Activity, color: 'text-pink-600' },
-                    { label: 'Systolic BP (mmHg)', name: 'bloodPressureSystolic', icon: Zap, color: 'text-blue-600' },
-                    { label: 'Diastolic BP (mmHg)', name: 'bloodPressureDiastolic', icon: Zap, color: 'text-blue-600' },
-                    { label: 'Respiratory Rate', name: 'respiratoryRate', icon: Wind, color: 'text-teal-600' },
-                    { label: 'SpO₂ (%)', name: 'spo2', icon: Droplet, color: 'text-cyan-600' }
-                  ].map((vital) => {
-                    const Icon = vital.icon;
-                    return (
-                      <div key={vital.name} className="input-group">
-                        <label className="input-label flex items-center">
-                          <Icon className={`w-4 h-4 mr-2 ${vital.color}`} />
-                          {vital.label} *
-                        </label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          name={vital.name}
-                          value={formData[vital.name]}
-                          onChange={handleInputChange}
-                          placeholder="Enter value"
-                          className="input-field"
-                        />
-                        {errors[vital.name] && <p className="text-red-600 text-sm mt-1">{errors[vital.name]}</p>}
-                      </div>
-                    );
-                  })}
-
                   <div className="input-group">
                     <label className="input-label flex items-center">
-                      <Ruler className="w-4 h-4 mr-2 text-green-600" />
-                      Height (cm)
+                      <Thermometer className="w-4 h-4 mr-2 text-red-600" />
+                      Temperature (°C) *
                     </label>
                     <input
                       type="number"
-                      name="height"
-                      value={formData.height}
+                      step="0.1"
+                      name="temperature"
+                      value={formData.temperature}
                       onChange={handleInputChange}
-                      placeholder="Height in cm"
+                      placeholder="Enter value"
                       className="input-field"
                     />
+                    {errors.temperature && <p className="text-red-600 text-sm mt-1">{errors.temperature}</p>}
                   </div>
-
+                  <div className="input-group">
+                    <label className="input-label flex items-center">
+                      <Activity className="w-4 h-4 mr-2 text-pink-600" />
+                      Heart Rate (bpm) *
+                    </label>
+                    <input
+                      type="number"
+                      name="heartRate"
+                      value={formData.heartRate}
+                      onChange={handleInputChange}
+                      placeholder="Enter value"
+                      className="input-field"
+                    />
+                    {errors.heartRate && <p className="text-red-600 text-sm mt-1">{errors.heartRate}</p>}
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label flex items-center">
+                      <Zap className="w-4 h-4 mr-2 text-blue-600" />
+                      Systolic BP (mmHg) *
+                    </label>
+                    <input
+                      type="number"
+                      name="bloodPressureSystolic"
+                      value={formData.bloodPressureSystolic}
+                      onChange={handleInputChange}
+                      placeholder="Enter value"
+                      className="input-field"
+                    />
+                    {errors.bloodPressureSystolic && <p className="text-red-600 text-sm mt-1">{errors.bloodPressureSystolic}</p>}
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label flex items-center">
+                      <Zap className="w-4 h-4 mr-2 text-blue-600" />
+                      Diastolic BP (mmHg) *
+                    </label>
+                    <input
+                      type="number"
+                      name="bloodPressureDiastolic"
+                      value={formData.bloodPressureDiastolic}
+                      onChange={handleInputChange}
+                      placeholder="Enter value"
+                      className="input-field"
+                    />
+                    {errors.bloodPressureDiastolic && <p className="text-red-600 text-sm mt-1">{errors.bloodPressureDiastolic}</p>}
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label flex items-center">
+                      <Wind className="w-4 h-4 mr-2 text-teal-600" />
+                      Respiratory Rate *
+                    </label>
+                    <input
+                      type="number"
+                      name="respiratoryRate"
+                      value={formData.respiratoryRate}
+                      onChange={handleInputChange}
+                      placeholder="Enter value"
+                      className="input-field"
+                    />
+                    {errors.respiratoryRate && <p className="text-red-600 text-sm mt-1">{errors.respiratoryRate}</p>}
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label flex items-center">
+                      <Droplet className="w-4 h-4 mr-2 text-cyan-600" />
+                      SpO₂ (%) *
+                    </label>
+                    <input
+                      type="number"
+                      name="spo2"
+                      value={formData.spo2}
+                      onChange={handleInputChange}
+                      placeholder="Enter value"
+                      className="input-field"
+                    />
+                    {errors.spo2 && <p className="text-red-600 text-sm mt-1">{errors.spo2}</p>}
+                  </div>
                   <div className="input-group">
                     <label className="input-label flex items-center">
                       <Gauge className="w-4 h-4 mr-2 text-purple-600" />
-                      Weight (kg)
+                      Weight (kg) *
                     </label>
                     <input
                       type="number"
@@ -824,15 +1069,83 @@ export function NurseTriage({ onNavigate }) {
                       placeholder="Weight in kg"
                       className="input-field"
                     />
+                    {errors.weight && <p className="text-red-600 text-sm mt-1">{errors.weight}</p>}
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label flex items-center">
+                      <Ruler className="w-4 h-4 mr-2 text-green-600" />
+                      Height (cm) *
+                    </label>
+                    <input
+                      type="number"
+                      name="height"
+                      value={formData.height}
+                      onChange={handleInputChange}
+                      placeholder="Height in cm"
+                      className="input-field"
+                    />
+                    {errors.height && <p className="text-red-600 text-sm mt-1">{errors.height}</p>}
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">AVPU *</label>
+                    <select
+                      name="avpu"
+                      value={formData.avpu}
+                      onChange={handleInputChange}
+                      className="input-field"
+                    >
+                      <option value="">Select AVPU</option>
+                      <option value="ALERT">ALERT</option>
+                      <option value="VERBAL">VERBAL</option>
+                      <option value="PAIN">PAIN</option>
+                      <option value="UNRESPONSIVE">UNRESPONSIVE</option>
+                    </select>
+                    {errors.avpu && <p className="text-red-600 text-sm mt-1">{errors.avpu}</p>}
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">Mobility *</label>
+                    <select
+                      name="mobility"
+                      value={formData.mobility}
+                      onChange={handleInputChange}
+                      className="input-field"
+                    >
+                      <option value="">Select Mobility</option>
+                      <option value="WALKING">WALKING</option>
+                      <option value="WHEELCHAIR">WHEELCHAIR</option>
+                      <option value="STRETCHER">STRETCHER</option>
+                    </select>
+                    {errors.mobility && <p className="text-red-600 text-sm mt-1">{errors.mobility}</p>}
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">Blood Glucose</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      name="bloodGlucose"
+                      value={formData.bloodGlucose}
+                      onChange={handleInputChange}
+                      placeholder="Blood Glucose"
+                      className="input-field"
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">Pain Scale</label>
+                    <input
+                      type="number"
+                      name="painScale"
+                      value={formData.painScale}
+                      onChange={handleInputChange}
+                      placeholder="Pain Scale (0-10)"
+                      className="input-field"
+                    />
                   </div>
                 </div>
-
                 {/* SATS Triage Display */}
                 <div className={`bg-gradient-to-r ${triageLevel.color} text-white rounded-2xl p-6 shadow-lg`}>
                   <h3 className="text-lg font-bold mb-2">SATS Triage: {triageLevel.level} - {triageLevel.status}</h3>
                   <p className="text-white/90">(Based on SATS vital signs and clinical discriminators)</p>
                 </div>
-
                 {/* SATS Clinical Discriminator Selection */}
                 <div className="mt-6">
                   <label className="input-label font-semibold mb-2">SATS Clinical Discriminator (if present):</label>
@@ -1082,8 +1395,8 @@ export function NurseTriage({ onNavigate }) {
                 <div className="space-y-4">
                   <h3 className="font-bold text-gray-900">Patient Information</h3>
                   <div className="grid md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
-                    <p><span className="font-semibold text-gray-700">Name:</span> {formData.name}</p>
-                    <p><span className="font-semibold text-gray-700">Phone:</span> {formData.mobilePhone}</p>
+                    <p><span className="font-semibold text-gray-700">Name:</span> {formData.name || `${formData.firstName} ${formData.lastName}`}</p>
+                    <p><span className="font-semibold text-gray-700">Phone:</span> {formData.mobilePhone || formData.phoneNumber}</p>
                     <p><span className="font-semibold text-gray-700">DOB:</span> {formData.dob}</p>
                     <p><span className="font-semibold text-gray-700">Gender:</span> {formData.gender}</p>
                   </div>
@@ -1095,7 +1408,7 @@ export function NurseTriage({ onNavigate }) {
 
                   <h3 className="font-bold text-gray-900 mt-6">Symptoms</h3>
                   <div className="flex flex-wrap gap-2">
-                    {formData.symptoms.map((symptom) => (
+                    {Array.isArray(formData.symptoms) && formData.symptoms.map((symptom) => (
                       <span key={symptom} className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
                         {symptom}
                       </span>
