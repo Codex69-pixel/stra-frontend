@@ -66,12 +66,7 @@ export function NurseTriage({ onNavigate }) {
   });
 
   // Patient search, queue, and details UI state
-  const [searchResults, setSearchResults] = useState([]);
-  const [queueInfo, setQueueInfo] = useState(null);
-  const [patientDetails, setPatientDetails] = useState(null);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [queueLoading, setQueueLoading] = useState(false);
-  const [detailsLoading, setDetailsLoading] = useState(false);
+  // ...existing code...
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
 
@@ -102,19 +97,9 @@ export function NurseTriage({ onNavigate }) {
   const [discriminatorNotes, setDiscriminatorNotes] = useState('');
 
   // Patient search handler
-  async function handlePatientSearch(query) {
-    setSearchLoading(true);
-    setSubmitError(null);
-    const results = await searchPatients(query);
-    setSearchResults(results);
-    setSearchLoading(false);
-  }
+  // ...existing code...
 
-  // Mock search patients function
-  async function searchPatients(query) {
-    // This is a mock function - replace with actual API call
-    return [];
-  }
+  // ...existing code...
 
   // SATS vital sign cutoffs (simplified for demo)
   function getSATSLevel() {

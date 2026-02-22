@@ -8,10 +8,16 @@ import { InventoryManagement } from './components/InventoryManagement';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import './index.css';
+import PatientRegistration from './components/PatientRegistration';
 // Set to true to bypass authentication during development
 const DEV_MODE = true;
 
 export default function App() {
+    // Define required variables for PatientRegistration
+    const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
+    const nurseId = user?.id || 'nurse123';
+    const departmentId = user?.departmentId || 'dept1';
   const [currentScreen, setCurrentScreen] = useState('login');
   const [user, setUser] = useState(null);
   // Removed unused sidebarOpen state
@@ -49,6 +55,7 @@ export default function App() {
       {/* Wrap main content in ErrorBoundary */}
       <ErrorBoundary>
         <main className="flex-1 overflow-auto w-full bg-gray-50">
+          <PatientRegistration baseUrl={baseUrl} nurseId={nurseId} departmentId={departmentId} />
           {(currentScreen === 'nurse' || currentScreen === 'nastriage') && <NurseTriage onNavigate={handleNavigate} />}
           {currentScreen === 'queue' && <QueueManagement onNavigate={handleNavigate} portalType={user?.role === 'doctor' ? 'doctor' : 'nurse'} />}
           {currentScreen === 'resources' && <ResourceDashboard onNavigate={handleNavigate} />}
