@@ -4,7 +4,7 @@ import { logout } from '../utils/logout';
 import {
   User, Heart, Activity, Save, FileText, AlertCircle,
   CheckCircle, ArrowRight, ArrowLeft, UserCircle, Phone,
-  MapPin, Droplet, Calendar, Users, Plus, X,
+  MapPin, Droplet, Calendar, Plus, X,
   Thermometer, Zap, Droplet as DropletIcon, Wind, Gauge, Ruler,
   Scale, Eye, Bone, Brain, AlertTriangle, Heart as HeartIcon
 } from 'lucide-react';
@@ -177,7 +177,7 @@ export function NurseTriage({ onNavigate }) {
   const triageLevel = getSATSLevel();
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, checked } = e.target;
     
     if (name.startsWith('symptom.')) {
       // Handle symptom checkboxes
@@ -363,7 +363,7 @@ export function NurseTriage({ onNavigate }) {
     }
 
     // Submit triage
-    const vitals = {
+    let vitals = {
       temperature: parseFloat(formData.temperature),
       systolicBp: parseInt(formData.bloodPressureSystolic),
       diastolicBp: parseInt(formData.bloodPressureDiastolic),
