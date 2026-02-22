@@ -9,7 +9,7 @@ import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import './index.css';
-import PatientRegistration from './components/PatientRegistration';
+// import PatientRegistration from './components/PatientRegistration';
 // Set to true to bypass authentication during development
 const DEV_MODE = true;
 
@@ -55,7 +55,7 @@ export default function App() {
       {/* Wrap main content in ErrorBoundary */}
       <ErrorBoundary>
         <main className="flex-1 overflow-auto w-full bg-gray-50">
-          <PatientRegistration baseUrl={baseUrl} nurseId={nurseId} departmentId={departmentId} />
+          {/* <PatientRegistration baseUrl={baseUrl} nurseId={nurseId} departmentId={departmentId} /> */}
           {(currentScreen === 'nurse' || currentScreen === 'nastriage') && <NurseTriage onNavigate={handleNavigate} />}
           {currentScreen === 'queue' && <QueueManagement onNavigate={handleNavigate} portalType={user?.role === 'doctor' ? 'doctor' : 'nurse'} />}
           {currentScreen === 'resources' && <ResourceDashboard onNavigate={handleNavigate} />}
