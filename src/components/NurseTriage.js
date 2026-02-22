@@ -13,21 +13,54 @@ export function NurseTriage({ onNavigate }) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
+  const [registering, setRegistering] = useState(false);
+  const [registerError, setRegisterError] = useState(null);
+  const [registerSuccess, setRegisterSuccess] = useState(null);
+  const [errors, setErrors] = useState({});
+  // Emergency modal state
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
   const [emergencyReason, setEmergencyReason] = useState('');
   const [emergencyNotes, setEmergencyNotes] = useState('');
   const [emergencyError, setEmergencyError] = useState('');
-  const [errors, setErrors] = useState({});
+  // Submit error/success state
+  const [submitError, setSubmitError] = useState(null);
+  const [submitSuccess, setSubmitSuccess] = useState(null);
+  
+  // SATS discriminators and triage
+  const satsDiscriminators = [
+    { value: 'airway', label: 'Threatened airway' },
+    { value: 'breathing', label: 'Severe respiratory distress' },
+    { value: 'circulation', label: 'Shock (SBP < 90 mmHg)' },
+    { value: 'neurology', label: 'Unresponsive (GCS < 9)' },
+    { value: 'seizure', label: 'Active seizure' },
+    { value: 'hypoglycaemia', label: 'Hypoglycaemia (glucose < 3)' },
+    { value: 'major_trauma', label: 'Major trauma' },
+    { value: 'other', label: 'Other (see notes)' },
+  ];
+  const [selectedDiscriminator, setSelectedDiscriminator] = useState('');
+  const [discriminatorNotes, setDiscriminatorNotes] = useState('');
+  
+  // Symptoms and chronic conditions lists
+  const symptomsList = [
+    'Fever', 'Cough', 'Shortness of Breath', 'Chest Pain', 'Abdominal Pain',
+    'Headache', 'Dizziness', 'Nausea/Vomiting', 'Fatigue', 'Body Aches'
+  ];
+  const chronicConditionsList = [
+    'Hypertension', 'Diabetes', 'Asthma', 'Heart Disease', 'Cancer',
+    'Thyroid Disease', 'Arthritis', 'Kidney Disease'
+  ];
+  
+  // Triage level calculation (dummy)
+  const triageLevel = { level: 'GREEN', status: 'Normal', color: 'from-green-500 to-green-600' };
 
   // Form data state
   const [formData, setFormData] = useState({
+    // Step 1: Patient Registration
     firstName: '',
     lastName: '',
-    name: '', // Added for step 5
     dob: '',
     gender: '',
     phoneNumber: '',
-    mobilePhone: '', // Added for step 5
     emergencyContact: '',
     emergencyContactName: '',
     nationalId: '',
@@ -40,131 +73,39 @@ export function NurseTriage({ onNavigate }) {
     allergyInput: '',
     chronicConditions: [],
     conditionInput: '',
-    // The rest for later steps
-    medications: '',
-    surgicalHistory: '',
-    familyHistory: '',
+    // Step 2: Vitals
     temperature: '',
-    heartRate: '',
-    bloodPressureSystolic: '',
-    bloodPressureDiastolic: '',
     systolicBp: '',
     diastolicBp: '',
+    heartRate: '',
     respiratoryRate: '',
     oxygenSaturation: '',
-    spo2: '',
     bloodGlucose: '',
     painScale: '',
     weight: '',
     height: '',
     avpu: '',
     mobility: '',
-    chiefComplaint: '',
-    symptoms: [], // Initialize as array for step 3 and 5
+    // For backward compatibility with field names used in validation
+    bloodPressureSystolic: '',
+    bloodPressureDiastolic: '',
+    spo2: '',
+    // Step 2: Symptoms (array for checkboxes)
+    symptoms: [],
+    // Step 3: Additional fields
     symptomDuration: '',
     severity: '',
-    triageNotes: ''
+    // Step 4: Medical History
+    medications: '',
+    surgicalHistory: '',
+    familyHistory: '',
+    // Chief complaint and notes
+    chiefComplaint: '',
+    triageNotes: '',
+    name: '' // For summary display
   });
 
-  // Patient search, queue, and details UI state
-  const [submitError, setSubmitError] = useState(null);
-  const [submitSuccess, setSubmitSuccess] = useState(null);
-
-  const symptoms = [
-    'Fever', 'Cough', 'Shortness of Breath', 'Chest Pain', 'Abdominal Pain',
-    'Headache', 'Dizziness', 'Nausea/Vomiting', 'Fatigue', 'Body Aches'
-  ];
-
-  const chronicConditions = [
-    'Hypertension', 'Diabetes', 'Asthma', 'Heart Disease', 'Cancer',
-    'Thyroid Disease', 'Arthritis', 'Kidney Disease'
-  ];
-
-  // SATS Clinical Discriminators (examples, can be expanded)
-  const satsDiscriminators = [
-    { value: 'airway', label: 'Threatened airway' },
-    { value: 'breathing', label: 'Severe respiratory distress' },
-    { value: 'circulation', label: 'Shock (SBP < 90 mmHg)' },
-    { value: 'neurology', label: 'Unresponsive (GCS < 9)' },
-    { value: 'seizure', label: 'Active seizure' },
-    { value: 'hypoglycaemia', label: 'Hypoglycaemia (glucose < 3)' },
-    { value: 'major_trauma', label: 'Major trauma' },
-    { value: 'other', label: 'Other (see notes)' },
-  ];
-
-  // SATS Triage Calculation
-  const [selectedDiscriminator, setSelectedDiscriminator] = useState('');
-  const [discriminatorNotes, setDiscriminatorNotes] = useState('');
-
-  // SATS vital sign cutoffs (simplified for demo)
-  function getSATSLevel() {
-    // If a clinical discriminator is selected, RED
-    if (selectedDiscriminator) return { level: 'RED', status: 'Emergency', color: 'from-red-500 to-red-600' };
-
-    const rr = parseInt(formData.respiratoryRate);
-    const hr = parseInt(formData.heartRate);
-    const sbp = parseInt(formData.bloodPressureSystolic || formData.systolicBp);
-    const spo2 = parseInt(formData.spo2 || formData.oxygenSaturation);
-    const temp = parseFloat(formData.temperature);
-
-    // RED: Any of these vital signs in critical range
-    if (
-      rr > 30 || rr < 10 ||
-      hr > 130 || hr < 40 ||
-      sbp < 90 ||
-      spo2 < 90 ||
-      temp > 40 || temp < 35
-    ) return { level: 'RED', status: 'Emergency', color: 'from-red-500 to-red-600' };
-
-    // ORANGE: Next most urgent
-    if (
-      (rr >= 21 && rr <= 30) ||
-      (hr >= 111 && hr <= 130) ||
-      (sbp >= 90 && sbp <= 100) ||
-      (spo2 >= 90 && spo2 <= 94) ||
-      (temp >= 38.5 && temp <= 40)
-    ) return { level: 'ORANGE', status: 'Very Urgent', color: 'from-orange-500 to-orange-600' };
-
-    // YELLOW: Moderate
-    if (
-      (rr >= 16 && rr <= 20) ||
-      (hr >= 91 && hr <= 110) ||
-      (sbp >= 101 && sbp <= 110) ||
-      (spo2 >= 95 && spo2 <= 96) ||
-      (temp >= 37.5 && temp < 38.5)
-    ) return { level: 'YELLOW', status: 'Urgent', color: 'from-yellow-500 to-yellow-600' };
-
-    // GREEN: Normal
-    if (
-      (rr >= 10 && rr <= 15) &&
-      (hr >= 51 && hr <= 90) &&
-      (sbp > 110) &&
-      (spo2 > 96) &&
-      (temp >= 35 && temp < 37.5)
-    ) return { level: 'GREEN', status: 'Routine', color: 'from-green-500 to-green-600' };
-
-    // BLUE: Dead on arrival (not implemented in UI)
-    return { level: 'BLUE', status: 'Deceased', color: 'from-blue-500 to-blue-600' };
-  }
-
-  const triageLevel = getSATSLevel();
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => {
-      const newData = { ...prev, [name]: value };
-      // Update name field when firstName/lastName change
-      if (name === 'firstName' || name === 'lastName') {
-        newData.name = `${newData.firstName} ${newData.lastName}`.trim();
-      }
-      // Update mobilePhone when phoneNumber changes
-      if (name === 'phoneNumber') {
-        newData.mobilePhone = value;
-      }
-      return newData;
-    });
-  };
-
+  // Symptom toggle handler
   const handleSymptomToggle = (symptom) => {
     setFormData(prev => ({
       ...prev,
@@ -174,6 +115,7 @@ export function NurseTriage({ onNavigate }) {
     }));
   };
 
+  // Condition toggle handler
   const handleConditionToggle = (condition) => {
     setFormData(prev => ({
       ...prev,
@@ -183,27 +125,66 @@ export function NurseTriage({ onNavigate }) {
     }));
   };
 
-  // Step navigation handler
+  // Input handler
+  const handleInputChange = (e) => {
+    const { name, value, checked, type } = e.target;
+    
+    if (name === 'allergyInput') {
+      setFormData(prev => ({ ...prev, allergyInput: value }));
+    } else if (name === 'conditionInput') {
+      setFormData(prev => ({ ...prev, conditionInput: value }));
+    } else if (name === 'firstName' || name === 'lastName') {
+      // Update name field for summary display
+      setFormData(prev => {
+        const newData = { ...prev, [name]: value };
+        newData.name = `${newData.firstName} ${newData.lastName}`.trim();
+        return newData;
+      });
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  // Add allergy
+  const handleAddAllergy = () => {
+    if (formData.allergyInput && formData.allergyInput.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        allergies: prev.allergies
+          ? prev.allergies + ',' + prev.allergyInput.trim()
+          : prev.allergyInput.trim(),
+        allergyInput: ''
+      }));
+    }
+  };
+
+  // Add chronic condition
+  const handleAddCondition = () => {
+    if (formData.conditionInput && formData.conditionInput.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        chronicConditions: [...prev.chronicConditions, prev.conditionInput.trim()],
+        conditionInput: ''
+      }));
+    }
+  };
+
+  // Handle next step
   const handleNext = () => {
     const validation = validateStep(step);
     if (validation.valid) {
       setStep(step + 1);
-      setErrors({});
     } else {
       setErrors(validation.errors);
     }
   };
 
-  // Step 1: Register patient before moving to step 2
-  const [registering, setRegistering] = useState(false);
-  const [registerError, setRegisterError] = useState(null);
-  const [registerSuccess, setRegisterSuccess] = useState(null);
-  // Removed unused registeredPatientId to fix ESLint error
-
+  // Register patient
   const handleRegisterPatient = async () => {
     setRegistering(true);
     setRegisterError(null);
     setRegisterSuccess(null);
+    
     // Validate only registration fields
     const errors = {};
     if (!formData.firstName) errors.firstName = 'First name is required.';
@@ -214,11 +195,13 @@ export function NurseTriage({ onNavigate }) {
     if (!formData.county) errors.county = 'County is required.';
     if (!formData.subCounty) errors.subCounty = 'Sub-county is required.';
     if (!formData.bloodGroup) errors.bloodGroup = 'Blood group is required.';
+    
     setErrors(errors);
     if (Object.keys(errors).length > 0) {
       setRegistering(false);
       return;
     }
+    
     // Prepare payload
     const patientPayload = {
       firstName: formData.firstName,
@@ -237,24 +220,26 @@ export function NurseTriage({ onNavigate }) {
       allergies: formData.allergies,
       chronicConditions: formData.chronicConditions,
     };
+    
     try {
       const res = await fetch('/api/v1/triage/patients', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + getToken(),
+          'Authorization': 'Bearer ' + (localStorage.getItem('token') || ''),
         },
         body: JSON.stringify(patientPayload),
       });
+      
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || 'Failed to register patient');
       }
+      
       await res.json();
-      // const patientId = patient.id || patient.patientId;
-      // setRegisteredPatientId(patientId); // removed, no longer needed
       setRegisterSuccess('Patient registered successfully!');
       setRegistering(false);
+      
       setTimeout(() => {
         setStep(2);
         setRegisterSuccess(null);
@@ -265,7 +250,7 @@ export function NurseTriage({ onNavigate }) {
     }
   };
 
-  // Helper: get nurseId from localStorage or context (assume stored at login)
+  // Helper: get nurseId from localStorage
   function getNurseId() {
     try {
       const user = JSON.parse(localStorage.getItem('user'));
@@ -283,6 +268,7 @@ export function NurseTriage({ onNavigate }) {
   // Validation for each step
   function validateStep(step) {
     const errors = {};
+    
     if (step === 1) {
       if (!formData.firstName) errors.firstName = 'First name is required.';
       if (!formData.lastName) errors.lastName = 'Last name is required.';
@@ -293,39 +279,34 @@ export function NurseTriage({ onNavigate }) {
       if (!formData.subCounty) errors.subCounty = 'Sub-county is required.';
       if (!formData.bloodGroup) errors.bloodGroup = 'Blood group is required.';
     }
+    
     if (step === 2) {
       if (!formData.temperature) errors.temperature = 'Temperature is required.';
-      if (!formData.bloodPressureSystolic && !formData.systolicBp) errors.bloodPressureSystolic = 'Systolic BP is required.';
-      if (!formData.bloodPressureDiastolic && !formData.diastolicBp) errors.bloodPressureDiastolic = 'Diastolic BP is required.';
+      if (!formData.systolicBp && !formData.bloodPressureSystolic) errors.bloodPressureSystolic = 'Systolic BP is required.';
+      if (!formData.diastolicBp && !formData.bloodPressureDiastolic) errors.bloodPressureDiastolic = 'Diastolic BP is required.';
       if (!formData.heartRate) errors.heartRate = 'Heart rate is required.';
       if (!formData.respiratoryRate) errors.respiratoryRate = 'Respiratory rate is required.';
-      if (!formData.spo2 && !formData.oxygenSaturation) errors.spo2 = 'Oxygen saturation is required.';
+      if (!formData.oxygenSaturation && !formData.spo2) errors.spo2 = 'Oxygen saturation is required.';
       if (!formData.weight) errors.weight = 'Weight is required.';
       if (!formData.height) errors.height = 'Height is required.';
       if (!formData.avpu) errors.avpu = 'AVPU is required.';
       if (!formData.mobility) errors.mobility = 'Mobility is required.';
     }
+    
     if (step === 3) {
       if (!formData.chiefComplaint) errors.chiefComplaint = 'Chief complaint is required.';
-      if (!formData.symptoms.length) errors.symptoms = 'At least one symptom is required.';
+      if (!formData.symptoms || formData.symptoms.length === 0) errors.symptoms = 'At least one symptom is required.';
     }
+    
     if (step === 4) {
       if (!formData.allergies) errors.allergies = 'Allergies information is required.';
-      if (!formData.chronicConditions.length) errors.chronicConditions = 'At least one chronic condition is required.';
+      if (!formData.chronicConditions || formData.chronicConditions.length === 0) errors.chronicConditions = 'At least one chronic condition is required.';
     }
+    
     return { valid: Object.keys(errors).length === 0, errors };
   }
 
-  function validateAllSteps() {
-    let errors = {};
-    for (let s = 1; s <= 4; s++) {
-      const stepValidation = validateStep(s);
-      errors = { ...errors, ...stepValidation.errors };
-    }
-    return { valid: Object.keys(errors).length === 0, errors };
-  }
-
-  // Strict sequential patient registration and triage submission
+  // Complete triage
   const handleSubmit = async (e, isEmergency = false) => {
     if (e) e.preventDefault();
     setLoading(true);
@@ -333,9 +314,14 @@ export function NurseTriage({ onNavigate }) {
     setSubmitSuccess(null);
 
     // Validate all steps before submit
-    const validation = validateAllSteps();
-    if (!validation.valid) {
-      setErrors(validation.errors);
+    let allErrors = {};
+    for (let s = 1; s <= 4; s++) {
+      const stepValidation = validateStep(s);
+      allErrors = { ...allErrors, ...stepValidation.errors };
+    }
+    
+    if (Object.keys(allErrors).length > 0) {
+      setErrors(allErrors);
       setSubmitError('Please correct the errors before submitting.');
       setLoading(false);
       return;
@@ -370,12 +356,15 @@ export function NurseTriage({ onNavigate }) {
         },
         body: JSON.stringify(patientPayload),
       });
+      
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || 'Failed to register patient');
       }
+      
       const patient = await res.json();
       patientId = patient.id || patient.patientId;
+      
       // Save patient name and ID to localStorage for search
       if (patientId) {
         const patientName = `${formData.firstName} ${formData.lastName}`.trim().toLowerCase();
@@ -394,6 +383,7 @@ export function NurseTriage({ onNavigate }) {
 
     // 2. Submit triage
     const nurseId = getNurseId();
+    
     let vitals = {
       temperature: parseFloat(formData.temperature),
       systolicBp: parseInt(formData.systolicBp || formData.bloodPressureSystolic),
@@ -401,15 +391,17 @@ export function NurseTriage({ onNavigate }) {
       heartRate: parseInt(formData.heartRate),
       respiratoryRate: parseInt(formData.respiratoryRate),
       oxygenSaturation: parseInt(formData.oxygenSaturation || formData.spo2),
-      bloodGlucose: parseFloat(formData.bloodGlucose),
-      painScale: parseInt(formData.painScale),
+      bloodGlucose: parseFloat(formData.bloodGlucose) || null,
+      painScale: parseInt(formData.painScale) || null,
       weight: parseFloat(formData.weight),
       height: parseFloat(formData.height),
       avpu: formData.avpu,
       mobility: formData.mobility,
     };
+    
     let symptoms = formData.symptoms;
     let chiefComplaint = formData.chiefComplaint;
+    
     if (isEmergency) {
       // Set extreme vitals and symptoms for emergency
       vitals = {
@@ -424,6 +416,7 @@ export function NurseTriage({ onNavigate }) {
       symptoms = [...new Set([...(symptoms || []), 'Unresponsive', 'Seizure', 'Not Breathing'])];
       chiefComplaint = 'EMERGENCY: ' + (chiefComplaint || 'Emergency override');
     }
+    
     const triagePayload = {
       patientId,
       nurseId,
@@ -432,6 +425,7 @@ export function NurseTriage({ onNavigate }) {
       chiefComplaint,
       triageNotes: formData.triageNotes || '',
     };
+    
     try {
       const res = await fetch('/api/v1/triage/triage/smart', {
         method: 'POST',
@@ -441,10 +435,12 @@ export function NurseTriage({ onNavigate }) {
         },
         body: JSON.stringify(triagePayload),
       });
+      
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || 'Failed to submit triage');
       }
+      
       setSubmitSuccess('Triage submitted successfully! Patient is now in the queue.');
       setLoading(false);
       if (onNavigate) onNavigate('queue');
@@ -454,22 +450,26 @@ export function NurseTriage({ onNavigate }) {
     }
   };
 
-  // Emergency submit handler (bypasses normal flow, forces emergency)
+  // Emergency submit handler
   const handleEmergencySubmit = async () => {
     if (!emergencyReason || (emergencyReason === 'Others' && !emergencyNotes.trim())) {
       setEmergencyError('Please select a reason and provide notes if "Others".');
       return;
     }
+    
     setEmergencyError('');
+    
     // Set chief complaint to emergency reason
     setFormData(prev => ({
       ...prev,
       chiefComplaint: `EMERGENCY: ${emergencyReason}${emergencyNotes ? ' - ' + emergencyNotes : ''}`
     }));
+    
     setShowEmergencyModal(false);
     setEmergencyReason('');
     setEmergencyNotes('');
     setEmergencyError('');
+    
     // Submit triage as emergency
     await handleSubmit(null, true);
   };
@@ -482,6 +482,7 @@ export function NurseTriage({ onNavigate }) {
       {submitSuccess && (
         <div style={{ background: '#d1fae5', color: '#065f46', padding: 12, borderRadius: 8, margin: 12, textAlign: 'center' }}>{submitSuccess}</div>
       )}
+      
       {/* Fixed TopBar for Nurse Triage */}
       <header style={{
         position: 'fixed',
@@ -502,6 +503,7 @@ export function NurseTriage({ onNavigate }) {
         <div style={{position: 'relative', display: 'flex', alignItems: 'center', gap: 12}}>
           {/* Notification Button */}
           <NotificationButton onClick={() => alert('Notifications will appear here. (Backend integration pending)')} />
+          
           {/* Emergency Button */}
           <button
             style={{
@@ -524,7 +526,7 @@ export function NurseTriage({ onNavigate }) {
             <AlertCircle className="w-5 h-5" style={{marginRight: 4}} /> Emergency
           </button>
 
-          {/* Nurse dropdown: add Medical Form and Queue buttons above Logout */}
+          {/* Nurse dropdown */}
           <div style={{ position: 'relative' }}>
             <button
               style={{background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, marginLeft: 16}}
@@ -533,6 +535,7 @@ export function NurseTriage({ onNavigate }) {
             >
               <User size={28} />
             </button>
+            
             {showLogout && (
               <div style={{
                 position: 'absolute',
@@ -630,6 +633,7 @@ export function NurseTriage({ onNavigate }) {
               <AlertCircle className="w-6 h-6" style={{color: '#b91c1c'}} /> Emergency Override
             </h2>
             <p style={{marginBottom: 16, color: '#444'}}>Select the reason for skipping triage forms:</p>
+            
             <form onSubmit={e => { e.preventDefault(); handleEmergencySubmit(); }}>
               <div style={{display: 'flex', flexDirection: 'column', gap: 10}}>
                 {[
@@ -653,6 +657,7 @@ export function NurseTriage({ onNavigate }) {
                   </label>
                 ))}
               </div>
+              
               {emergencyReason === 'Others' && (
                 <div style={{marginTop: 14}}>
                   <textarea
@@ -664,7 +669,9 @@ export function NurseTriage({ onNavigate }) {
                   />
                 </div>
               )}
+              
               {emergencyError && <p style={{color: '#b91c1c', marginTop: 8, fontWeight: 500}}>{emergencyError}</p>}
+              
               <div style={{display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 24}}>
                 <button
                   type="button"
@@ -713,6 +720,7 @@ export function NurseTriage({ onNavigate }) {
                   <User className="w-6 h-6 mr-2 text-blue-600" />
                   Patient Registration
                 </h2>
+                
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="input-group">
                     <label className="input-label">First Name *</label>
@@ -726,6 +734,7 @@ export function NurseTriage({ onNavigate }) {
                     />
                     {errors.firstName && <p className="text-red-600 text-sm mt-1">{errors.firstName}</p>}
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label">Last Name *</label>
                     <input
@@ -738,6 +747,7 @@ export function NurseTriage({ onNavigate }) {
                     />
                     {errors.lastName && <p className="text-red-600 text-sm mt-1">{errors.lastName}</p>}
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label">Date of Birth *</label>
                     <input
@@ -749,6 +759,7 @@ export function NurseTriage({ onNavigate }) {
                     />
                     {errors.dob && <p className="text-red-600 text-sm mt-1">{errors.dob}</p>}
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label">Gender *</label>
                     <select
@@ -764,6 +775,7 @@ export function NurseTriage({ onNavigate }) {
                     </select>
                     {errors.gender && <p className="text-red-600 text-sm mt-1">{errors.gender}</p>}
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label">Phone Number *</label>
                     <input
@@ -776,6 +788,7 @@ export function NurseTriage({ onNavigate }) {
                     />
                     {errors.phoneNumber && <p className="text-red-600 text-sm mt-1">{errors.phoneNumber}</p>}
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label">Emergency Contact</label>
                     <input
@@ -787,6 +800,7 @@ export function NurseTriage({ onNavigate }) {
                       className="input-field"
                     />
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label">Emergency Contact Name</label>
                     <input
@@ -798,6 +812,7 @@ export function NurseTriage({ onNavigate }) {
                       className="input-field"
                     />
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label">National ID</label>
                     <input
@@ -809,6 +824,7 @@ export function NurseTriage({ onNavigate }) {
                       className="input-field"
                     />
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label">NHIF Number</label>
                     <input
@@ -820,6 +836,7 @@ export function NurseTriage({ onNavigate }) {
                       className="input-field"
                     />
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label">Address</label>
                     <input
@@ -831,8 +848,9 @@ export function NurseTriage({ onNavigate }) {
                       className="input-field"
                     />
                   </div>
+                  
                   <div className="input-group">
-                    <label className="input-label">County</label>
+                    <label className="input-label">County *</label>
                     <input
                       type="text"
                       name="county"
@@ -841,9 +859,11 @@ export function NurseTriage({ onNavigate }) {
                       placeholder="County"
                       className="input-field"
                     />
+                    {errors.county && <p className="text-red-600 text-sm mt-1">{errors.county}</p>}
                   </div>
+                  
                   <div className="input-group">
-                    <label className="input-label">Sub County</label>
+                    <label className="input-label">Sub County *</label>
                     <input
                       type="text"
                       name="subCounty"
@@ -852,9 +872,11 @@ export function NurseTriage({ onNavigate }) {
                       placeholder="Sub County"
                       className="input-field"
                     />
+                    {errors.subCounty && <p className="text-red-600 text-sm mt-1">{errors.subCounty}</p>}
                   </div>
+                  
                   <div className="input-group">
-                    <label className="input-label">Blood Group</label>
+                    <label className="input-label">Blood Group *</label>
                     <select
                       name="bloodGroup"
                       value={formData.bloodGroup}
@@ -871,8 +893,10 @@ export function NurseTriage({ onNavigate }) {
                       <option value="O+">O+</option>
                       <option value="O-">O-</option>
                     </select>
+                    {errors.bloodGroup && <p className="text-red-600 text-sm mt-1">{errors.bloodGroup}</p>}
                   </div>
                 </div>
+                
                 {/* Allergies Section */}
                 <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 mt-6">
                   <h3 className="font-semibold text-gray-900 mb-2">Allergies</h3>
@@ -888,25 +912,18 @@ export function NurseTriage({ onNavigate }) {
                       type="text"
                       name="allergyInput"
                       value={formData.allergyInput || ''}
-                      onChange={e => setFormData(prev => ({ ...prev, allergyInput: e.target.value }))}
+                      onChange={handleInputChange}
                       placeholder="Allergy"
                       className="input-field flex-1"
                     />
                     <button
                       type="button"
                       className="btn btn-primary"
-                      onClick={() => {
-                        if (formData.allergyInput && formData.allergyInput.trim()) {
-                          setFormData(prev => ({
-                            ...prev,
-                            allergies: prev.allergies ? prev.allergies + ',' + prev.allergyInput.trim() : prev.allergyInput.trim(),
-                            allergyInput: ''
-                          }));
-                        }
-                      }}
+                      onClick={handleAddAllergy}
                     >Add Allergy</button>
                   </div>
                 </div>
+                
                 {/* Chronic Conditions Section */}
                 <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 mt-6">
                   <h3 className="font-semibold text-gray-900 mb-2">Chronic Conditions</h3>
@@ -922,38 +939,31 @@ export function NurseTriage({ onNavigate }) {
                       type="text"
                       name="conditionInput"
                       value={formData.conditionInput || ''}
-                      onChange={e => setFormData(prev => ({ ...prev, conditionInput: e.target.value }))}
+                      onChange={handleInputChange}
                       placeholder="Condition"
                       className="input-field flex-1"
                     />
                     <button
                       type="button"
                       className="btn btn-primary"
-                      onClick={() => {
-                        if (formData.conditionInput && formData.conditionInput.trim()) {
-                          setFormData(prev => ({
-                            ...prev,
-                            chronicConditions: [...(prev.chronicConditions || []), prev.conditionInput.trim()],
-                            conditionInput: ''
-                          }));
-                        }
-                      }}
+                      onClick={handleAddCondition}
                     >Add Condition</button>
                   </div>
                 </div>
+                
                 {/* Register Patient Button */}
-                    <div className="flex flex-col items-end mt-8 gap-2">
-                      {registerError && <div className="text-red-600 font-semibold mb-2">{registerError}</div>}
-                      {registerSuccess && <div className="text-green-600 font-semibold mb-2">{registerSuccess}</div>}
-                      <button
-                        type="button"
-                        className="btn btn-success px-8 py-3 text-lg font-bold"
-                        onClick={handleRegisterPatient}
-                        disabled={registering}
-                      >
-                        {registering ? 'Registering...' : 'Register Patient'}
-                      </button>
-                    </div>
+                <div className="flex flex-col items-end mt-8 gap-2">
+                  {registerError && <div className="text-red-600 font-semibold mb-2">{registerError}</div>}
+                  {registerSuccess && <div className="text-green-600 font-semibold mb-2">{registerSuccess}</div>}
+                  <button
+                    type="button"
+                    className="btn btn-success px-8 py-3 text-lg font-bold"
+                    onClick={handleRegisterPatient}
+                    disabled={registering}
+                  >
+                    {registering ? 'Registering...' : 'Register Patient'}
+                  </button>
+                </div>
               </div>
             )}
 
@@ -964,6 +974,7 @@ export function NurseTriage({ onNavigate }) {
                   <Heart className="w-6 h-6 mr-2 text-red-600" />
                   Vitals & Symptoms
                 </h2>
+                
                 <div className="grid md:grid-cols-2 gap-4 mb-6">
                   <div className="input-group">
                     <label className="input-label flex items-center">
@@ -981,6 +992,7 @@ export function NurseTriage({ onNavigate }) {
                     />
                     {errors.temperature && <p className="text-red-600 text-sm mt-1">{errors.temperature}</p>}
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label flex items-center">
                       <Activity className="w-4 h-4 mr-2 text-pink-600" />
@@ -996,6 +1008,7 @@ export function NurseTriage({ onNavigate }) {
                     />
                     {errors.heartRate && <p className="text-red-600 text-sm mt-1">{errors.heartRate}</p>}
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label flex items-center">
                       <Zap className="w-4 h-4 mr-2 text-blue-600" />
@@ -1011,6 +1024,7 @@ export function NurseTriage({ onNavigate }) {
                     />
                     {errors.bloodPressureSystolic && <p className="text-red-600 text-sm mt-1">{errors.bloodPressureSystolic}</p>}
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label flex items-center">
                       <Zap className="w-4 h-4 mr-2 text-blue-600" />
@@ -1026,6 +1040,7 @@ export function NurseTriage({ onNavigate }) {
                     />
                     {errors.bloodPressureDiastolic && <p className="text-red-600 text-sm mt-1">{errors.bloodPressureDiastolic}</p>}
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label flex items-center">
                       <Wind className="w-4 h-4 mr-2 text-teal-600" />
@@ -1041,6 +1056,7 @@ export function NurseTriage({ onNavigate }) {
                     />
                     {errors.respiratoryRate && <p className="text-red-600 text-sm mt-1">{errors.respiratoryRate}</p>}
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label flex items-center">
                       <Droplet className="w-4 h-4 mr-2 text-cyan-600" />
@@ -1056,6 +1072,7 @@ export function NurseTriage({ onNavigate }) {
                     />
                     {errors.spo2 && <p className="text-red-600 text-sm mt-1">{errors.spo2}</p>}
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label flex items-center">
                       <Gauge className="w-4 h-4 mr-2 text-purple-600" />
@@ -1071,6 +1088,7 @@ export function NurseTriage({ onNavigate }) {
                     />
                     {errors.weight && <p className="text-red-600 text-sm mt-1">{errors.weight}</p>}
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label flex items-center">
                       <Ruler className="w-4 h-4 mr-2 text-green-600" />
@@ -1086,6 +1104,7 @@ export function NurseTriage({ onNavigate }) {
                     />
                     {errors.height && <p className="text-red-600 text-sm mt-1">{errors.height}</p>}
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label">AVPU *</label>
                     <select
@@ -1102,6 +1121,7 @@ export function NurseTriage({ onNavigate }) {
                     </select>
                     {errors.avpu && <p className="text-red-600 text-sm mt-1">{errors.avpu}</p>}
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label">Mobility *</label>
                     <select
@@ -1117,6 +1137,7 @@ export function NurseTriage({ onNavigate }) {
                     </select>
                     {errors.mobility && <p className="text-red-600 text-sm mt-1">{errors.mobility}</p>}
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label">Blood Glucose</label>
                     <input
@@ -1129,6 +1150,7 @@ export function NurseTriage({ onNavigate }) {
                       className="input-field"
                     />
                   </div>
+                  
                   <div className="input-group">
                     <label className="input-label">Pain Scale</label>
                     <input
@@ -1141,11 +1163,13 @@ export function NurseTriage({ onNavigate }) {
                     />
                   </div>
                 </div>
+                
                 {/* SATS Triage Display */}
                 <div className={`bg-gradient-to-r ${triageLevel.color} text-white rounded-2xl p-6 shadow-lg`}>
                   <h3 className="text-lg font-bold mb-2">SATS Triage: {triageLevel.level} - {triageLevel.status}</h3>
                   <p className="text-white/90">(Based on SATS vital signs and clinical discriminators)</p>
                 </div>
+                
                 {/* SATS Clinical Discriminator Selection */}
                 <div className="mt-6">
                   <label className="input-label font-semibold mb-2">SATS Clinical Discriminator (if present):</label>
@@ -1195,7 +1219,7 @@ export function NurseTriage({ onNavigate }) {
                 <div>
                   <label className="input-label mb-3">Symptoms Present *</label>
                   <div className="grid md:grid-cols-2 gap-3">
-                    {symptoms.map((symptom) => (
+                    {symptomsList.map((symptom) => (
                       <label key={symptom} className="flex items-center space-x-3 p-3 border-2 border-gray-200 rounded-lg hover:border-blue-300 cursor-pointer transition-all">
                         <input
                           type="checkbox"
@@ -1274,9 +1298,9 @@ export function NurseTriage({ onNavigate }) {
                 </div>
 
                 <div>
-                  <label className="input-label mb-3">Chronic Conditions</label>
+                  <label className="input-label mb-3">Chronic Conditions *</label>
                   <div className="grid md:grid-cols-2 gap-3">
-                    {chronicConditions.map((condition) => (
+                    {chronicConditionsList.map((condition) => (
                       <label key={condition} className="flex items-center space-x-3 p-3 border-2 border-gray-200 rounded-lg hover:border-purple-300 cursor-pointer transition-all">
                         <input
                           type="checkbox"
@@ -1288,6 +1312,7 @@ export function NurseTriage({ onNavigate }) {
                       </label>
                     ))}
                   </div>
+                  {errors.chronicConditions && <p className="text-red-600 text-sm mt-2">{errors.chronicConditions}</p>}
                 </div>
 
                 <div className="input-group">
@@ -1396,7 +1421,7 @@ export function NurseTriage({ onNavigate }) {
                   <h3 className="font-bold text-gray-900">Patient Information</h3>
                   <div className="grid md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
                     <p><span className="font-semibold text-gray-700">Name:</span> {formData.name || `${formData.firstName} ${formData.lastName}`}</p>
-                    <p><span className="font-semibold text-gray-700">Phone:</span> {formData.mobilePhone || formData.phoneNumber}</p>
+                    <p><span className="font-semibold text-gray-700">Phone:</span> {formData.phoneNumber}</p>
                     <p><span className="font-semibold text-gray-700">DOB:</span> {formData.dob}</p>
                     <p><span className="font-semibold text-gray-700">Gender:</span> {formData.gender}</p>
                   </div>
@@ -1469,10 +1494,10 @@ export function NurseTriage({ onNavigate }) {
             )}
           </div>
 
-          {/* Loading Spinner Example */}
+          {/* Loading Spinner */}
           {loading && <LoadingSpinner text="Processing..." fullScreen />}
         </div>
       </div>
     </>
   );
-} 
+}
