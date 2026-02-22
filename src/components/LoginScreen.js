@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import CustomRoleSelect from './CustomRoleSelect';
-import { User as UserIcon, Eye, EyeOff } from 'lucide-react';
+import { User as UserIcon, Eye, EyeOff, LogIn as RegisterIcon } from 'lucide-react';
 import './LoginScreen.css';
 import apiService from '../services/api';
 
@@ -247,10 +247,44 @@ export function LoginScreen({ onLogin, devMode }) {
       </div>
       {/* Signup Modal */}
       {showSignup && (
-        <div className="signup-modal" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.2)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="signup-card" style={{ background: 'white', borderRadius: '1rem', padding: '2rem', maxWidth: 500, width: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
-            <h2 style={{ marginBottom: '1rem', textAlign: 'center' }}>Register</h2>
-            <form onSubmit={handleSignupSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="signup-modal" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.2)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'auto',
+          padding: '1rem',
+        }}>
+          <div
+            className="signup-card"
+            style={{
+              background: 'white',
+              borderRadius: '1rem',
+              padding: '2rem 1.5rem',
+              maxWidth: 420,
+              width: '100%',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
+          >
+            <h2 style={{ marginBottom: '1.5rem', textAlign: 'center', color: '#0d9488', fontWeight: 700, fontSize: '2rem', letterSpacing: '-0.02em' }}>
+              <RegisterIcon style={{ verticalAlign: 'middle', marginRight: 8, color: '#14b8a6', width: 28, height: 28 }} />
+              Register
+            </h2>
+            <form
+              onSubmit={handleSignupSubmit}
+              style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}
+            >
               <input name="email" type="email" value={signupData.email} onChange={handleSignupChange} placeholder="Email" required className="form-input" />
               <input name="password" type="password" value={signupData.password} onChange={handleSignupChange} placeholder="Password" required className="form-input" />
               <input name="firstName" type="text" value={signupData.firstName} onChange={handleSignupChange} placeholder="First Name" required className="form-input" />
@@ -266,8 +300,25 @@ export function LoginScreen({ onLogin, devMode }) {
               <input name="specialization" type="text" value={signupData.specialization} onChange={handleSignupChange} placeholder="Specialization" className="form-input" />
               <input name="licenseNumber" type="text" value={signupData.licenseNumber} onChange={handleSignupChange} placeholder="License Number" className="form-input" />
               {signupError && <div className="login-error">{signupError}</div>}
-              <button type="submit" className="login-button" disabled={signupLoading}>{signupLoading ? 'Registering...' : 'Register'}</button>
-              <button type="button" className="login-button" style={{ background: '#888', marginTop: 8 }} onClick={() => setShowSignup(false)}>Cancel</button>
+              <div style={{ display: 'flex', flexDirection: 'row', gap: '0.75rem', marginTop: 8 }}>
+                <button
+                  type="submit"
+                  className="login-button"
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  disabled={signupLoading}
+                >
+                  <RegisterIcon style={{ width: 20, height: 20, marginRight: 4 }} />
+                  {signupLoading ? 'Registering...' : 'Register'}
+                </button>
+                <button
+                  type="button"
+                  className="login-button"
+                  style={{ flex: 1, background: '#888', marginTop: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  onClick={() => setShowSignup(false)}
+                >
+                  Cancel
+                </button>
+              </div>
             </form>
           </div>
         </div>
