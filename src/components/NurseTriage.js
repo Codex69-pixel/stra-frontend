@@ -326,7 +326,26 @@ export function NurseTriage({ onNavigate }) {
       setLoading(false);
       return;
     }
+     
+    document.addEventListener('DOMContentLoaded', function() {
+  // Select the parent element
+  const mainElement = document.querySelector('main.flex-1.overflow-auto.w-full.bg-gray-50');
 
+  if (mainElement) {
+    // Find the first div child of the mainElement
+    // This targets the div that previously held the registration form.
+    const divToRemove = mainElement.querySelector('div');
+
+    if (divToRemove) {
+      divToRemove.remove();
+      console.log('Patient Registration & Triage div has been permanently removed.');
+    } else {
+      console.log('The target div was not found. It might have already been removed or the selector is incorrect.');
+    }
+  } else {
+    console.log('The main parent element was not found.');
+  }
+});
     // 1. Register patient
     const patientPayload = {
       firstName: formData.firstName,
