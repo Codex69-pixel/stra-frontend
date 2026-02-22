@@ -16,10 +16,7 @@ const DEV_MODE = true;
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('login');
   const [user, setUser] = useState(null);
-  // Define required variables for PatientRegistration
-  const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
-  const nurseId = user?.id || 'nurse123';
-  const departmentId = user?.departmentId || 'dept1';
+  // ...existing code...
   // Removed unused sidebarOpen state
 
   const handleLogin = (userData) => {
