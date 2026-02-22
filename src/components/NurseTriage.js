@@ -222,7 +222,7 @@ export function NurseTriage({ onNavigate }) {
     };
     
     try {
-      const res = await fetch('/api/v1/triage/patients', {
+      const res = await fetch('/api/v1/patients', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -367,7 +367,7 @@ export function NurseTriage({ onNavigate }) {
 
     let patientId = '';
     try {
-      const res = await fetch('/api/v1/triage/patients', {
+      const res = await fetch('/api/v1/patients', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -78,11 +78,11 @@ async function apiRequest(endpoint, options = {}) {
  */
 export const apiService = {
     /**
-     * Get all registered patients (GET /api/v1/triage/patients)
+     * Get all registered patients (GET /api/v1/patients)
      * @returns {Promise<Array>}
      */
     async getPatients() {
-      return apiRequest('/api/v1/triage/patients', { method: 'GET' });
+      return apiRequest('/api/v1/patients', { method: 'GET' });
     },
   
   // ==================== AUTHENTICATION ====================
@@ -214,7 +214,7 @@ export const apiService = {
    * @returns {Promise<object>}
    */
   async registerPatient(patientData) {
-    return apiRequest('/api/v1/triage/patients', {
+    return apiRequest('/api/v1/patients', {
       method: 'POST',
       body: JSON.stringify(patientData)
     });
@@ -226,7 +226,7 @@ export const apiService = {
    * @returns {Promise<object>}
    */
   async getPatientById(patientId) {
-    return apiRequest(`/api/v1/triage/patients/${patientId}`, { method: 'GET' });
+    return apiRequest(`/api/v1/patients/${patientId}`, { method: 'GET' });
   },
 
   /**
@@ -284,7 +284,7 @@ export const apiService = {
    * @returns {Promise<Array>}
    */
   async getPatientHistory(patientId) {
-    return apiRequest(`/api/v1/triage/patient/${patientId}/history`, { method: 'GET' });
+    return apiRequest(`/api/v1/patients/${patientId}/history`, { method: 'GET' });
   },
 
   /**
