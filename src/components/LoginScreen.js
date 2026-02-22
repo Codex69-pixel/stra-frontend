@@ -237,7 +237,9 @@ export function LoginScreen({ onLogin, devMode }) {
                   type="button"
                   className="alternative-button"
                   onClick={() => setShowSignup(true)}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                 >
+                  <RegisterIcon style={{ width: 18, height: 18, marginRight: 4, color: '#14b8a6' }} />
                   <span className="alternative-button-text">Register</span>
                 </button>
               </div>
@@ -313,7 +315,7 @@ export function LoginScreen({ onLogin, devMode }) {
                 <button
                   type="button"
                   className="login-button"
-                  style={{ flex: 1, background: '#888', marginTop: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  style={{ flex: 1, background: '#888', marginTop: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                   onClick={() => setShowSignup(false)}
                 >
                   Cancel
