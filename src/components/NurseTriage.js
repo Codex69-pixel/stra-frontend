@@ -127,7 +127,7 @@ export function NurseTriage({ onNavigate }) {
 
   // Input handler
   const handleInputChange = (e) => {
-    const { name, value, checked, type } = e.target;
+    const { name, value } = e.target;
     
     if (name === 'allergyInput') {
       setFormData(prev => ({ ...prev, allergyInput: value }));
