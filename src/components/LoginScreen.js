@@ -302,43 +302,43 @@ export function LoginScreen({ onLogin, devMode }) {
               <input name="specialization" type="text" value={signupData.specialization} onChange={handleSignupChange} placeholder="Specialization" className="form-input" />
               <input name="licenseNumber" type="text" value={signupData.licenseNumber} onChange={handleSignupChange} placeholder="License Number" className="form-input" />
               {signupError && <div className="login-error">{signupError}</div>}
-              <div style={{ display: 'flex', flexDirection: 'row', gap: '0.75rem', marginTop: 8, width: '100%' }}>
-                <button
-                  type="submit"
-                  className="login-button"
-                  style={{
-                    flex: 1,
-                    minWidth: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    padding: '1rem',
-                  }}
-                  disabled={signupLoading}
-                >
-                  <RegisterIcon style={{ width: 20, height: 20, marginRight: 4 }} />
-                  {signupLoading ? 'Registering...' : 'Register'}
-                </button>
-                <button
-                  type="button"
-                  className="login-button"
-                  style={{
-                    flex: 1,
-                    minWidth: 0,
-                    background: '#888',
-                    marginTop: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    padding: '1rem',
-                  }}
-                  onClick={() => setShowSignup(false)}
-                >
-                  Cancel
-                </button>
-              </div>
+              <button
+                type="submit"
+                className="login-button"
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  padding: '1rem',
+                  marginBottom: 8,
+                }}
+                disabled={signupLoading}
+              >
+                <RegisterIcon style={{ width: 20, height: 20, marginRight: 4 }} />
+                {signupLoading ? 'Registering...' : 'Register'}
+              </button>
+              <button
+                type="button"
+                className="login-button cancel-outline"
+                style={{
+                  width: '100%',
+                  background: 'white',
+                  color: '#0d9488',
+                  border: '2px solid #0d9488',
+                  marginTop: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  padding: '1rem',
+                  fontWeight: 600,
+                }}
+                onClick={() => setShowSignup(false)}
+              >
+                Cancel
+              </button>
             </form>
           </div>
         </div>
