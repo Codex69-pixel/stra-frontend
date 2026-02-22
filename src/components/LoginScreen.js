@@ -302,20 +302,41 @@ export function LoginScreen({ onLogin, devMode }) {
               <input name="specialization" type="text" value={signupData.specialization} onChange={handleSignupChange} placeholder="Specialization" className="form-input" />
               <input name="licenseNumber" type="text" value={signupData.licenseNumber} onChange={handleSignupChange} placeholder="License Number" className="form-input" />
               {signupError && <div className="login-error">{signupError}</div>}
-              <div style={{ display: 'flex', flexDirection: 'row', gap: '0.75rem', marginTop: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'row', gap: '0.75rem', marginTop: 8, width: '100%' }}>
                 <button
                   type="submit"
                   className="login-button"
-                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    borderTopRightRadius: '0.75rem',
+                    borderBottomRightRadius: '0.75rem',
+                  }}
                   disabled={signupLoading}
                 >
-                  <RegisterIcon style={{ width: 20, height: 23, marginRight: 4 }} />
+                  <RegisterIcon style={{ width: 20, height: 20, marginRight: 4 }} />
                   {signupLoading ? 'Registering...' : 'Register'}
                 </button>
                 <button
                   type="button"
                   className="login-button"
-                  style={{ flex: 1, background: '#888',width: 20, height: 20, marginTop: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    background: '#888',
+                    marginTop: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    borderTopLeftRadius: '0.75rem',
+                    borderBottomLeftRadius: '0.75rem',
+                    border: '1.5px solid #e5e7eb',
+                  }}
                   onClick={() => setShowSignup(false)}
                 >
                   Cancel
