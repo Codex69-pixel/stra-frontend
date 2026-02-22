@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Plus, X, Edit2, Trash2, User, Pill, Download } from "lucide-react";
+import { Search, Plus, X, Edit2, Trash2, User, Pill, Download } from "lucide-react";
 import apiService from '../services/api';
 import "./prescription.css";
 
@@ -12,113 +12,120 @@ const PRESCRIPTION_STATUS = {
 };
 
 
-
-function Prescriptions({ userRole = "doctor", selectedPatient }) {
+function Prescriptions({ userRole = "doctor" }) {
+  const [search, setSearch] = useState("");
   const [prescriptions, setPrescriptions] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({
-    diagnosis: "",
+  const [form, setForm] = useState({ 
+    patientName: "", 
+    patientId: "",
+    medication: "", 
+    dosage: "", 
+    frequency: "",
+    duration: "",
     instructions: "",
-    medications: [
-      { medicationId: "", name: "", dosage: "", frequency: "", duration: "", instructions: "" }
-    ]
+    refills: 0
   });
+  const [editingId, setEditingId] = useState(null);
   const [filterStatus, setFilterStatus] = useState("ALL");
+  // const [loading, setLoading] = useState(false);
 
-  // Fetch prescriptions for selected patient or all (pharmacy)
+  // Fetch prescriptions from backend (placeholder: implement actual fetch if endpoint exists)
   useEffect(() => {
     async function fetchPrescriptions() {
       try {
-        let data = [];
-        if (userRole === 'pharmacy') {
-          // TODO: Replace with actual API call for all prescriptions if available
-          // data = await apiService.getAllPrescriptions();
-        } else if (selectedPatient && selectedPatient.id) {
-          // TODO: Replace with actual API call for patient prescriptions if available
-          // data = await apiService.getPrescriptionsByPatient(selectedPatient.id);
-        }
-        setPrescriptions(Array.isArray(data) ? data : []);
+        // TODO: Replace with actual backend call when available
+        // Example: const data = await apiService.getPrescriptions();
+        // setPrescriptions(data);
+        setPrescriptions([]); // No endpoint yet, so empty
       } catch (err) {
         // Optionally handle error
       }
     }
     fetchPrescriptions();
-  }, [selectedPatient, userRole]);
+  }, []);
 
   // Filter prescriptions based on search and status
   const filteredPrescriptions = useCallback(() => {
     return prescriptions.filter(p => {
+      const matchesSearch = search === "" || 
+        p.patientName.toLowerCase().includes(search.toLowerCase()) ||
+        p.medication.toLowerCase().includes(search.toLowerCase()) ||
+        p.patientId.toLowerCase().includes(search.toLowerCase());
+      
       const matchesStatus = filterStatus === "ALL" || p.status === filterStatus;
-      return matchesStatus;
+      
+      return matchesSearch && matchesStatus;
     });
-  }, [prescriptions, filterStatus]);
+  }, [prescriptions, search, filterStatus]);
 
-
-  // Handle form input changes (for diagnosis/instructions)
+  // Handle form input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    setForm(prev => ({
+      ...prev,
+      [name]: type === 'number' ? parseInt(value) || 0 : value
+    }));
   };
-
-  // Handle medication input changes
-  const handleMedicationChange = (idx, e) => {
-    const { name, value } = e.target;
-    setForm(prev => {
-      const meds = prev.medications.map((med, i) =>
-        i === idx ? { ...med, [name]: value } : med
-      );
-      return { ...prev, medications: meds };
-    });
-  };
-
 
   // Reset form
   const resetForm = () => {
-    setForm({
-      diagnosis: "",
+    setForm({ 
+      patientName: "", 
+      patientId: "",
+      medication: "", 
+      dosage: "", 
+      frequency: "",
+      duration: "",
       instructions: "",
-      medications: [
-        { medicationId: "", name: "", dosage: "", frequency: "", duration: "", instructions: "" }
-      ]
+      refills: 0
     });
+    setEditingId(null);
   };
-
 
   // Handle prescription submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedPatient || !selectedPatient.id) return;
-    const payload = {
-      patientId: selectedPatient.id,
-      diagnosis: form.diagnosis,
-      instructions: form.instructions,
-      medications: form.medications.map(med => ({
-        medicationId: med.medicationId,
-        name: med.name,
-        dosage: med.dosage,
-        frequency: med.frequency,
-        duration: med.duration,
-        instructions: med.instructions
-      }))
-    };
-    try {
-      await apiService.createPrescription(payload);
-      setShowForm(false);
-      resetForm();
-    } catch (err) {
-      // Optionally handle error
+    if (editingId) {
+      // TODO: Implement update prescription if backend supports
+      // For now, just update locally
+      setPrescriptions(prev => prev.map(p => p.id === editingId ? { ...p, ...form } : p));
+    } else {
+      // Create new prescription via backend
+      const payload = {
+        ...form,
+        patientId: form.patientId || `P${String(Date.now()).slice(-4)}`,
+        prescribedBy: "Dr. Sarah Johnson", // Replace with real user
+        datePrescribed: new Date().toISOString().split('T')[0],
+        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        status: PRESCRIPTION_STATUS.ACTIVE,
+        allergies: []
+      };
+      try {
+        const created = await apiService.createPrescription(payload);
+        setPrescriptions(prev => [...prev, created]);
+      } catch (err) {
+        // Fallback: add locally if backend fails
+        setPrescriptions(prev => [...prev, payload]);
+      }
     }
+    resetForm();
+    setShowForm(false);
   };
 
-  // Handle edit prescription (placeholder, as update API not available)
+  // Handle edit prescription
   const handleEdit = (prescription) => {
     setForm({
-      diagnosis: prescription.diagnosis || "",
-      instructions: prescription.instructions || "",
-      medications: prescription.medications || [
-        { medicationId: "", name: "", dosage: "", frequency: "", duration: "", instructions: "" }
-      ]
+      patientName: prescription.patientName,
+      patientId: prescription.patientId,
+      medication: prescription.medication,
+      dosage: prescription.dosage,
+      frequency: prescription.frequency,
+      duration: prescription.duration,
+      instructions: prescription.instructions,
+      refills: prescription.refills
     });
+    setEditingId(prescription.id);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -190,6 +197,18 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
       </div>
 
       <div className="prescriptions-controls">
+        <div className="search-container">
+          <Search className="search-icon" size={20} />
+          <input
+            type="text"
+            placeholder="Search by patient name, ID, or medication..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="prescription-search"
+            aria-label="Search prescriptions"
+          />
+        </div>
+
         <div className="filter-controls">
           <select 
             value={filterStatus} 
@@ -203,7 +222,7 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
             <option value={PRESCRIPTION_STATUS.CANCELLED}>Cancelled</option>
           </select>
 
-          {userRole === "doctor" && selectedPatient && (
+          {userRole === "doctor" && (
             <button
               className="add-prescription-btn"
               onClick={() => setShowForm(true)}
@@ -214,21 +233,16 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
             </button>
           )}
         </div>
-        {!selectedPatient && (
-          <div style={{color: '#dc2626', marginTop: 8}}>
-            Select a patient before creating a prescription.
-          </div>
-        )}
       </div>
 
       {/* Prescription Form Modal */}
-      {showForm && selectedPatient && (
+      {showForm && (
         <div className="prescription-form-modal">
           <div className="modal-content">
             <div className="modal-header">
-              <h2>New Prescription</h2>
-              <button
-                className="close-modal"
+              <h2>{editingId ? "Edit Prescription" : "New Prescription"}</h2>
+              <button 
+                className="close-modal" 
                 onClick={() => {
                   setShowForm(false);
                   resetForm();
@@ -238,53 +252,127 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
                 <X size={24} />
               </button>
             </div>
+            
             <form onSubmit={handleSubmit} className="prescription-form">
               <div className="form-grid">
                 <div className="form-group">
-                  <label>Patient</label>
-                  <input type="text" value={selectedPatient?.name || (selectedPatient?.firstName ? selectedPatient.firstName + ' ' + selectedPatient.lastName : '')} disabled />
+                  <label htmlFor="patientName">
+                    <User size={16} />
+                    Patient Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="patientName"
+                    name="patientName"
+                    placeholder="Enter patient name"
+                    value={form.patientName}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
+
                 <div className="form-group">
-                  <label>Diagnosis *</label>
-                  <input type="text" name="diagnosis" value={form.diagnosis} onChange={handleChange} required />
+                  <label htmlFor="patientId">Patient ID</label>
+                  <input
+                    type="text"
+                    id="patientId"
+                    name="patientId"
+                    placeholder="Auto-generated if empty"
+                    value={form.patientId}
+                    onChange={handleChange}
+                  />
                 </div>
+
                 <div className="form-group">
-                  <label>Instructions</label>
-                  <input type="text" name="instructions" value={form.instructions} onChange={handleChange} />
+                  <label htmlFor="medication">
+                    <Pill size={16} />
+                    Medication *
+                  </label>
+                  <input
+                    type="text"
+                    id="medication"
+                    name="medication"
+                    placeholder="Enter medication name"
+                    value={form.medication}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
-                {form.medications.map((med, idx) => (
-                  <div key={idx} style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, marginBottom: 8 }}>
-                    <div className="form-group">
-                      <label>Medication Name *</label>
-                      <input type="text" name="name" value={med.name} onChange={e => handleMedicationChange(idx, e)} required />
-                    </div>
-                    <div className="form-group">
-                      <label>Medication ID</label>
-                      <input type="text" name="medicationId" value={med.medicationId} onChange={e => handleMedicationChange(idx, e)} />
-                    </div>
-                    <div className="form-group">
-                      <label>Dosage *</label>
-                      <input type="text" name="dosage" value={med.dosage} onChange={e => handleMedicationChange(idx, e)} required />
-                    </div>
-                    <div className="form-group">
-                      <label>Frequency *</label>
-                      <input type="text" name="frequency" value={med.frequency} onChange={e => handleMedicationChange(idx, e)} required />
-                    </div>
-                    <div className="form-group">
-                      <label>Duration *</label>
-                      <input type="text" name="duration" value={med.duration} onChange={e => handleMedicationChange(idx, e)} required />
-                    </div>
-                    <div className="form-group">
-                      <label>Instructions</label>
-                      <input type="text" name="instructions" value={med.instructions} onChange={e => handleMedicationChange(idx, e)} />
-                    </div>
-                  </div>
-                ))}
-                <button type="button" className="btn-secondary" onClick={() => setForm(prev => ({ ...prev, medications: [...prev.medications, { medicationId: "", name: "", dosage: "", frequency: "", duration: "", instructions: "" }] }))}>Add Medication</button>
+
+                <div className="form-group">
+                  <label htmlFor="dosage">Dosage *</label>
+                  <input
+                    type="text"
+                    id="dosage"
+                    name="dosage"
+                    placeholder="e.g., 200mg, 500mg"
+                    value={form.dosage}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="frequency">Frequency *</label>
+                  <select
+                    id="frequency"
+                    name="frequency"
+                    value={form.frequency}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select frequency</option>
+                    <option value="Once daily">Once daily</option>
+                    <option value="Twice daily">Twice daily</option>
+                    <option value="Three times daily">Three times daily</option>
+                    <option value="Every 6 hours">Every 6 hours</option>
+                    <option value="Every 8 hours">Every 8 hours</option>
+                    <option value="As needed">As needed</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="duration">Duration *</label>
+                  <input
+                    type="text"
+                    id="duration"
+                    name="duration"
+                    placeholder="e.g., 7 days, 30 days"
+                    value={form.duration}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group full-width">
+                  <label htmlFor="instructions">Instructions</label>
+                  <textarea
+                    id="instructions"
+                    name="instructions"
+                    placeholder="Special instructions for the patient..."
+                    value={form.instructions}
+                    onChange={handleChange}
+                    rows="3"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="refills">Refills</label>
+                  <input
+                    type="number"
+                    id="refills"
+                    name="refills"
+                    min="0"
+                    max="10"
+                    value={form.refills}
+                    onChange={handleChange}
+                  />
+                </div>
               </div>
+
               <div className="form-actions">
-                <button
-                  type="button"
+                <button 
+                  type="button" 
                   className="btn-secondary"
                   onClick={() => {
                     setShowForm(false);
@@ -294,7 +382,7 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
                   Cancel
                 </button>
                 <button type="submit" className="btn-primary">
-                  Create Prescription
+                  {editingId ? "Update Prescription" : "Create Prescription"}
                 </button>
               </div>
             </form>
@@ -308,6 +396,7 @@ function Prescriptions({ userRole = "doctor", selectedPatient }) {
           <div className="no-prescriptions">
             <Pill size={48} />
             <p>No prescriptions found</p>
+            {search && <p>Try adjusting your search terms</p>}
           </div>
         ) : (
           <div className="prescriptions-grid">
