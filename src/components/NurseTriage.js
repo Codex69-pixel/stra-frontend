@@ -66,7 +66,6 @@ export function NurseTriage({ onNavigate }) {
   });
 
   // Patient search, queue, and details UI state
-  // ...existing code...
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
 
