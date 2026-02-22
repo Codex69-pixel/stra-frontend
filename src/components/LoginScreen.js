@@ -309,7 +309,7 @@ export function LoginScreen({ onLogin, devMode }) {
                   style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                   disabled={signupLoading}
                 >
-                  <RegisterIcon style={{ width: 20, height: 20, marginRight: 4 }} />
+                  <RegisterIcon style={{ width: 20, height: 23, marginRight: 4 }} />
                   {signupLoading ? 'Registering...' : 'Register'}
                 </button>
                 <button
