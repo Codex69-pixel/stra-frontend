@@ -315,7 +315,7 @@ export function LoginScreen({ onLogin, devMode }) {
                 <button
                   type="button"
                   className="login-button"
-                  style={{ flex: 1, background: '#888', marginTop: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  style={{ flex: 1, background: '#888',width: 20, height: 20, marginTop: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                   onClick={() => setShowSignup(false)}
                 >
                   Cancel
