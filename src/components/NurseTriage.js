@@ -250,7 +250,7 @@ export function NurseTriage({ onNavigate }) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || 'Failed to register patient');
       }
-      const patient = await res.json();
+      await res.json();
       // const patientId = patient.id || patient.patientId;
       // setRegisteredPatientId(patientId); // removed, no longer needed
       setRegisterSuccess('Patient registered successfully!');
