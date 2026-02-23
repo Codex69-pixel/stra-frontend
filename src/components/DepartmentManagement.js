@@ -12,7 +12,8 @@ export default function DepartmentManagement() {
       setError(null);
       try {
         const data = await apiService.getDepartments();
-        setDepartments(data);
+        // Defensive: ensure departments is always an array
+        setDepartments(Array.isArray(data) ? data : []);
       } catch (err) {
         setError("Failed to load departments");
       } finally {
@@ -36,7 +37,7 @@ export default function DepartmentManagement() {
           </tr>
         </thead>
         <tbody>
-          {departments.map((dept) => (
+          {Array.isArray(departments) && departments.map((dept) => (
             <tr key={dept.id} className="border-t">
               <td className="px-4 py-2">{dept.name}</td>
               <td className="px-4 py-2 flex flex-wrap gap-2">
