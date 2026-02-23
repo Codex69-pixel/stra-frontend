@@ -210,15 +210,24 @@ function UserModal({ user, onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto" style={{ boxSizing: 'border-box' }}>
-        <h3 className="text-xl font-bold mb-4">
-          {user ? 'Edit User' : 'Add New User'}
-        </h3>
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Responsive: stack on mobile, grid on larger screens */}
-            <div className="col-span-1 min-w-0">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div
+        className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto"
+        style={{
+          boxSizing: 'border-box',
+          maxHeight: '90vh',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <div style={{ overflowY: 'auto', flex: 1, minHeight: 0 }}>
+          <h3 className="text-xl font-bold mb-4">
+            {user ? 'Edit User' : 'Add New User'}
+          </h3>
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Responsive: stack on mobile, grid on larger screens */}
+              <div className="col-span-1 min-w-0">
               <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
               <input
                 type="text"
@@ -287,23 +296,24 @@ function UserModal({ user, onClose, onSave }) {
               </select>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 w-full sm:w-auto"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 text-white rounded-lg font-semibold shadow-md transition-colors w-full sm:w-auto"
-              style={{ background: '#0d9488' }}
-            >
-              {user ? 'Update' : 'Create'}
-            </button>
-          </div>
-        </form>
+            <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 w-full sm:w-auto"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 text-white rounded-lg font-semibold shadow-md transition-colors w-full sm:w-auto"
+                style={{ background: '#0d9488' }}
+              >
+                {user ? 'Update' : 'Create'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
