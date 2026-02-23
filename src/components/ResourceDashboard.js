@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import NotificationButton from './common/NotificationButton';
-import { User, AlertTriangle, AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertTriangle, AlertCircle, CheckCircle } from 'lucide-react';
 import { logout } from '../utils/logout';
 import apiService from '../services/api';
 import LoadingSpinner from './common/LoadingSpinner';
 
 export function ResourceDashboard({ onNavigate }) {
   const [view, setView] = useState('overview');
-  const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [resources, setResources] = useState({ beds: { units: [] }, staff: { byRole: [] }, equipment: { byType: [] } });
@@ -136,7 +135,7 @@ export function ResourceDashboard({ onNavigate }) {
             </select>
           )}
           <NotificationButton onClick={() => alert('Notifications will appear here. (Backend integration pending)')} />
-          // ...existing code...
+          {/* ...existing code... */}
         </div>
       </header>
       
