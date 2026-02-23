@@ -38,19 +38,12 @@ export function ResourceDashboard({ onNavigate }) {
     { key: 'nurse', label: 'Nurse Triage' },
     { key: 'queue', label: 'Queue Management' },
     { key: 'doctor', label: 'Doctor Portal' },
-    { key: 'inventory', label: 'Inventory' },
-    { key: 'analytics', label: 'Analytics' },
     { key: 'logout', label: 'Logout' }
   ];
 
   const tabs = [
     { key: 'users', label: 'Users' },
     { key: 'departments', label: 'Departments' },
-    { key: 'resources', label: 'Resources' },
-    { key: 'inventory', label: 'Inventory' },
-    { key: 'appointments', label: 'Appointments/Patients' },
-    { key: 'lab', label: 'Lab/Imaging' },
-    { key: 'analytics', label: 'Analytics' },
     { key: 'account', label: 'Account' }
   ];
 
@@ -169,11 +162,6 @@ export function ResourceDashboard({ onNavigate }) {
         <div className="min-h-[400px]">
           {view === 'users' && <UserManagement />}
           {view === 'departments' && <DepartmentManagement />}
-          {view === 'resources' && <ResourceManagement />}
-          {view === 'inventory' && <InventoryMedicationManagement />}
-          {view === 'appointments' && <AppointmentPatientManagement />}
-          {view === 'lab' && <LabImagingManagement />}
-          {view === 'analytics' && <AnalyticsReporting />}
           {view === 'account' && <AccountSettings />}
         </div>
         

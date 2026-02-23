@@ -15,14 +15,8 @@ export default function AdminDashboard({ onNavigate }) {
       setError(null);
       try {
         // Fetch user list (for stats)
-        const users = await apiService.getUsers(); // Already correct as per OpenAPI spec
+        const users = await apiService.getUsers();
         setUserStats({ count: users.length });
-        // Fetch resource dashboard
-        const resources = await apiService.getResourceDashboard();
-        setResourceStats(resources);
-        // Fetch inventory analytics
-        const inventory = await apiService.getInventoryAnalytics();
-        setInventoryStats(inventory);
       } catch (err) {
         setError("Failed to load admin data");
       } finally {
@@ -66,25 +60,14 @@ export default function AdminDashboard({ onNavigate }) {
             <option value="nurse">Nurse Triage</option>
             <option value="queue">Queue Management</option>
             <option value="doctor">Doctor Portal</option>
-            <option value="resources">Resource Dashboard</option>
-            <option value="inventory">Inventory</option>
-            <option value="analytics">Analytics</option>
           </select>
         )}
       </header>
       <div className="p-8 space-y-8" style={{paddingTop: 72}}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
           <div className="bg-white rounded-xl shadow p-6">
             <h2 className="text-lg font-semibold mb-2">Total Users</h2>
             <div className="text-4xl font-bold">{userStats?.count ?? "-"}</div>
-          </div>
-          <div className="bg-white rounded-xl shadow p-6">
-            <h2 className="text-lg font-semibold mb-2">Resource Utilization</h2>
-            <pre className="text-xs text-gray-700 whitespace-pre-wrap">{JSON.stringify(resourceStats, null, 2)}</pre>
-          </div>
-          <div className="bg-white rounded-xl shadow p-6">
-            <h2 className="text-lg font-semibold mb-2">Inventory Analytics</h2>
-            <pre className="text-xs text-gray-700 whitespace-pre-wrap">{JSON.stringify(inventoryStats, null, 2)}</pre>
           </div>
         </div>
       </div>
