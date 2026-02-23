@@ -8,7 +8,7 @@ import './DoctorPortal.css';
 
 import LoadingSpinner from './common/LoadingSpinner';
 import Prescriptions from './prescription';
-import QueueManagement from './QueueManagement';
+// import QueueManagement from './QueueManagement';
 import apiService from '../services/api';
 
 
@@ -17,6 +17,7 @@ import apiService from '../services/api';
 
 export function DoctorPortal({ onNavigate }) {
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [doctorQueue, setDoctorQueue] = useState([]);
   const [clinicalNotes, setClinicalNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPrescriptions, setShowPrescriptions] = useState(false);
@@ -25,6 +26,22 @@ export function DoctorPortal({ onNavigate }) {
   const [searchName, setSearchName] = useState('');
   const [searchError, setSearchError] = useState('');
   const [labResults, setLabResults] = useState(null);
+  const [patientHistory, setPatientHistory] = useState([]);
+  const [triageSummary, setTriageSummary] = useState('');
+  const [patientVitals, setPatientVitals] = useState(null);
+
+  // Fetch doctor's queue
+  const fetchDoctorQueue = async () => {
+    setLoading(true);
+    try {
+      const queue = await apiService.getDoctorQueue();
+      setDoctorQueue(queue);
+    } catch (err) {
+      setDoctorQueue([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -53,13 +70,7 @@ export function DoctorPortal({ onNavigate }) {
       // 3. Fetch full details
       const details = await apiService.getPatientById(found.id || found.patientId);
       setSelectedPatient(details);
-      // 4. Fetch lab results
-      try {
-        const labs = await apiService.getLabResults(found.id || found.patientId);
-        setLabResults(labs);
-      } catch (err) {
-        setLabResults(null);
-      }
+      // All patient-related fetches are handled in useEffect when selectedPatient changes
     } catch (err) {
       setSearchError('Failed to fetch patient details.');
     } finally {
@@ -67,16 +78,33 @@ export function DoctorPortal({ onNavigate }) {
     }
   };
 
-  // Fetch patient details when selectedPatient changes
   useEffect(() => {
     async function fetchPatientDetails() {
       if (selectedPatient && selectedPatient.id) {
         try {
           const details = await apiService.getPatientById(selectedPatient.id);
           setSelectedPatient(prev => ({ ...prev, ...details }));
-        } catch (err) {
-          // Ignore for now
-        }
+        } catch (err) {}
+        // Fetch lab results
+        try {
+          const labs = await apiService.getLabResults(selectedPatient.id);
+          setLabResults(labs);
+        } catch (err) { setLabResults(null); }
+        // Fetch patient history
+        try {
+          const history = await apiService.getPatientHistory(selectedPatient.id);
+          setPatientHistory(Array.isArray(history) ? history : []);
+        } catch (err) { setPatientHistory([]); }
+        // Fetch triage summary
+        try {
+          const triage = await apiService.performTriage({ patientId: selectedPatient.id });
+          setTriageSummary(triage.summary || JSON.stringify(triage));
+        } catch (err) { setTriageSummary(''); }
+        // Fetch patient vitals
+        try {
+          const vitals = await apiService.getPatientVitals(selectedPatient.id);
+          setPatientVitals(vitals);
+        } catch (err) { setPatientVitals(null); }
       }
     }
     if (selectedPatient && selectedPatient.id) {
@@ -96,6 +124,7 @@ export function DoctorPortal({ onNavigate }) {
       case 'queue':
         setShowPrescriptions(false);
         setShowQueue(true);
+        fetchDoctorQueue();
         break;
       case 'prescriptions':
         setShowPrescriptions(true);
@@ -225,7 +254,32 @@ export function DoctorPortal({ onNavigate }) {
       <main className="doctor-portal-main" role="main">
         {/* Removed error display as error variable is no longer used */}
         {showQueue ? (
-          <QueueManagement onNavigate={onNavigate} portalType="doctor" />
+          <div className="doctor-queue-section">
+            <button
+              className="doctor-action-btn secondary"
+              onClick={() => setShowQueue(false)}
+              aria-label="Go back to dashboard"
+            >
+              <ChevronRight size={16} style={{ transform: 'rotate(180deg)', marginRight: '8px' }} />
+              Back to Dashboard
+            </button>
+            <h3>Doctor Queue</h3>
+            {loading ? <LoadingSpinner text="Loading queue..." /> : (
+              <ul className="doctor-queue-list">
+                {doctorQueue.length === 0 ? (
+                  <li>No patients in queue.</li>
+                ) : (
+                  doctorQueue.map((patient, idx) => (
+                    <li key={patient.id || idx} className="doctor-queue-item">
+                      <span>{patient.name || `${patient.firstName || ''} ${patient.lastName || ''}`}</span>
+                      <span>Urgency: {patient.urgency || 'N/A'}</span>
+                      <span>Status: {patient.status || 'N/A'}</span>
+                    </li>
+                  ))
+                )}
+              </ul>
+            )}
+          </div>
         ) : showPrescriptions ? (
           <div className="prescriptions-container">
             <button
@@ -313,6 +367,35 @@ export function DoctorPortal({ onNavigate }) {
                 <div className="patient-info-grid">
                   <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
                     <span><b>Lab Results:</b> {labResults ? JSON.stringify(labResults) : 'No lab results found.'}</span>
+                  </div>
+                </div>
+                {/* Patient History Section */}
+                <div className="patient-info-grid">
+                  <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
+                    <span><b>Patient History:</b></span>
+                    {patientHistory.length === 0 ? (
+                      <div>No history found.</div>
+                    ) : (
+                      <ul className="patient-history-list">
+                        {patientHistory.map((entry, idx) => (
+                          <li key={idx}>
+                            {typeof entry === 'string' ? entry : JSON.stringify(entry)}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+                {/* Triage Summary Section */}
+                <div className="patient-info-grid">
+                  <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
+                    <span><b>Triage Summary:</b> {triageSummary || 'No triage summary found.'}</span>
+                  </div>
+                </div>
+                {/* Patient Vitals Section */}
+                <div className="patient-info-grid">
+                  <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
+                    <span><b>Patient Vitals:</b> {patientVitals ? JSON.stringify(patientVitals) : 'No vitals found.'}</span>
                   </div>
                 </div>
               </div>
