@@ -213,12 +213,15 @@ export function NurseTriage({ onNavigate }) {
       return;
     }
     
-    // Prepare payload
-    // Removed unused patientPayload
-    
+    // Prepare payload for backend
+    const payload = {
+      ...formData,
+      dateOfBirth: formData.dob, // backend expects dateOfBirth
+      allergies: typeof formData.allergies === 'string' ? formData.allergies.split(',').map(a => a.trim()).filter(Boolean) : formData.allergies,
+      chronicConditions: Array.isArray(formData.chronicConditions) ? formData.chronicConditions : [],
+    };
     try {
-      // Use centralized apiService for patient registration
-      await apiService.registerPatient(formData);
+      await apiService.registerPatient(payload);
       setRegisterSuccess('Patient registered successfully!');
       setRegistering(false);
       setTimeout(() => {
