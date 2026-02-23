@@ -5,7 +5,7 @@ import apiService from '../services/api';
 
 export default function DepartmentManagement() {
   const [departments, setDepartments] = useState([]);
-  const [loading, setLoading] = useState(false);
+  // Removed unused loading state
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -16,7 +16,6 @@ export default function DepartmentManagement() {
   }, []);
 
   const fetchDepartments = async () => {
-    setLoading(true);
     setError(null);
     try {
       const response = await apiService.getDepartments();
@@ -25,8 +24,6 @@ export default function DepartmentManagement() {
       console.error('Error fetching departments:', err);
       setError('Failed to load departments. Please try again.');
       setDepartments([]);
-    } finally {
-      setLoading(false);
     }
   };
 
