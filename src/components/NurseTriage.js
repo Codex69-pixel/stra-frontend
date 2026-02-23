@@ -255,17 +255,9 @@ export function NurseTriage({ onNavigate }) {
       if (!formData.bloodGroup) errors.bloodGroup = 'Blood group is required.';
     }
     
+    // Step 2: No required field validation for vitals
     if (step === 2) {
-      if (!formData.temperature) errors.temperature = 'Temperature is required.';
-      if (!formData.systolicBp && !formData.bloodPressureSystolic) errors.bloodPressureSystolic = 'Systolic BP is required.';
-      if (!formData.diastolicBp && !formData.bloodPressureDiastolic) errors.bloodPressureDiastolic = 'Diastolic BP is required.';
-      if (!formData.heartRate) errors.heartRate = 'Heart rate is required.';
-      if (!formData.respiratoryRate) errors.respiratoryRate = 'Respiratory rate is required.';
-      if (!formData.oxygenSaturation && !formData.spo2) errors.spo2 = 'Oxygen saturation is required.';
-      if (!formData.weight) errors.weight = 'Weight is required.';
-      if (!formData.height) errors.height = 'Height is required.';
-      if (!formData.avpu) errors.avpu = 'AVPU is required.';
-      if (!formData.mobility) errors.mobility = 'Mobility is required.';
+      // No required fields for step 2
     }
     
     if (step === 3) {
