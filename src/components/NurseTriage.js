@@ -74,25 +74,23 @@ export function NurseTriage({ onNavigate }) {
     allergyInput: '',
     chronicConditions: [],
     conditionInput: '',
-    // Step 2: Vitals
-    temperature: '',
-    systolicBp: '',
-    diastolicBp: '',
-    heartRate: '',
-    respiratoryRate: '',
-    oxygenSaturation: '',
-    bloodGlucose: '',
-    painScale: '',
-    weight: '',
-    height: '',
-    avpu: '',
-    mobility: '',
-    // For backward compatibility with field names used in validation
-    bloodPressureSystolic: '',
-    bloodPressureDiastolic: '',
-    spo2: '',
-    // Step 2: Symptoms (array for checkboxes)
-    symptoms: [],
+    // Step 2: Vitals (nested object for backend)
+    vitals: {
+      temperature: '',
+      systolicBp: '',
+      diastolicBp: '',
+      heartRate: '',
+      respiratoryRate: '',
+      oxygenSaturation: '',
+      bloodGlucose: '',
+      painScale: '',
+      weight: '',
+      height: '',
+      avpu: '',
+      mobility: '',
+    },
+    // Step 2: Symptoms (object for backend)
+    symptoms: {},
     // Step 3: Additional fields
     symptomDuration: '',
     severity: '',
@@ -110,9 +108,10 @@ export function NurseTriage({ onNavigate }) {
   const handleSymptomToggle = (symptom) => {
     setFormData(prev => ({
       ...prev,
-      symptoms: prev.symptoms.includes(symptom)
-        ? prev.symptoms.filter(s => s !== symptom)
-        : [...prev.symptoms, symptom]
+      symptoms: {
+        ...prev.symptoms,
+        [symptom]: !prev.symptoms[symptom]
+      }
     }));
   };
 
@@ -129,13 +128,24 @@ export function NurseTriage({ onNavigate }) {
   // Input handler
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
-    if (name === 'allergyInput') {
+    // Vitals fields
+    const vitalFields = [
+      'temperature', 'systolicBp', 'diastolicBp', 'heartRate', 'respiratoryRate',
+      'oxygenSaturation', 'bloodGlucose', 'painScale', 'weight', 'height', 'avpu', 'mobility'
+    ];
+    if (vitalFields.includes(name)) {
+      setFormData(prev => ({
+        ...prev,
+        vitals: {
+          ...prev.vitals,
+          [name]: value
+        }
+      }));
+    } else if (name === 'allergyInput') {
       setFormData(prev => ({ ...prev, allergyInput: value }));
     } else if (name === 'conditionInput') {
       setFormData(prev => ({ ...prev, conditionInput: value }));
     } else if (name === 'firstName' || name === 'lastName') {
-      // Update name field for summary display
       setFormData(prev => {
         const newData = { ...prev, [name]: value };
         newData.name = `${newData.firstName} ${newData.lastName}`.trim();
@@ -874,7 +884,7 @@ export function NurseTriage({ onNavigate }) {
                       type="number"
                       step="0.1"
                       name="temperature"
-                      value={formData.temperature}
+                      value={formData.vitals.temperature}
                       onChange={handleInputChange}
                       placeholder="Enter value"
                       className="input-field"
@@ -890,7 +900,7 @@ export function NurseTriage({ onNavigate }) {
                     <input
                       type="number"
                       name="heartRate"
-                      value={formData.heartRate}
+                      value={formData.vitals.heartRate}
                       onChange={handleInputChange}
                       placeholder="Enter value"
                       className="input-field"
@@ -905,8 +915,8 @@ export function NurseTriage({ onNavigate }) {
                     </label>
                     <input
                       type="number"
-                      name="bloodPressureSystolic"
-                      value={formData.bloodPressureSystolic}
+                      name="systolicBp"
+                      value={formData.vitals.systolicBp}
                       onChange={handleInputChange}
                       placeholder="Enter value"
                       className="input-field"
@@ -921,8 +931,8 @@ export function NurseTriage({ onNavigate }) {
                     </label>
                     <input
                       type="number"
-                      name="bloodPressureDiastolic"
-                      value={formData.bloodPressureDiastolic}
+                      name="diastolicBp"
+                      value={formData.vitals.diastolicBp}
                       onChange={handleInputChange}
                       placeholder="Enter value"
                       className="input-field"
@@ -938,7 +948,7 @@ export function NurseTriage({ onNavigate }) {
                     <input
                       type="number"
                       name="respiratoryRate"
-                      value={formData.respiratoryRate}
+                      value={formData.vitals.respiratoryRate}
                       onChange={handleInputChange}
                       placeholder="Enter value"
                       className="input-field"
@@ -953,8 +963,8 @@ export function NurseTriage({ onNavigate }) {
                     </label>
                     <input
                       type="number"
-                      name="spo2"
-                      value={formData.spo2}
+                      name="oxygenSaturation"
+                      value={formData.vitals.oxygenSaturation}
                       onChange={handleInputChange}
                       placeholder="Enter value"
                       className="input-field"
@@ -970,7 +980,7 @@ export function NurseTriage({ onNavigate }) {
                     <input
                       type="number"
                       name="weight"
-                      value={formData.weight}
+                      value={formData.vitals.weight}
                       onChange={handleInputChange}
                       placeholder="Weight in kg"
                       className="input-field"
@@ -986,7 +996,7 @@ export function NurseTriage({ onNavigate }) {
                     <input
                       type="number"
                       name="height"
-                      value={formData.height}
+                      value={formData.vitals.height}
                       onChange={handleInputChange}
                       placeholder="Height in cm"
                       className="input-field"
@@ -998,7 +1008,7 @@ export function NurseTriage({ onNavigate }) {
                     <label className="input-label">AVPU *</label>
                     <select
                       name="avpu"
-                      value={formData.avpu}
+                      value={formData.vitals.avpu}
                       onChange={handleInputChange}
                       className="input-field"
                     >
@@ -1015,7 +1025,7 @@ export function NurseTriage({ onNavigate }) {
                     <label className="input-label">Mobility *</label>
                     <select
                       name="mobility"
-                      value={formData.mobility}
+                      value={formData.vitals.mobility}
                       onChange={handleInputChange}
                       className="input-field"
                     >
@@ -1033,7 +1043,7 @@ export function NurseTriage({ onNavigate }) {
                       type="number"
                       step="0.1"
                       name="bloodGlucose"
-                      value={formData.bloodGlucose}
+                      value={formData.vitals.bloodGlucose}
                       onChange={handleInputChange}
                       placeholder="Blood Glucose"
                       className="input-field"
@@ -1045,7 +1055,7 @@ export function NurseTriage({ onNavigate }) {
                     <input
                       type="number"
                       name="painScale"
-                      value={formData.painScale}
+                      value={formData.vitals.painScale}
                       onChange={handleInputChange}
                       placeholder="Pain Scale (0-10)"
                       className="input-field"
@@ -1112,7 +1122,7 @@ export function NurseTriage({ onNavigate }) {
                       <label key={symptom} className="flex items-center space-x-3 p-3 border-2 border-gray-200 rounded-lg hover:border-blue-300 cursor-pointer transition-all">
                         <input
                           type="checkbox"
-                          checked={formData.symptoms.includes(symptom)}
+                          checked={!!formData.symptoms[symptom]}
                           onChange={() => handleSymptomToggle(symptom)}
                           className="w-5 h-5 text-blue-600 rounded"
                         />
