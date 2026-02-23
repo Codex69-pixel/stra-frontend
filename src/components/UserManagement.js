@@ -83,7 +83,7 @@ export default function UserManagement() {
             setEditingUser(null);
             setShowModal(true);
           }}
-          className="bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-purple-700 transition-colors"
+          className="bg-purple-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-purple-600 transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add User
@@ -97,14 +97,13 @@ export default function UserManagement() {
       )}
 
       {/* Search Bar */}
-      <div className="mb-6 relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+      <div className="mb-6">
         <input
           type="text"
           placeholder="Search users..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="w-full pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
         />
       </div>
 
@@ -210,14 +209,14 @@ function UserModal({ user, onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
         <h3 className="text-xl font-bold mb-4">
           {user ? 'Edit User' : 'Add New User'}
         </h3>
         <form onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div>
+          <div className="space-y-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
               <input
                 type="text"
@@ -227,7 +226,7 @@ function UserModal({ user, onClose, onSave }) {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
               />
             </div>
-            <div>
+            <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <input
                 type="email"
@@ -237,7 +236,7 @@ function UserModal({ user, onClose, onSave }) {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
               />
             </div>
-            <div>
+            <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
               <select
                 required
@@ -253,7 +252,7 @@ function UserModal({ user, onClose, onSave }) {
                 <option value="pharmacist">Pharmacist</option>
               </select>
             </div>
-            <div>
+            <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
               <input
                 type="text"
@@ -263,7 +262,7 @@ function UserModal({ user, onClose, onSave }) {
               />
             </div>
             {!user && (
-              <div>
+              <div className="col-span-1 sm:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                 <input
                   type="password"
@@ -274,7 +273,7 @@ function UserModal({ user, onClose, onSave }) {
                 />
               </div>
             )}
-            <div>
+            <div className="col-span-1 sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
               <select
                 value={formData.status}
@@ -286,7 +285,7 @@ function UserModal({ user, onClose, onSave }) {
               </select>
             </div>
           </div>
-          <div className="flex justify-end gap-3 mt-6">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
             <button
               type="button"
               onClick={onClose}
@@ -296,7 +295,7 @@ function UserModal({ user, onClose, onSave }) {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              className="px-4 py-2 bg-purple-500 text-white rounded-lg font-semibold shadow-md hover:bg-purple-600 transition-colors w-full sm:w-auto"
             >
               {user ? 'Update' : 'Create'}
             </button>
