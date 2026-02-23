@@ -11,7 +11,7 @@ export default function UserManagement() {
       setLoading(true);
       setError(null);
       try {
-        const data = await apiService.getAllUsers();
+        const data = await apiService.getUsers();
         setUsers(data);
       } catch (err) {
         setError("Failed to load users");

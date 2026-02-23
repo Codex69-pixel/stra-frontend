@@ -15,7 +15,7 @@ export default function AdminDashboard({ onNavigate }) {
       setError(null);
       try {
         // Fetch user list (for stats)
-        const users = await apiService.getUsers();
+        const users = await apiService.getUsers(); // Already correct as per OpenAPI spec
         setUserStats({ count: users.length });
         // Fetch resource dashboard
         const resources = await apiService.getResourceDashboard();

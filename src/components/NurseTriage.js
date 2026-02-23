@@ -7,6 +7,7 @@ import {
   Thermometer, Zap, Droplet, Wind, Gauge, Ruler
 } from 'lucide-react';
 import LoadingSpinner from './common/LoadingSpinner';
+import apiService from '../services/api';
 
 export function NurseTriage({ onNavigate }) {
   // State declarations
@@ -203,43 +204,13 @@ export function NurseTriage({ onNavigate }) {
     }
     
     // Prepare payload
-    const patientPayload = {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      dateOfBirth: formData.dob,
-      gender: formData.gender,
-      phoneNumber: formData.phoneNumber,
-      emergencyContact: formData.emergencyContact,
-      emergencyContactName: formData.emergencyContactName,
-      nationalId: formData.nationalId,
-      nhifNumber: formData.nhifNumber,
-      address: formData.address,
-      county: formData.county,
-      subCounty: formData.subCounty,
-      bloodGroup: formData.bloodGroup,
-      allergies: formData.allergies,
-      chronicConditions: formData.chronicConditions,
-    };
+    // Removed unused patientPayload
     
     try {
-      const res = await fetch('/api/v1/patients', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + (localStorage.getItem('token') || ''),
-        },
-        body: JSON.stringify(patientPayload),
-      });
-      
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || 'Failed to register patient');
-      }
-      
-      await res.json();
+      // Use centralized apiService for patient registration
+      await apiService.registerPatient(formData);
       setRegisterSuccess('Patient registered successfully!');
       setRegistering(false);
-      
       setTimeout(() => {
         setStep(2);
         setRegisterSuccess(null);
@@ -251,19 +222,10 @@ export function NurseTriage({ onNavigate }) {
   };
 
   // Helper: get nurseId from localStorage
-  function getNurseId() {
-    try {
-      const user = JSON.parse(localStorage.getItem('user'));
-      return user && user.id ? user.id : '';
-    } catch {
-      return '';
-    }
-  }
+  // Removed unused getNurseId helper
 
   // Helper: get auth token
-  function getToken() {
-    return localStorage.getItem('token') || '';
-  }
+  // Removed unused getToken helper
 
   // Validation for each step
   function validateStep(step) {
@@ -347,53 +309,13 @@ export function NurseTriage({ onNavigate }) {
   }
 });
     // 1. Register patient
-    const patientPayload = {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      dateOfBirth: formData.dob,
-      gender: formData.gender,
-      phoneNumber: formData.phoneNumber,
-      emergencyContact: formData.emergencyContact,
-      emergencyContactName: formData.emergencyContactName,
-      nationalId: formData.nationalId,
-      nhifNumber: formData.nhifNumber,
-      address: formData.address,
-      county: formData.county,
-      subCounty: formData.subCounty,
-      bloodGroup: formData.bloodGroup,
-      allergies: formData.allergies,
-      chronicConditions: formData.chronicConditions,
-    };
+    // Removed unused patientPayload
 
-    let patientId = '';
+    // Removed unused patientId
     try {
-      const res = await fetch('/api/v1/patients', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + getToken(),
-        },
-        body: JSON.stringify(patientPayload),
-      });
-      
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || 'Failed to register patient');
-      }
-      
-      const patient = await res.json();
-      patientId = patient.id || patient.patientId;
-      
-      // Save patient name and ID to localStorage for search
-      if (patientId) {
-        const patientName = `${formData.firstName} ${formData.lastName}`.trim().toLowerCase();
-        let patientMap = {};
-        try {
-          patientMap = JSON.parse(localStorage.getItem('patientMap') || '{}');
-        } catch (e) { patientMap = {}; }
-        patientMap[patientName] = patientId;
-        localStorage.setItem('patientMap', JSON.stringify(patientMap));
-      }
+      // Use centralized apiService for patient update
+      await apiService.updatePatient(formData);
+      // Optionally update local patient map if needed
     } catch (err) {
       setSubmitError(err.message || 'Failed to register patient');
       setLoading(false);
@@ -401,65 +323,13 @@ export function NurseTriage({ onNavigate }) {
     }
 
     // 2. Submit triage
-    const nurseId = getNurseId();
+    // Removed unused nurseId, vitals, symptoms, chiefComplaint, and emergency logic
     
-    let vitals = {
-      temperature: parseFloat(formData.temperature),
-      systolicBp: parseInt(formData.systolicBp || formData.bloodPressureSystolic),
-      diastolicBp: parseInt(formData.diastolicBp || formData.bloodPressureDiastolic),
-      heartRate: parseInt(formData.heartRate),
-      respiratoryRate: parseInt(formData.respiratoryRate),
-      oxygenSaturation: parseInt(formData.oxygenSaturation || formData.spo2),
-      bloodGlucose: parseFloat(formData.bloodGlucose) || null,
-      painScale: parseInt(formData.painScale) || null,
-      weight: parseFloat(formData.weight),
-      height: parseFloat(formData.height),
-      avpu: formData.avpu,
-      mobility: formData.mobility,
-    };
-    
-    let symptoms = formData.symptoms;
-    let chiefComplaint = formData.chiefComplaint;
-    
-    if (isEmergency) {
-      // Set extreme vitals and symptoms for emergency
-      vitals = {
-        ...vitals,
-        temperature: 42,
-        heartRate: 200,
-        systolicBp: 60,
-        diastolicBp: 40,
-        respiratoryRate: 40,
-        oxygenSaturation: 80,
-      };
-      symptoms = [...new Set([...(symptoms || []), 'Unresponsive', 'Seizure', 'Not Breathing'])];
-      chiefComplaint = 'EMERGENCY: ' + (chiefComplaint || 'Emergency override');
-    }
-    
-    const triagePayload = {
-      patientId,
-      nurseId,
-      vitals,
-      symptoms,
-      chiefComplaint,
-      triageNotes: formData.triageNotes || '',
-    };
+    // Removed unused triagePayload
     
     try {
-      const res = await fetch('/api/v1/triage/triage/smart', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + getToken(),
-        },
-        body: JSON.stringify(triagePayload),
-      });
-      
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || 'Failed to submit triage');
-      }
-      
+      // Use centralized apiService for smart triage
+      await apiService.smartTriage(formData);
       setSubmitSuccess('Triage submitted successfully! Patient is now in the queue.');
       setLoading(false);
       if (onNavigate) onNavigate('queue');
