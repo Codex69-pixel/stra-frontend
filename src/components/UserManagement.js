@@ -83,7 +83,8 @@ export default function UserManagement() {
             setEditingUser(null);
             setShowModal(true);
           }}
-          className="bg-purple-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-purple-600 transition-colors"
+          className="text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          style={{ background: '#0d9488' }}
         >
           <Plus className="w-4 h-4" />
           Add User
@@ -209,14 +210,15 @@ function UserModal({ user, onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto" style={{ boxSizing: 'border-box' }}>
         <h3 className="text-xl font-bold mb-4">
           {user ? 'Edit User' : 'Add New User'}
         </h3>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="col-span-1">
+            {/* Responsive: stack on mobile, grid on larger screens */}
+            <div className="col-span-1 min-w-0">
               <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
               <input
                 type="text"
@@ -226,7 +228,7 @@ function UserModal({ user, onClose, onSave }) {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
               />
             </div>
-            <div className="col-span-1">
+            <div className="col-span-1 min-w-0">
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <input
                 type="email"
@@ -236,7 +238,7 @@ function UserModal({ user, onClose, onSave }) {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
               />
             </div>
-            <div className="col-span-1">
+            <div className="col-span-1 min-w-0">
               <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
               <select
                 required
@@ -252,7 +254,7 @@ function UserModal({ user, onClose, onSave }) {
                 <option value="pharmacist">Pharmacist</option>
               </select>
             </div>
-            <div className="col-span-1">
+            <div className="col-span-1 min-w-0">
               <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
               <input
                 type="text"
@@ -262,7 +264,7 @@ function UserModal({ user, onClose, onSave }) {
               />
             </div>
             {!user && (
-              <div className="col-span-1 sm:col-span-2">
+              <div className="col-span-1 sm:col-span-2 min-w-0">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                 <input
                   type="password"
@@ -273,7 +275,7 @@ function UserModal({ user, onClose, onSave }) {
                 />
               </div>
             )}
-            <div className="col-span-1 sm:col-span-2">
+            <div className="col-span-1 sm:col-span-2 min-w-0">
               <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
               <select
                 value={formData.status}
@@ -289,13 +291,14 @@ function UserModal({ user, onClose, onSave }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 w-full sm:w-auto"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-purple-500 text-white rounded-lg font-semibold shadow-md hover:bg-purple-600 transition-colors w-full sm:w-auto"
+              className="px-4 py-2 text-white rounded-lg font-semibold shadow-md transition-colors w-full sm:w-auto"
+              style={{ background: '#0d9488' }}
             >
               {user ? 'Update' : 'Create'}
             </button>
