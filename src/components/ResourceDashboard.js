@@ -8,7 +8,7 @@ import LoadingSpinner from './common/LoadingSpinner';
 export function ResourceDashboard({ onNavigate }) {
   const [view, setView] = useState('overview');
   const [loading, setLoading] = useState(false);
-  const [showLogout, setShowLogout] = useState(false); // Added for user menu
+
 
   const [resources, setResources] = useState({ beds: { units: [] }, staff: { byRole: [] }, equipment: { byType: [] } });
   const [departments, setDepartments] = useState([]);
@@ -107,56 +107,7 @@ export function ResourceDashboard({ onNavigate }) {
           
           <NotificationButton onClick={() => alert('Notifications will appear here. (Backend integration pending)')} />
           
-          {/* User menu dropdown - Optional, you can add this if needed */}
-          {/* <div style={{ position: 'relative' }}>
-            <button
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#fff',
-                cursor: 'pointer',
-                padding: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(255,255,255,0.1)',
-              }}
-              onClick={() => setShowLogout(!showLogout)}
-            >
-              <User size={20} />
-            </button>
-            {showLogout && (
-              <div style={{
-                position: 'absolute',
-                right: 0,
-                top: 'calc(100% + 8px)',
-                background: '#fff',
-                borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                minWidth: '120px',
-                zIndex: 1001,
-              }}>
-                <button
-                  onClick={logout}
-                  style={{
-                    width: '100%',
-                    padding: '10px 16px',
-                    border: 'none',
-                    background: 'none',
-                    color: '#ef4444',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    borderRadius: '8px',
-                  }}
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div> */}
+          {/* ...existing code... */}
         </div>
       </header>
 
