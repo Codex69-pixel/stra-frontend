@@ -8,17 +8,16 @@ import LoadingSpinner from './common/LoadingSpinner';
 export function ResourceDashboard({ onNavigate }) {
   const [view, setView] = useState('overview');
   const [loading, setLoading] = useState(false);
+  const [showLogout, setShowLogout] = useState(false); // Added for user menu
 
   const [resources, setResources] = useState({ beds: { units: [] }, staff: { byRole: [] }, equipment: { byType: [] } });
   const [departments, setDepartments] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const [scheduleAlerts, setScheduleAlerts] = useState([]);
 
-
   useEffect(() => {
     async function fetchResourceDashboard() {
       setLoading(true);
-
       try {
         const data = await apiService.getResourceDashboard();
         setResources(data.resources || { beds: { units: [] }, staff: { byRole: [] }, equipment: { byType: [] } });
@@ -26,49 +25,23 @@ export function ResourceDashboard({ onNavigate }) {
         setSchedules(data.schedules || []);
         setScheduleAlerts(data.scheduleAlerts || []);
       } catch (err) {
-
+        console.error('Error fetching resource dashboard:', err);
       } finally {
         setLoading(false);
       }
     }
     fetchResourceDashboard();
   }, []);
-  // ...existing code...
-
-
 
   return (
     <div className="w-full bg-gradient-to-br from-gray-50 to-teal-50/30 min-h-screen">
-      {/* Quick navigation dropdown for modules */}
-      {onNavigate && (
-        <div style={{ padding: '24px 0 0 24px' }}>
-          <select
-            style={{ marginLeft: 0, padding: '6px 12px', borderRadius: 8, border: '1px solid #14b8a6', background: '#fff', color: '#0d9488', fontWeight: 600 }}
-            onChange={e => {
-              if (e.target.value === 'logout') {
-                logout();
-              } else {
-                onNavigate(e.target.value);
-              }
-            }}
-            defaultValue=""
-          >
-            <option value="" disabled>Go to module...</option>
-            <option value="nurse">Nurse Triage</option>
-            <option value="queue">Queue Management</option>
-            <option value="doctor">Doctor Portal</option>
-            <option value="inventory">Inventory</option>
-            <option value="analytics">Analytics</option>
-            <option value="logout">Logout</option>
-          </select>
-        </div>
-      )}
-      {/* Top Bar with Responsive Go to Module */}
+      {/* Top Bar - Fixed */}
       <header
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
+          right: 0,
           width: '100%',
           zIndex: 1000,
           background: 'linear-gradient(to right, #14b8a6, #0d9488)',
@@ -79,41 +52,38 @@ export function ResourceDashboard({ onNavigate }) {
           justifyContent: 'space-between',
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
           padding: '0 24px',
-          flexWrap: 'wrap',
-          rowGap: 8
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-          <h1 style={{ fontWeight: 700, fontSize: '1.3rem', letterSpacing: '0.01em', margin: 0 }}>Hospital Resources</h1>
+        {/* Left side - Title */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <h1 style={{ fontWeight: 700, fontSize: '1.3rem', letterSpacing: '0.01em', margin: 0 }}>
+            Hospital Resources
+          </h1>
         </div>
+
+        {/* Right side - Navigation and Notifications */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: 12,
-            flexWrap: 'wrap',
             height: '64px',
-            position: 'relative',
-            minWidth: 220,
-            justifyContent: 'flex-end',
           }}
         >
           {onNavigate && (
             <select
-              className="module-select"
               style={{
-                marginLeft: 0,
-                padding: '6px 12px',
-                borderRadius: 8,
-                border: '1px solid #fff',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: 'none',
                 background: '#fff',
                 color: '#0d9488',
                 fontWeight: 600,
-                minWidth: 160,
-                fontSize: 15,
+                fontSize: '14px',
+                minWidth: '160px',
+                cursor: 'pointer',
                 outline: 'none',
-                marginTop: 4,
-                flex: '1 1 auto',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
               }}
               onChange={e => {
                 if (e.target.value === 'logout') {
@@ -134,12 +104,72 @@ export function ResourceDashboard({ onNavigate }) {
               <option value="logout">Logout</option>
             </select>
           )}
+          
           <NotificationButton onClick={() => alert('Notifications will appear here. (Backend integration pending)')} />
-          {/* ...existing code... */}
+          
+          {/* User menu dropdown - Optional, you can add this if needed */}
+          {/* <div style={{ position: 'relative' }}>
+            <button
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#fff',
+                cursor: 'pointer',
+                padding: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(255,255,255,0.1)',
+              }}
+              onClick={() => setShowLogout(!showLogout)}
+            >
+              <User size={20} />
+            </button>
+            {showLogout && (
+              <div style={{
+                position: 'absolute',
+                right: 0,
+                top: 'calc(100% + 8px)',
+                background: '#fff',
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                minWidth: '120px',
+                zIndex: 1001,
+              }}>
+                <button
+                  onClick={logout}
+                  style={{
+                    width: '100%',
+                    padding: '10px 16px',
+                    border: 'none',
+                    background: 'none',
+                    color: '#ef4444',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    borderRadius: '8px',
+                  }}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div> */}
         </div>
       </header>
-      
-      <div className="max-w-7xl mx-auto" style={{paddingTop: '90px', paddingLeft: '24px', paddingRight: '24px', paddingBottom: '24px'}}>
+
+      {/* Main Content with proper padding to account for fixed header */}
+      <div 
+        className="max-w-7xl mx-auto" 
+        style={{
+          paddingTop: '88px', // 64px (header) + 24px (extra space)
+          paddingLeft: '24px',
+          paddingRight: '24px',
+          paddingBottom: '24px'
+        }}
+      >
         {/* Alerts Section */}
         {scheduleAlerts.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -370,7 +400,7 @@ export function ResourceDashboard({ onNavigate }) {
           </div>
         )}
 
-        {/* Loading Spinner Example */}
+        {/* Loading Spinner */}
         {loading && <LoadingSpinner text="Updating resources..." fullScreen />}
       </div>
     </div>
