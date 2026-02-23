@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Edit2, Trash2, Plus, Search } from 'lucide-react';
-import LoadingSpinner from './common/LoadingSpinner';
+import { Building2, Edit2, Trash2, Plus } from 'lucide-react';
+// ...existing code...
 import apiService from '../services/api';
 
 export default function DepartmentManagement() {
@@ -65,9 +65,7 @@ export default function DepartmentManagement() {
     }
   };
 
-  if (loading && departments.length === 0) {
-    return <LoadingSpinner text="Loading departments..." />;
-  }
+  // Removed loading spinner for department fetch
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
@@ -95,14 +93,13 @@ export default function DepartmentManagement() {
       )}
 
       {/* Search Bar */}
-      <div className="mb-6 relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+      <div className="mb-6">
         <input
           type="text"
           placeholder="Search departments..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
         />
       </div>
 
