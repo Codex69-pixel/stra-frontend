@@ -15,23 +15,44 @@ import AccountSettings from './AccountSettings';
 export function ResourceDashboard({ onNavigate }) {
   const [view, setView] = useState('users');
   const [loading, setLoading] = useState(false);
-
-
-  // Removed unused state variables
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchResourceDashboard() {
       setLoading(true);
+      setError(null);
       try {
-        await apiService.getResourceDashboard(); // Data fetch for future use, no state update needed
+        await apiService.getResourceDashboard();
       } catch (err) {
         console.error('Error fetching resource dashboard:', err);
+        setError('Failed to load resource dashboard. Please try again later.');
       } finally {
         setLoading(false);
       }
     }
     fetchResourceDashboard();
   }, []);
+
+  // Navigation options
+  const navigationOptions = [
+    { key: 'nurse', label: 'Nurse Triage' },
+    { key: 'queue', label: 'Queue Management' },
+    { key: 'doctor', label: 'Doctor Portal' },
+    { key: 'inventory', label: 'Inventory' },
+    { key: 'analytics', label: 'Analytics' },
+    { key: 'logout', label: 'Logout' }
+  ];
+
+  const tabs = [
+    { key: 'users', label: 'Users' },
+    { key: 'departments', label: 'Departments' },
+    { key: 'resources', label: 'Resources' },
+    { key: 'inventory', label: 'Inventory' },
+    { key: 'appointments', label: 'Appointments/Patients' },
+    { key: 'lab', label: 'Lab/Imaging' },
+    { key: 'analytics', label: 'Analytics' },
+    { key: 'account', label: 'Account' }
+  ];
 
   return (
     <div className="w-full bg-gradient-to-br from-gray-50 to-teal-50/30 min-h-screen">
@@ -96,18 +117,15 @@ export function ResourceDashboard({ onNavigate }) {
               aria-label="Navigate to module"
             >
               <option value="" disabled>Go to module...</option>
-              <option value="nurse">Nurse Triage</option>
-              <option value="queue">Queue Management</option>
-              <option value="doctor">Doctor Portal</option>
-              <option value="inventory">Inventory</option>
-              <option value="analytics">Analytics</option>
-              <option value="logout">Logout</option>
+              {navigationOptions.map(option => (
+                <option key={option.key} value={option.key}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           )}
           
           <NotificationButton onClick={() => alert('Notifications will appear here. (Backend integration pending)')} />
-          
-          {/* ...existing code... */}
         </div>
       </header>
 
@@ -115,27 +133,23 @@ export function ResourceDashboard({ onNavigate }) {
       <div 
         className="max-w-7xl mx-auto" 
         style={{
-          paddingTop: '88px', // 64px (header) + 24px (extra space)
+          paddingTop: '88px',
           paddingLeft: '24px',
           paddingRight: '24px',
           paddingBottom: '24px'
         }}
       >
-        {/* Alerts Section removed as new admin features do not use it */}
+        {/* Error Display */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
 
         {/* Admin Feature Tabs */}
         <div className="mb-6 border-b-2 border-gray-200">
           <div className="flex gap-4 flex-wrap">
-            {[
-              { key: 'users', label: 'Users' },
-              { key: 'departments', label: 'Departments' },
-              { key: 'resources', label: 'Resources' },
-              { key: 'inventory', label: 'Inventory' },
-              { key: 'appointments', label: 'Appointments/Patients' },
-              { key: 'lab', label: 'Lab/Imaging' },
-              { key: 'analytics', label: 'Analytics' },
-              { key: 'account', label: 'Account' }
-            ].map(tab => (
+            {tabs.map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setView(tab.key)}
@@ -152,14 +166,17 @@ export function ResourceDashboard({ onNavigate }) {
         </div>
 
         {/* Admin Feature Content */}
-        {view === 'users' && <UserManagement />}
-        {view === 'departments' && <DepartmentManagement />}
-        {view === 'resources' && <ResourceManagement />}
-        {view === 'inventory' && <InventoryMedicationManagement />}
-        {view === 'appointments' && <AppointmentPatientManagement />}
-        {view === 'lab' && <LabImagingManagement />}
-        {view === 'analytics' && <AnalyticsReporting />}
-        {view === 'account' && <AccountSettings />}
+        <div className="min-h-[400px]">
+          {view === 'users' && <UserManagement />}
+          {view === 'departments' && <DepartmentManagement />}
+          {view === 'resources' && <ResourceManagement />}
+          {view === 'inventory' && <InventoryMedicationManagement />}
+          {view === 'appointments' && <AppointmentPatientManagement />}
+          {view === 'lab' && <LabImagingManagement />}
+          {view === 'analytics' && <AnalyticsReporting />}
+          {view === 'account' && <AccountSettings />}
+        </div>
+        
         {loading && <LoadingSpinner text="Updating resources..." fullScreen />}
       </div>
     </div>
