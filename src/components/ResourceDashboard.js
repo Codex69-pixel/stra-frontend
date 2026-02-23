@@ -45,7 +45,13 @@ export function ResourceDashboard({ onNavigate }) {
         <div style={{ padding: '24px 0 0 24px' }}>
           <select
             style={{ marginLeft: 0, padding: '6px 12px', borderRadius: 8, border: '1px solid #14b8a6', background: '#fff', color: '#0d9488', fontWeight: 600 }}
-            onChange={e => onNavigate(e.target.value)}
+            onChange={e => {
+              if (e.target.value === 'logout') {
+                logout();
+              } else {
+                onNavigate(e.target.value);
+              }
+            }}
             defaultValue=""
           >
             <option value="" disabled>Go to module...</option>
@@ -54,6 +60,7 @@ export function ResourceDashboard({ onNavigate }) {
             <option value="doctor">Doctor Portal</option>
             <option value="inventory">Inventory</option>
             <option value="analytics">Analytics</option>
+            <option value="logout">Logout</option>
           </select>
         </div>
       )}
@@ -109,7 +116,13 @@ export function ResourceDashboard({ onNavigate }) {
                 marginTop: 4,
                 flex: '1 1 auto',
               }}
-              onChange={e => onNavigate(e.target.value)}
+              onChange={e => {
+                if (e.target.value === 'logout') {
+                  logout();
+                } else {
+                  onNavigate(e.target.value);
+                }
+              }}
               defaultValue=""
               aria-label="Navigate to module"
             >
@@ -119,6 +132,7 @@ export function ResourceDashboard({ onNavigate }) {
               <option value="doctor">Doctor Portal</option>
               <option value="inventory">Inventory</option>
               <option value="analytics">Analytics</option>
+              <option value="logout">Logout</option>
             </select>
           )}
           <NotificationButton onClick={() => alert('Notifications will appear here. (Backend integration pending)')} />
