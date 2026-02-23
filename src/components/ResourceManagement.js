@@ -12,7 +12,16 @@ export default function ResourceManagement() {
       setError(null);
       try {
         const data = await apiService.getResourceDashboard();
-        setResources(data.resources ? data.resources.beds.units.concat(data.resources.staff.byRole, data.resources.equipment.byType) : []);
+        // Defensive: ensure resources is always an array
+        if (data && data.resources && Array.isArray(data.resources.beds.units) && Array.isArray(data.resources.staff.byRole) && Array.isArray(data.resources.equipment.byType)) {
+          setResources([
+            ...data.resources.beds.units,
+            ...data.resources.staff.byRole,
+            ...data.resources.equipment.byType
+          ]);
+        } else {
+          setResources([]);
+        }
       } catch (err) {
         setError("Failed to load resources");
       } finally {
@@ -38,7 +47,7 @@ export default function ResourceManagement() {
           </tr>
         </thead>
         <tbody>
-          {resources.map((res, idx) => (
+          {Array.isArray(resources) && resources.length > 0 ? resources.map((res, idx) => (
             <tr key={res.name + idx} className="border-t">
               <td className="px-4 py-2">{res.name}</td>
               <td className="px-4 py-2">{res.type || (res.role ? 'Staff' : 'Equipment/Bed')}</td>
@@ -50,7 +59,7 @@ export default function ResourceManagement() {
                 <button className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-bold" onClick={() => alert('View availability for ' + res.name)}>View Availability</button>
               </td>
             </tr>
-          ))}
+          )) : <tr><td colSpan="4" className="text-center py-4">No resources found or backend error.</td></tr>}
         </tbody>
       </table>
     </div>
