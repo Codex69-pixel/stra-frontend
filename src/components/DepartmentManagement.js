@@ -76,7 +76,11 @@ export default function DepartmentManagement() {
             setEditingDepartment(null);
             setShowModal(true);
           }}
-          className="bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-purple-700 transition-colors"
+          className="text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          style={{
+            background: 'linear-gradient(to right, rgb(20,184,166), rgb(13,148,136))',
+            border: 'none'
+          }}
         >
           <Plus className="w-4 h-4" />
           Add Department
@@ -265,7 +269,11 @@ function DepartmentModal({ department, onClose, onSave }) {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              className="px-4 py-2 text-white rounded-lg"
+              style={{
+                background: 'linear-gradient(to right, rgb(20,184,166), rgb(13,148,136))',
+                border: 'none'
+              }}
             >
               {department ? 'Update' : 'Create'}
             </button>
