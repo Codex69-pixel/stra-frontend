@@ -5,11 +5,7 @@ import apiService from '../services/api';
 import LoadingSpinner from './common/LoadingSpinner';
 import UserManagement from './UserManagement';
 import DepartmentManagement from './DepartmentManagement';
-import ResourceManagement from './ResourceManagement';
-import InventoryMedicationManagement from './InventoryMedicationManagement';
-import AppointmentPatientManagement from './AppointmentPatientManagement';
-import LabImagingManagement from './LabImagingManagement';
-import AnalyticsReporting from './AnalyticsReporting';
+// ...existing code...
 import AccountSettings from './AccountSettings';
 
 export function ResourceDashboard({ onNavigate }) {

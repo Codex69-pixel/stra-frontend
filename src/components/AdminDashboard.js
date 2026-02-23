@@ -4,8 +4,6 @@ import apiService from "../services/api";
 
 export default function AdminDashboard({ onNavigate }) {
   const [userStats, setUserStats] = useState(null);
-  const [resourceStats, setResourceStats] = useState(null);
-  const [inventoryStats, setInventoryStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
