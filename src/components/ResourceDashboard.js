@@ -58,27 +58,40 @@ export function ResourceDashboard({ onNavigate }) {
         </div>
       )}
       {/* Top Bar with Responsive Go to Module */}
-      <header style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        zIndex: 1000,
-        background: 'linear-gradient(to right, #14b8a6, #0d9488)',
-        color: '#fff',
-        height: '64px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        padding: '0 24px',
-        flexWrap: 'wrap',
-        rowGap: 8
-      }}>
-        <div style={{display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap'}}>
-          <h1 style={{fontWeight: 700, fontSize: '1.3rem', letterSpacing: '0.01em', margin: 0}}>Hospital Resources</h1>
+      <header
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          zIndex: 1000,
+          background: 'linear-gradient(to right, #14b8a6, #0d9488)',
+          color: '#fff',
+          height: '64px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          padding: '0 24px',
+          flexWrap: 'wrap',
+          rowGap: 8
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+          <h1 style={{ fontWeight: 700, fontSize: '1.3rem', letterSpacing: '0.01em', margin: 0 }}>Hospital Resources</h1>
         </div>
-        <div style={{position: 'relative', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', height: '64px'}}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            flexWrap: 'wrap',
+            height: '64px',
+            position: 'relative',
+            minWidth: 220,
+            justifyContent: 'flex-end',
+          }}
+        >
           {onNavigate && (
             <select
               className="module-select"
@@ -93,7 +106,8 @@ export function ResourceDashboard({ onNavigate }) {
                 minWidth: 160,
                 fontSize: 15,
                 outline: 'none',
-                marginTop: 4
+                marginTop: 4,
+                flex: '1 1 auto',
               }}
               onChange={e => onNavigate(e.target.value)}
               defaultValue=""
@@ -107,75 +121,86 @@ export function ResourceDashboard({ onNavigate }) {
               <option value="analytics">Analytics</option>
             </select>
           )}
-          {/* Notification Button */}
           <NotificationButton onClick={() => alert('Notifications will appear here. (Backend integration pending)')} />
-          {/* Persona/User Icon */}
-          <button
+          {/* Persona/User Icon - moved to far right, responsive */}
+          <div
             style={{
-              background: 'none',
-              border: 'none',
-              color: 'inherit',
-              cursor: 'pointer',
-              padding: 0,
-              marginLeft: 0,
               display: 'flex',
               alignItems: 'center',
-              height: '64px',
+              justifyContent: 'flex-end',
+              minWidth: 40,
+              position: 'relative',
             }}
-            onClick={() => setShowDropdown(prev => !prev)}
-            aria-label="User menu"
           >
-            <User size={28} />
-          </button>
-          {showDropdown && (
-            <div style={{
-              position: 'absolute',
-              right: 0,
-              top: 'calc(100% + 8px)',
-              background: '#fff',
-              color: '#222',
-              borderRadius: 8,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-              minWidth: 180,
-              zIndex: 100,
-              padding: 8
-            }}>
-              <button
+            <button
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'inherit',
+                cursor: 'pointer',
+                padding: 0,
+                marginLeft: 0,
+                display: 'flex',
+                alignItems: 'center',
+                height: '64px',
+              }}
+              onClick={() => setShowDropdown(prev => !prev)}
+              aria-label="User menu"
+            >
+              <User size={28} />
+            </button>
+            {showDropdown && (
+              <div
                 style={{
-                  width: '100%',
-                  background: 'none',
-                  border: 'none',
-                  color: '#0d9488',
-                  fontWeight: 600,
-                  fontSize: 16,
-                  padding: '8px 0',
-                  cursor: 'pointer',
-                  borderRadius: 4,
-                  textAlign: 'left'
+                  position: 'absolute',
+                  right: 0,
+                  top: 'calc(100% + 8px)',
+                  background: '#fff',
+                  color: '#222',
+                  borderRadius: 8,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                  minWidth: 180,
+                  zIndex: 100,
+                  padding: 8,
                 }}
-                onClick={() => setView('overview')}
               >
-                Hospital Resources
-              </button>
-              <button
-                style={{
-                  width: '100%',
-                  background: 'none',
-                  border: 'none',
-                  color: '#0d9488',
-                  fontWeight: 600,
-                  fontSize: 16,
-                  padding: '8px 0',
-                  cursor: 'pointer',
-                  borderRadius: 4,
-                  textAlign: 'left'
-                }}
-                onClick={() => logout()}
-              >
-                Logout
-              </button>
-            </div>
-          )}
+                <button
+                  style={{
+                    width: '100%',
+                    background: 'none',
+                    border: 'none',
+                    color: '#0d9488',
+                    fontWeight: 600,
+                    fontSize: 16,
+                    padding: '8px 0',
+                    cursor: 'pointer',
+                    borderRadius: 4,
+                    textAlign: 'left',
+                  }}
+                  onClick={() => setView('overview')}
+                >
+                  Hospital Resources
+                </button>
+                <button
+                  style={{
+                    width: '100%',
+                    background: 'none',
+                    border: 'none',
+                    color: '#0d9488',
+                    fontWeight: 600,
+                    fontSize: 16,
+                    padding: '8px 0',
+                    cursor: 'pointer',
+                    borderRadius: 4,
+                    textAlign: 'left',
+                  }}
+                  onClick={() => logout()}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
       
