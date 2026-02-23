@@ -82,6 +82,7 @@ export const apiService = {
      * @returns {Promise<Array>}
      */
     async getPatients() {
+      // Use the correct endpoint as per OpenAPI spec
       return apiRequest('/api/v1/patients', { method: 'GET' });
     },
   
