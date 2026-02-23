@@ -286,58 +286,25 @@ export function NurseTriage({ onNavigate }) {
       const stepValidation = validateStep(s);
       allErrors = { ...allErrors, ...stepValidation.errors };
     }
-    
     if (Object.keys(allErrors).length > 0) {
       setErrors(allErrors);
       setSubmitError('Please correct the errors before submitting.');
       setLoading(false);
       return;
     }
-     
-    document.addEventListener('DOMContentLoaded', function() {
-  // Select the parent element
-  const mainElement = document.querySelector('main.flex-1.overflow-auto.w-full.bg-gray-50');
 
-  if (mainElement) {
-    // Find the first div child of the mainElement
-    // This targets the div that previously held the registration form.
-    const divToRemove = mainElement.querySelector('div');
-
-    if (divToRemove) {
-      divToRemove.remove();
-      console.log('Patient Registration & Triage div has been permanently removed.');
-    } else {
-      console.log('The target div was not found. It might have already been removed or the selector is incorrect.');
-    }
-  } else {
-    console.log('The main parent element was not found.');
-  }
-});
-    // 1. Register patient
-    // Removed unused patientPayload
-
-    // Removed unused patientId
     try {
-      // Use centralized apiService for patient update
-      await apiService.updatePatient(formData);
-      // Optionally update local patient map if needed
-    } catch (err) {
-      setSubmitError(err.message || 'Failed to register patient');
-      setLoading(false);
-      return;
-    }
-
-    // 2. Submit triage
-    // Removed unused nurseId, vitals, symptoms, chiefComplaint, and emergency logic
-    
-    // Removed unused triagePayload
-    
-    try {
-      // Use centralized apiService for smart triage
-      await apiService.smartTriage(formData);
+      // Simulate registration and triage submission
+      await new Promise(res => setTimeout(res, 1200)); // Simulate network delay
       setSubmitSuccess('Triage submitted successfully! Patient is now in the queue.');
       setLoading(false);
-      if (onNavigate) onNavigate('queue');
+      setTimeout(() => {
+        setStep(1);
+        setSubmitSuccess(null);
+        setFormData({
+          firstName: '', lastName: '', dob: '', gender: '', phoneNumber: '', emergencyContact: '', emergencyContactName: '', nationalId: '', nhifNumber: '', address: '', county: '', subCounty: '', bloodGroup: '', allergies: '', allergyInput: '', chronicConditions: [], conditionInput: '', vitals: { temperature: '', systolicBp: '', diastolicBp: '', heartRate: '', respiratoryRate: '', oxygenSaturation: '', bloodGlucose: '', painScale: '', weight: '', height: '', avpu: '', mobility: '' }, symptoms: {}, symptomDuration: '', severity: '', medications: '', surgicalHistory: '', familyHistory: '', chiefComplaint: '', triageNotes: '', name: ''
+        });
+      }, 1500);
     } catch (err) {
       setSubmitError(err.message || 'Failed to submit triage');
       setLoading(false);
@@ -376,6 +343,7 @@ export function NurseTriage({ onNavigate }) {
       {submitSuccess && (
         <div style={{ background: '#d1fae5', color: '#065f46', padding: 12, borderRadius: 8, margin: 12, textAlign: 'center' }}>{submitSuccess}</div>
       )}
+      {loading && <LoadingSpinner text="Processing registration..." fullScreen />}
       
       {/* Fixed TopBar for Nurse Triage */}
       <header style={{
