@@ -296,18 +296,21 @@ export function NurseTriage({ onNavigate }) {
     try {
       // Simulate registration and triage submission
       await new Promise(res => setTimeout(res, 1200)); // Simulate network delay
-      setSubmitSuccess('Triage submitted successfully! Patient is now in the queue.');
       setLoading(false);
+      setSubmitSuccess('Patient registered and triage submitted successfully!');
       setTimeout(() => {
         setStep(1);
         setSubmitSuccess(null);
         setFormData({
           firstName: '', lastName: '', dob: '', gender: '', phoneNumber: '', emergencyContact: '', emergencyContactName: '', nationalId: '', nhifNumber: '', address: '', county: '', subCounty: '', bloodGroup: '', allergies: '', allergyInput: '', chronicConditions: [], conditionInput: '', vitals: { temperature: '', systolicBp: '', diastolicBp: '', heartRate: '', respiratoryRate: '', oxygenSaturation: '', bloodGlucose: '', painScale: '', weight: '', height: '', avpu: '', mobility: '' }, symptoms: {}, symptomDuration: '', severity: '', medications: '', surgicalHistory: '', familyHistory: '', chiefComplaint: '', triageNotes: '', name: ''
         });
-      }, 1500);
+      }, 2500);
     } catch (err) {
-      setSubmitError(err.message || 'Failed to submit triage');
       setLoading(false);
+      setSubmitError('Registration failed. Please try again.');
+      setTimeout(() => {
+        setSubmitError(null);
+      }, 3000);
     }
   };
 
