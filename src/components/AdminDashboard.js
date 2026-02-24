@@ -16,7 +16,8 @@ export default function AdminDashboard({ onNavigate }) {
         const users = await apiService.getUsers();
         setUserStats({ count: users.length });
       } catch (err) {
-        setError("Failed to load admin data");
+        // Log error to console, do not display in UI
+        console.error("Failed to load admin data", err);
       } finally {
         setLoading(false);
       }
@@ -25,7 +26,7 @@ export default function AdminDashboard({ onNavigate }) {
   }, []);
 
   if (loading) return <div className="p-8">Loading admin dashboard...</div>;
-  if (error) return <div className="p-8 text-red-600">{error}</div>;
+  // Do not display error in frontend
 
   return (
     <div>
