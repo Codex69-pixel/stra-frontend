@@ -3,6 +3,173 @@ import { User, Edit2, Trash2, Plus } from 'lucide-react';
 import LoadingSpinner from './common/LoadingSpinner';
 import apiService from '../services/api';
 
+
+// ================= MOCK DATA FOR PRESENTATION =================
+// This mock data is used for demo purposes only. Remove or disable for production.
+const MOCK_USERS = [
+  {
+    id: 1,
+    name: 'Dr. Alice Johnson',
+    email: 'alice.johnson@hospital.com',
+    role: 'Doctor',
+    department: 'Cardiology',
+    status: 'active',
+  },
+  {
+    id: 2,
+    name: 'Nurse Bob Smith',
+    email: 'bob.smith@hospital.com',
+    role: 'Nurse',
+    department: 'Emergency',
+    status: 'active',
+  },
+  {
+    id: 3,
+    name: 'Admin Carol Lee',
+    email: 'carol.lee@hospital.com',
+    role: 'Admin',
+    department: 'Administration',
+    status: 'active',
+  },
+  {
+    id: 4,
+    name: 'Dr. Daniel Kim',
+    email: 'daniel.kim@hospital.com',
+    role: 'Doctor',
+    department: 'Neurology',
+    status: 'inactive',
+  },
+  {
+    id: 5,
+    name: 'Pharmacist Eva Green',
+    email: 'eva.green@hospital.com',
+    role: 'Pharmacist',
+    department: 'Pharmacy',
+    status: 'active',
+  },
+  {
+    id: 6,
+    name: 'Nurse Frank White',
+    email: 'frank.white@hospital.com',
+    role: 'Nurse',
+    department: 'Pediatrics',
+    status: 'active',
+  },
+  {
+    id: 7,
+    name: 'Receptionist Grace Park',
+    email: 'grace.park@hospital.com',
+    role: 'Receptionist',
+    department: 'Front Desk',
+    status: 'active',
+  },
+  {
+    id: 8,
+    name: 'Dr. Henry Adams',
+    email: 'henry.adams@hospital.com',
+    role: 'Doctor',
+    department: 'Orthopedics',
+    status: 'active',
+  },
+  {
+    id: 9,
+    name: 'Nurse Irene Black',
+    email: 'irene.black@hospital.com',
+    role: 'Nurse',
+    department: 'ICU',
+    status: 'inactive',
+  },
+  {
+    id: 10,
+    name: 'Pharmacist Jack Brown',
+    email: 'jack.brown@hospital.com',
+    role: 'Pharmacist',
+    department: 'Pharmacy',
+    status: 'active',
+  },
+  {
+    id: 11,
+    name: 'Admin Kelly Blue',
+    email: 'kelly.blue@hospital.com',
+    role: 'Admin',
+    department: 'Administration',
+    status: 'active',
+  },
+  {
+    id: 12,
+    name: 'Dr. Liam Clark',
+    email: 'liam.clark@hospital.com',
+    role: 'Doctor',
+    department: 'Dermatology',
+    status: 'active',
+  },
+  {
+    id: 13,
+    name: 'Nurse Mia Davis',
+    email: 'mia.davis@hospital.com',
+    role: 'Nurse',
+    department: 'Emergency',
+    status: 'active',
+  },
+  {
+    id: 14,
+    name: 'Receptionist Noah Evans',
+    email: 'noah.evans@hospital.com',
+    role: 'Receptionist',
+    department: 'Front Desk',
+    status: 'inactive',
+  },
+  {
+    id: 15,
+    name: 'Pharmacist Olivia Fox',
+    email: 'olivia.fox@hospital.com',
+    role: 'Pharmacist',
+    department: 'Pharmacy',
+    status: 'active',
+  },
+  {
+    id: 16,
+    name: 'Admin Paul Gray',
+    email: 'paul.gray@hospital.com',
+    role: 'Admin',
+    department: 'Administration',
+    status: 'active',
+  },
+  {
+    id: 17,
+    name: 'Dr. Quinn Hall',
+    email: 'quinn.hall@hospital.com',
+    role: 'Doctor',
+    department: 'Cardiology',
+    status: 'active',
+  },
+  {
+    id: 18,
+    name: 'Nurse Riley Ivy',
+    email: 'riley.ivy@hospital.com',
+    role: 'Nurse',
+    department: 'ICU',
+    status: 'active',
+  },
+  {
+    id: 19,
+    name: 'Pharmacist Sam Jones',
+    email: 'sam.jones@hospital.com',
+    role: 'Pharmacist',
+    department: 'Pharmacy',
+    status: 'inactive',
+  },
+  {
+    id: 20,
+    name: 'Admin Tina King',
+    email: 'tina.king@hospital.com',
+    role: 'Admin',
+    department: 'Administration',
+    status: 'active',
+  },
+];
+// ================= END MOCK DATA =================
+
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -10,33 +177,50 @@ export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  // Toggle this to true for demo/mock mode
+  const DEMO_MODE = true;
+
 
   useEffect(() => {
-    fetchUsers();
+    if (DEMO_MODE) {
+      setUsers(MOCK_USERS);
+    } else {
+      fetchUsers();
+    }
   }, []);
 
+  // fetchUsers remains for error handling and production
   const fetchUsers = async () => {
     setLoading(true);
     setError(null);
     try {
       const response = await apiService.getUsers();
-      // Ensure response.data is an array
       setUsers(Array.isArray(response) ? response : []);
     } catch (err) {
       console.error('Error fetching users:', err);
       setError('Failed to load users. Please try again.');
-      setUsers([]); // Set to empty array on error
+      setUsers([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredUsers = Array.isArray(users) 
-    ? users.filter(user => 
-        user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user?.role?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+  // Search and sort: matching results move to top
+  const filteredUsers = Array.isArray(users)
+    ? [
+        ...users.filter(user =>
+          user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user?.role?.toLowerCase().includes(searchTerm.toLowerCase())
+        ),
+        ...users.filter(user =>
+          !(
+            user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user?.role?.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        ),
+      ]
     : [];
 
   const handleDelete = async (userId) => {

@@ -12,6 +12,162 @@ const PRESCRIPTION_STATUS = {
 };
 
 
+
+// ================= MOCK DATA FOR PRESENTATION =================
+// This mock data is used for demo purposes only. Remove or disable for production.
+const DEMO_MODE = true;
+// If userRole is doctor, show only prescriptions issued by doctor
+const MOCK_PRESCRIPTIONS_DOCTOR = [
+  {
+    id: 'RX2001',
+    patientName: 'John Doe',
+    patientId: 'DP001',
+    medication: 'Lisinopril',
+    dosage: '10mg',
+    frequency: '1x/day',
+    duration: '30 days',
+    instructions: 'Take in the morning',
+    refills: 2,
+    prescribedBy: 'Dr. Sarah Johnson',
+    datePrescribed: '2026-02-20',
+    expiryDate: '2026-03-20',
+    status: PRESCRIPTION_STATUS.ACTIVE,
+    allergies: [],
+  },
+  {
+    id: 'RX2002',
+    patientName: 'Jane Smith',
+    patientId: 'DP002',
+    medication: 'Sumatriptan',
+    dosage: '50mg',
+    frequency: 'as needed',
+    duration: 'as needed',
+    instructions: 'Take at onset of migraine',
+    refills: 1,
+    prescribedBy: 'Dr. Sarah Johnson',
+    datePrescribed: '2026-02-21',
+    expiryDate: '2026-03-21',
+    status: PRESCRIPTION_STATUS.COMPLETED,
+    allergies: [],
+  },
+  {
+    id: 'RX2003',
+    patientName: 'Michael Brown',
+    patientId: 'DP003',
+    medication: 'Metformin',
+    dosage: '500mg',
+    frequency: '2x/day',
+    duration: '90 days',
+    instructions: 'Take with meals',
+    refills: 3,
+    prescribedBy: 'Dr. Sarah Johnson',
+    datePrescribed: '2026-02-22',
+    expiryDate: '2026-05-22',
+    status: PRESCRIPTION_STATUS.ACTIVE,
+    allergies: [],
+  },
+];
+
+const MOCK_PRESCRIPTIONS = [
+  {
+    id: 'RX1001',
+    patientName: 'John Doe',
+    patientId: 'P001',
+    medication: 'Amoxicillin',
+    dosage: '500mg',
+    frequency: '3x/day',
+    duration: '7 days',
+    instructions: 'Take after meals',
+    refills: 1,
+    prescribedBy: 'Dr. Sarah Johnson',
+    datePrescribed: '2026-02-20',
+    expiryDate: '2026-03-20',
+    status: PRESCRIPTION_STATUS.ACTIVE,
+    allergies: [],
+  },
+  {
+    id: 'RX1002',
+    patientName: 'Jane Smith',
+    patientId: 'P002',
+    medication: 'Ibuprofen',
+    dosage: '200mg',
+    frequency: '2x/day',
+    duration: '5 days',
+    instructions: 'Take with water',
+    refills: 0,
+    prescribedBy: 'Dr. Sarah Johnson',
+    datePrescribed: '2026-02-21',
+    expiryDate: '2026-03-21',
+    status: PRESCRIPTION_STATUS.COMPLETED,
+    allergies: [],
+  },
+  {
+    id: 'RX1003',
+    patientName: 'Michael Brown',
+    patientId: 'P003',
+    medication: 'Paracetamol',
+    dosage: '500mg',
+    frequency: '4x/day',
+    duration: '3 days',
+    instructions: 'Take as needed',
+    refills: 2,
+    prescribedBy: 'Dr. Sarah Johnson',
+    datePrescribed: '2026-02-22',
+    expiryDate: '2026-03-22',
+    status: PRESCRIPTION_STATUS.ACTIVE,
+    allergies: [],
+  },
+  {
+    id: 'RX1004',
+    patientName: 'Emily Davis',
+    patientId: 'P004',
+    medication: 'Cetirizine',
+    dosage: '10mg',
+    frequency: '1x/day',
+    duration: '10 days',
+    instructions: 'Take at bedtime',
+    refills: 1,
+    prescribedBy: 'Dr. Sarah Johnson',
+    datePrescribed: '2026-02-23',
+    expiryDate: '2026-03-23',
+    status: PRESCRIPTION_STATUS.CANCELLED,
+    allergies: [],
+  },
+  {
+    id: 'RX1005',
+    patientName: 'Chris Evans',
+    patientId: 'P005',
+    medication: 'Azithromycin',
+    dosage: '250mg',
+    frequency: '1x/day',
+    duration: '3 days',
+    instructions: 'Take before meals',
+    refills: 0,
+    prescribedBy: 'Dr. Sarah Johnson',
+    datePrescribed: '2026-02-24',
+    expiryDate: '2026-03-24',
+    status: PRESCRIPTION_STATUS.ACTIVE,
+    allergies: [],
+  },
+  {
+    id: 'RX1006',
+    patientName: 'Sophia Lee',
+    patientId: 'P006',
+    medication: 'Metformin',
+    dosage: '500mg',
+    frequency: '2x/day',
+    duration: '30 days',
+    instructions: 'Take with breakfast and dinner',
+    refills: 3,
+    prescribedBy: 'Dr. Sarah Johnson',
+    datePrescribed: '2026-02-24',
+    expiryDate: '2026-03-24',
+    status: PRESCRIPTION_STATUS.ACTIVE,
+    allergies: [],
+  },
+];
+// ================= END MOCK DATA =================
+
 function Prescriptions({ userRole = "doctor" }) {
   const [search, setSearch] = useState("");
   const [prescriptions, setPrescriptions] = useState([]);
@@ -28,22 +184,29 @@ function Prescriptions({ userRole = "doctor" }) {
   });
   const [editingId, setEditingId] = useState(null);
   const [filterStatus, setFilterStatus] = useState("ALL");
-  // const [loading, setLoading] = useState(false);
 
-  // Fetch prescriptions from backend (placeholder: implement actual fetch if endpoint exists)
+  // Fetch prescriptions from backend or use mock data for demo
   useEffect(() => {
-    async function fetchPrescriptions() {
-      try {
-        // TODO: Replace with actual backend call when available
-        // Example: const data = await apiService.getPrescriptions();
-        // setPrescriptions(data);
-        setPrescriptions([]); // No endpoint yet, so empty
-      } catch (err) {
-        // Optionally handle error
+    if (DEMO_MODE) {
+      if (userRole === 'doctor') {
+        setPrescriptions(MOCK_PRESCRIPTIONS_DOCTOR);
+      } else {
+        setPrescriptions(MOCK_PRESCRIPTIONS);
       }
+    } else {
+      async function fetchPrescriptions() {
+        try {
+          // TODO: Replace with actual backend call when available
+          // Example: const data = await apiService.getPrescriptions();
+          // setPrescriptions(data);
+          setPrescriptions([]); // No endpoint yet, so empty
+        } catch (err) {
+          // Optionally handle error
+        }
+      }
+      fetchPrescriptions();
     }
-    fetchPrescriptions();
-  }, []);
+  }, [userRole]);
 
   // Filter prescriptions based on search and status
   const filteredPrescriptions = useCallback(() => {

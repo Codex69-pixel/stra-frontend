@@ -5,17 +5,195 @@ import {
   FileText, User, Users, Activity, ChevronRight, ChevronDown, Stethoscope, LogOut, X, Save
 } from 'lucide-react';
 import './DoctorPortal.css';
-
 import LoadingSpinner from './common/LoadingSpinner';
 import Prescriptions from './prescription';
 // import QueueManagement from './QueueManagement';
 import apiService from '../services/api';
 
+// ================= MOCK DATA FOR PRESENTATION =================
+// This mock data is used for demo purposes only. Remove or disable for production.
+const DEMO_MODE = true;
+const MOCK_PATIENTS = [
+  {
+    id: 'DP001',
+    name: 'John Doe',
+    age: 34,
+    gender: 'Male',
+    diagnosis: 'Hypertension',
+    visitStatus: 'Checked In',
+  },
+  {
+    id: 'DP002',
+    name: 'Jane Smith',
+    age: 28,
+    gender: 'Female',
+    diagnosis: 'Migraine',
+    visitStatus: 'Waiting',
+  },
+  {
+    id: 'DP003',
+    name: 'Michael Brown',
+    age: 45,
+    gender: 'Male',
+    diagnosis: 'Diabetes',
+    visitStatus: 'In Consultation',
+  },
+  {
+    id: 'DP004',
+    name: 'Emily Davis',
+    age: 52,
+    gender: 'Female',
+    diagnosis: 'Asthma',
+    visitStatus: 'Checked In',
+  },
+  {
+    id: 'DP005',
+    name: 'Chris Evans',
+    age: 39,
+    gender: 'Male',
+    diagnosis: 'Back Pain',
+    visitStatus: 'Waiting',
+  },
+  {
+    id: 'DP006',
+    name: 'Sophia Lee',
+    age: 23,
+    gender: 'Female',
+    diagnosis: 'Allergy',
+    visitStatus: 'Checked In',
+  },
+  {
+    id: 'DP007',
+    name: 'David Kim',
+    age: 31,
+    gender: 'Male',
+    diagnosis: 'Sprain',
+    visitStatus: 'In Consultation',
+  },
+  {
+    id: 'DP008',
+    name: 'Olivia Green',
+    age: 27,
+    gender: 'Female',
+    diagnosis: 'Migraine',
+    visitStatus: 'Waiting',
+  },
+  {
+    id: 'DP009',
+    name: 'Lucas White',
+    age: 36,
+    gender: 'Male',
+    diagnosis: 'Asthma',
+    visitStatus: 'Checked In',
+  },
+  {
+    id: 'DP010',
+    name: 'Mia Black',
+    age: 41,
+    gender: 'Female',
+    diagnosis: 'Infection',
+    visitStatus: 'Waiting',
+  },
+];
 
+// Mock data for Doctor Queue (for demo)
+const MOCK_DOCTOR_QUEUE = [
+  {
+    id: 'DP001',
+    name: 'John Doe',
+    urgency: 'High',
+    status: 'Waiting',
+    position: 1,
+  },
+  {
+    id: 'DP002',
+    name: 'Jane Smith',
+    urgency: 'Medium',
+    status: 'In Consultation',
+    position: 2,
+  },
+  {
+    id: 'DP003',
+    name: 'Michael Brown',
+    urgency: 'Low',
+    status: 'Waiting',
+    position: 3,
+  },
+  {
+    id: 'DP004',
+    name: 'Emily Davis',
+    urgency: 'High',
+    status: 'Waiting',
+    position: 4,
+  },
+  {
+    id: 'DP005',
+    name: 'Chris Evans',
+    urgency: 'Medium',
+    status: 'Waiting',
+    position: 5,
+  },
+  {
+    id: 'DP006',
+    name: 'Sophia Lee',
+    urgency: 'Low',
+    status: 'In Consultation',
+    position: 6,
+  },
+];
 
+// Mock lab results, history, triage, and vitals for demo
+const MOCK_LAB_RESULTS = {
+  'DP001': { CBC: 'Normal', Glucose: 'High', Cholesterol: 'Borderline' },
+  'DP002': { MRI: 'Normal', Blood: 'Normal' },
+  'DP003': { HbA1c: '8.2%', Glucose: 'High' },
+  'DP004': { Spirometry: 'Mild obstruction' },
+  'DP005': { XRay: 'No abnormality' },
+  'DP006': { AllergyTest: 'Positive (Pollen)' },
+  'DP007': { XRay: 'Mild swelling' },
+  'DP008': { CT: 'Normal' },
+  'DP009': { Spirometry: 'Normal' },
+  'DP010': { Blood: 'Normal' },
+};
+const MOCK_PATIENT_HISTORY = {
+  'DP001': ['2025-12-01: Annual checkup', '2026-01-15: Hypertension diagnosed'],
+  'DP002': ['2026-01-10: Migraine episode'],
+  'DP003': ['2025-11-20: Diabetes diagnosed', '2026-02-01: Routine follow-up'],
+  'DP004': ['2025-10-05: Asthma attack'],
+  'DP005': ['2026-02-10: Back pain onset'],
+  'DP006': ['2026-01-25: Allergy symptoms'],
+  'DP007': ['2026-02-18: Sprain injury'],
+  'DP008': ['2026-01-30: Migraine episode'],
+  'DP009': ['2025-12-15: Asthma review'],
+  'DP010': ['2026-02-12: Infection treated'],
+};
+const MOCK_TRIAGE_SUMMARY = {
+  'DP001': 'BP elevated, pulse normal.',
+  'DP002': 'Migraine symptoms, no neuro deficit.',
+  'DP003': 'Blood sugar high, needs adjustment.',
+  'DP004': 'Asthma controlled, mild wheeze.',
+  'DP005': 'Musculoskeletal pain, no red flags.',
+  'DP006': 'Allergy confirmed, mild symptoms.',
+  'DP007': 'Sprain, mild swelling.',
+  'DP008': 'Migraine, stable.',
+  'DP009': 'Asthma, stable.',
+  'DP010': 'Infection resolved.',
+};
+const MOCK_VITALS = {
+  'DP001': { BP: '145/92', Pulse: 78, Temp: '36.8C' },
+  'DP002': { BP: '120/80', Pulse: 72, Temp: '36.7C' },
+  'DP003': { BP: '130/85', Pulse: 80, Temp: '36.9C' },
+  'DP004': { BP: '125/82', Pulse: 76, Temp: '36.6C' },
+  'DP005': { BP: '118/76', Pulse: 70, Temp: '36.5C' },
+  'DP006': { BP: '110/70', Pulse: 74, Temp: '36.7C' },
+  'DP007': { BP: '122/78', Pulse: 75, Temp: '36.8C' },
+  'DP008': { BP: '119/75', Pulse: 73, Temp: '36.6C' },
+  'DP009': { BP: '124/80', Pulse: 77, Temp: '36.7C' },
+  'DP010': { BP: '117/74', Pulse: 71, Temp: '36.5C' },
+};
+// ================= END MOCK DATA =================
 
-
-export function DoctorPortal({ onNavigate }) {
+export default function DoctorPortal() {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [doctorQueue, setDoctorQueue] = useState([]);
   const [clinicalNotes, setClinicalNotes] = useState('');
@@ -34,9 +212,14 @@ export function DoctorPortal({ onNavigate }) {
   const fetchDoctorQueue = async () => {
     setLoading(true);
     try {
-      const queue = await apiService.getDoctorQueue();
-      setDoctorQueue(queue);
+      if (DEMO_MODE) {
+        setDoctorQueue(MOCK_DOCTOR_QUEUE);
+      } else {
+        const queue = await apiService.getDoctorQueue();
+        setDoctorQueue(Array.isArray(queue) ? queue : []);
+      }
     } catch (err) {
+      console.error('Error fetching doctor queue:', err);
       setDoctorQueue([]);
     } finally {
       setLoading(false);
@@ -48,30 +231,39 @@ export function DoctorPortal({ onNavigate }) {
     setSearchError('');
     setSelectedPatient(null);
     setLabResults(null);
+    
     if (!searchName.trim()) {
       setSearchError('Please enter a patient name.');
       return;
     }
+    
     setLoading(true);
     try {
-      // 1. Get all patients (API returns array)
-      const allPatients = await apiService.getPatients();
+      let allPatients;
+      if (DEMO_MODE) {
+        allPatients = MOCK_PATIENTS;
+      } else {
+        allPatients = await apiService.getPatients();
+        allPatients = Array.isArray(allPatients) ? allPatients : [];
+      }
+      
       const searchKey = searchName.trim().toLowerCase();
-      // 2. Find patient by name (case-insensitive, full match)
+      
+      // Find patient by name (case-insensitive, full match)
       const found = allPatients.find(
         p => (p.name && p.name.toLowerCase() === searchKey) ||
              ((p.firstName && p.lastName) && (`${p.firstName} ${p.lastName}`.toLowerCase() === searchKey))
       );
+      
       if (!found) {
         setSearchError('Patient not found. Make sure the name is correct and registered.');
         setLoading(false);
         return;
       }
-      // 3. Fetch full details
-      const details = await apiService.getPatientById(found.id || found.patientId);
-      setSelectedPatient(details);
-      // All patient-related fetches are handled in useEffect when selectedPatient changes
+      
+      setSelectedPatient(found);
     } catch (err) {
+      console.error('Error searching patient:', err);
       setSearchError('Failed to fetch patient details.');
     } finally {
       setLoading(false);
@@ -81,30 +273,52 @@ export function DoctorPortal({ onNavigate }) {
   useEffect(() => {
     async function fetchPatientDetails() {
       if (selectedPatient && selectedPatient.id) {
-        try {
-          const details = await apiService.getPatientById(selectedPatient.id);
-          setSelectedPatient(prev => ({ ...prev, ...details }));
-        } catch (err) {}
-        // Fetch lab results
-        try {
-          const labs = await apiService.getLabResults(selectedPatient.id);
-          setLabResults(labs);
-        } catch (err) { setLabResults(null); }
-        // Fetch patient history
-        try {
-          const history = await apiService.getPatientHistory(selectedPatient.id);
-          setPatientHistory(Array.isArray(history) ? history : []);
-        } catch (err) { setPatientHistory([]); }
-        // Fetch triage summary
-        try {
-          const triage = await apiService.performTriage({ patientId: selectedPatient.id });
-          setTriageSummary(triage.summary || JSON.stringify(triage));
-        } catch (err) { setTriageSummary(''); }
-        // Fetch patient vitals
-        try {
-          const vitals = await apiService.getPatientVitals(selectedPatient.id);
-          setPatientVitals(vitals);
-        } catch (err) { setPatientVitals(null); }
+        if (DEMO_MODE) {
+          // Use mock data for demo
+          setLabResults(MOCK_LAB_RESULTS[selectedPatient.id] || null);
+          setPatientHistory(MOCK_PATIENT_HISTORY[selectedPatient.id] || []);
+          setTriageSummary(MOCK_TRIAGE_SUMMARY[selectedPatient.id] || '');
+          setPatientVitals(MOCK_VITALS[selectedPatient.id] || null);
+        } else {
+          try {
+            const details = await apiService.getPatientById(selectedPatient.id);
+            setSelectedPatient(prev => ({ ...prev, ...details }));
+          } catch (err) {
+            console.error('Error fetching patient details:', err);
+          }
+          // Fetch lab results
+          try {
+            const labs = await apiService.getLabResults(selectedPatient.id);
+            setLabResults(labs || null);
+          } catch (err) { 
+            console.error('Error fetching lab results:', err);
+            setLabResults(null); 
+          }
+          // Fetch patient history
+          try {
+            const history = await apiService.getPatientHistory(selectedPatient.id);
+            setPatientHistory(Array.isArray(history) ? history : []);
+          } catch (err) { 
+            console.error('Error fetching patient history:', err);
+            setPatientHistory([]); 
+          }
+          // Fetch triage summary
+          try {
+            const triage = await apiService.performTriage({ patientId: selectedPatient.id });
+            setTriageSummary(triage?.summary || JSON.stringify(triage) || '');
+          } catch (err) { 
+            console.error('Error fetching triage summary:', err);
+            setTriageSummary(''); 
+          }
+          // Fetch patient vitals
+          try {
+            const vitals = await apiService.getPatientVitals(selectedPatient.id);
+            setPatientVitals(vitals || null);
+          } catch (err) { 
+            console.error('Error fetching patient vitals:', err);
+            setPatientVitals(null); 
+          }
+        }
       }
     }
     if (selectedPatient && selectedPatient.id) {
@@ -138,13 +352,27 @@ export function DoctorPortal({ onNavigate }) {
     }
   };
 
-
-
   // Ensure Patient Dashboard is default view on mount
   useEffect(() => {
     setShowPrescriptions(false);
     setSelectedPatient(null);
   }, []);
+
+  // Handle saving clinical notes (placeholder, implement backend call)
+  const handleSave = async () => {
+    if (!selectedPatient) return;
+    setLoading(true);
+    try {
+      // TODO: Implement backend call for saving clinical notes
+      // await apiService.saveClinicalNotes(selectedPatient.id, clinicalNotes);
+      alert('Clinical notes saved (backend integration needed)');
+    } catch (err) {
+      console.error('Error saving notes:', err);
+      alert('Failed to save notes');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // TopBar Component
   const TopBar = () => (
@@ -233,26 +461,10 @@ export function DoctorPortal({ onNavigate }) {
     </header>
   );
 
-  // Handle saving clinical notes (placeholder, implement backend call)
-  const handleSave = async () => {
-    if (!selectedPatient) return;
-    setLoading(true);
-    try {
-      // TODO: Implement backend call for saving clinical notes
-      // await apiService.saveClinicalNotes(selectedPatient.id, clinicalNotes);
-      alert('Clinical notes saved (backend integration needed)');
-    } catch (err) {
-      alert('Failed to save notes');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="doctor-portal-layout">
       <TopBar />
       <main className="doctor-portal-main" role="main">
-        {/* Removed error display as error variable is no longer used */}
         {showQueue ? (
           <div className="doctor-queue-section">
             <button
@@ -270,10 +482,20 @@ export function DoctorPortal({ onNavigate }) {
                   <li>No patients in queue.</li>
                 ) : (
                   doctorQueue.map((patient, idx) => (
-                    <li key={patient.id || idx} className="doctor-queue-item">
-                      <span>{patient.name || `${patient.firstName || ''} ${patient.lastName || ''}`}</span>
-                      <span>Urgency: {patient.urgency || 'N/A'}</span>
-                      <span>Status: {patient.status || 'N/A'}</span>
+                    <li
+                      key={patient?.id || idx}
+                      className={`doctor-queue-item ${patient?.urgency === 'High' ? 'urgent-patient' : ''}`}
+                      style={patient?.urgency === 'High' ? { background: '#fee2e2', fontWeight: 'bold' } : {}}
+                    >
+                      <span>{patient?.name || `${patient?.firstName || ''} ${patient?.lastName || ''}`}</span>
+                      <span>Urgency: <span style={{ 
+                        color: patient?.urgency === 'High' ? '#dc2626' : 
+                               patient?.urgency === 'Medium' ? '#ca8a04' : 
+                               patient?.urgency === 'Low' ? '#16a34a' : '#6b7280' 
+                      }}>
+                        {patient?.urgency || 'N/A'}
+                      </span></span>
+                      <span>Status: {patient?.status || 'N/A'}</span>
                     </li>
                   ))
                 )}
@@ -307,7 +529,9 @@ export function DoctorPortal({ onNavigate }) {
               />
               <button type="submit" className="doctor-action-btn" style={{ minWidth: 100, fontSize: 16, borderRadius: 8 }}>Search</button>
             </form>
-            {searchError && <div className="alert alert-error">{searchError}</div>}
+            
+            {searchError && <div className="alert alert-error" style={{ color: '#b91c1c', marginBottom: 16 }}>{searchError}</div>}
+            
             {/* Patient Details Section */}
             {selectedPatient && (
               <div className="patient-details-section">
@@ -315,60 +539,62 @@ export function DoctorPortal({ onNavigate }) {
                 <div className="patient-info-grid">
                   <div className="patient-info-item">
                     <User size={16} />
-                    <span>Name: {selectedPatient.name || `${selectedPatient.firstName || ''} ${selectedPatient.lastName || ''}`}</span>
+                    <span>Name: {selectedPatient?.name || `${selectedPatient?.firstName || ''} ${selectedPatient?.lastName || ''}`}</span>
                   </div>
                   <div className="patient-info-item">
-                    <span>DOB: {selectedPatient.dateOfBirth || selectedPatient.dob || ''}</span>
+                    <span>DOB: {selectedPatient?.dateOfBirth || selectedPatient?.dob || ''}</span>
                   </div>
                   <div className="patient-info-item">
-                    <span>Gender: {selectedPatient.gender || ''}</span>
+                    <span>Gender: {selectedPatient?.gender || ''}</span>
                   </div>
                   <div className="patient-info-item">
-                    <span>Phone: {selectedPatient.phoneNumber || ''}</span>
+                    <span>Phone: {selectedPatient?.phoneNumber || ''}</span>
                   </div>
                   <div className="patient-info-item">
-                    <span>Emergency Contact: {selectedPatient.emergencyContactName || ''} ({selectedPatient.emergencyContact || ''})</span>
+                    <span>Emergency Contact: {selectedPatient?.emergencyContactName || ''} ({selectedPatient?.emergencyContact || ''})</span>
                   </div>
                   <div className="patient-info-item">
-                    <span>Address: {selectedPatient.address || ''}</span>
+                    <span>Address: {selectedPatient?.address || ''}</span>
                   </div>
                   <div className="patient-info-item">
-                    <span>County: {selectedPatient.county || ''}</span>
+                    <span>County: {selectedPatient?.county || ''}</span>
                   </div>
                   <div className="patient-info-item">
-                    <span>SubCounty: {selectedPatient.subCounty || ''}</span>
+                    <span>SubCounty: {selectedPatient?.subCounty || ''}</span>
                   </div>
                   <div className="patient-info-item">
-                    <span>Blood Group: {selectedPatient.bloodGroup || ''}</span>
+                    <span>Blood Group: {selectedPatient?.bloodGroup || ''}</span>
                   </div>
                   <div className="patient-info-item">
-                    <span>Allergies: {Array.isArray(selectedPatient.allergies) ? selectedPatient.allergies.join(', ') : selectedPatient.allergies || ''}</span>
+                    <span>Allergies: {Array.isArray(selectedPatient?.allergies) ? selectedPatient.allergies.join(', ') : selectedPatient?.allergies || ''}</span>
                   </div>
                   <div className="patient-info-item">
-                    <span>Chronic Conditions: {Array.isArray(selectedPatient.chronicConditions) ? selectedPatient.chronicConditions.join(', ') : selectedPatient.chronicConditions || ''}</span>
+                    <span>Chronic Conditions: {Array.isArray(selectedPatient?.chronicConditions) ? selectedPatient.chronicConditions.join(', ') : selectedPatient?.chronicConditions || ''}</span>
                   </div>
                   <div className="patient-info-item">
-                    <span>Symptoms: {Array.isArray(selectedPatient.symptoms) ? selectedPatient.symptoms.join(', ') : selectedPatient.symptoms || ''}</span>
+                    <span>Symptoms: {Array.isArray(selectedPatient?.symptoms) ? selectedPatient.symptoms.join(', ') : selectedPatient?.symptoms || ''}</span>
                   </div>
                   <div className="patient-info-item">
-                    <span>Chief Complaint: {selectedPatient.chiefComplaint || ''}</span>
+                    <span>Chief Complaint: {selectedPatient?.chiefComplaint || ''}</span>
                   </div>
                   <div className="patient-info-item">
-                    <span>Vitals: {selectedPatient.vitals ? JSON.stringify(selectedPatient.vitals) : ''}</span>
+                    <span>Vitals: {selectedPatient?.vitals ? JSON.stringify(selectedPatient.vitals) : ''}</span>
                   </div>
                   <div className="patient-info-item">
-                    <span>Triage Summary: {selectedPatient.triageSummary || ''}</span>
+                    <span>Triage Summary: {selectedPatient?.triageSummary || ''}</span>
                   </div>
                   <div className="patient-info-item">
-                    <span>Previous Notes: {selectedPatient.notes || ''}</span>
+                    <span>Previous Notes: {selectedPatient?.notes || ''}</span>
                   </div>
                 </div>
+                
                 {/* Lab Results Section */}
                 <div className="patient-info-grid">
                   <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
                     <span><b>Lab Results:</b> {labResults ? JSON.stringify(labResults) : 'No lab results found.'}</span>
                   </div>
                 </div>
+                
                 {/* Patient History Section */}
                 <div className="patient-info-grid">
                   <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
@@ -386,12 +612,14 @@ export function DoctorPortal({ onNavigate }) {
                     )}
                   </div>
                 </div>
+                
                 {/* Triage Summary Section */}
                 <div className="patient-info-grid">
                   <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
                     <span><b>Triage Summary:</b> {triageSummary || 'No triage summary found.'}</span>
                   </div>
                 </div>
+                
                 {/* Patient Vitals Section */}
                 <div className="patient-info-grid">
                   <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
@@ -400,6 +628,7 @@ export function DoctorPortal({ onNavigate }) {
                 </div>
               </div>
             )}
+            
             {/* Clinical Notes Section */}
             {selectedPatient && (
               <div className="clinical-notes-section">

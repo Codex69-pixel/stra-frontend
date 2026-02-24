@@ -27,6 +27,93 @@ const urgencyConfig = {
     text: 'text-green-700'
   }
 };
+
+// ================= MOCK DATA FOR PRESENTATION =================
+// This mock data is used for demo purposes only. Remove or disable for production.
+const DEMO_MODE = true;
+const MOCK_DEPARTMENTS = [
+  { id: 'PHARMACY', name: 'Pharmacy' },
+  { id: 'EMERGENCY', name: 'Emergency Room' },
+  { id: 'CARDIOLOGY', name: 'Cardiology' },
+  { id: 'NEUROLOGY', name: 'Neurology' },
+  { id: 'ORTHOPEDICS', name: 'Orthopedics' },
+];
+const MOCK_NURSE_QUEUE = [
+  {
+    id: 'N001',
+    name: 'Anna Carter',
+    reason: 'Shortness of Breath',
+    priority: 'High',
+    timeAdded: '2026-02-24T08:55:00Z',
+    status: 'Waiting',
+    department: 'NURSE',
+  },
+  {
+    id: 'N002',
+    name: 'Brian Lee',
+    reason: 'Fever',
+    priority: 'Medium',
+    timeAdded: '2026-02-24T09:05:00Z',
+    status: 'Waiting',
+    department: 'NURSE',
+  },
+  {
+    id: 'N003',
+    name: 'Cynthia Gomez',
+    reason: 'Headache',
+    priority: 'Low',
+    timeAdded: '2026-02-24T09:10:00Z',
+    status: 'Waiting',
+    department: 'NURSE',
+  },
+  {
+    id: 'N004',
+    name: 'Daniel Wu',
+    reason: 'Chest Pain',
+    priority: 'High',
+    timeAdded: '2026-02-24T09:15:00Z',
+    status: 'Waiting',
+    department: 'NURSE',
+  },
+  {
+    id: 'N005',
+    name: 'Ella Brown',
+    reason: 'Dizziness',
+    priority: 'Medium',
+    timeAdded: '2026-02-24T09:20:00Z',
+    status: 'Waiting',
+    department: 'NURSE',
+  },
+  {
+    id: 'N006',
+    name: 'Frank Green',
+    reason: 'Nausea',
+    priority: 'Low',
+    timeAdded: '2026-02-24T09:25:00Z',
+    status: 'Waiting',
+    department: 'NURSE',
+  },
+  {
+    id: 'N007',
+    name: 'Grace Kim',
+    reason: 'Fatigue',
+    priority: 'Medium',
+    timeAdded: '2026-02-24T09:30:00Z',
+    status: 'Waiting',
+    department: 'NURSE',
+  },
+  {
+    id: 'N008',
+    name: 'Henry Smith',
+    reason: 'Body Aches',
+    priority: 'High',
+    timeAdded: '2026-02-24T09:35:00Z',
+    status: 'Waiting',
+    department: 'NURSE',
+  },
+];
+// ================= END MOCK DATA =================
+
 const QueueManagement = ({ onNavigate, portalType }) => {
   const [departments, setDepartments] = useState([]);
   const [selectedDept, setSelectedDept] = useState('ALL');
@@ -45,40 +132,46 @@ const QueueManagement = ({ onNavigate, portalType }) => {
 
   // Fetch departments and initial queue
   useEffect(() => {
-    async function fetchDepartmentsAndQueue() {
-      setLoading(true);
-
-      try {
-        // For demo, hardcode departments or fetch from backend if available
-        const deptList = [
-          { id: 'EMERGENCY', name: 'Emergency Room' },
-          { id: 'CARDIOLOGY', name: 'Cardiology' },
-          { id: 'NEUROLOGY', name: 'Neurology' },
-          { id: 'ORTHOPEDICS', name: 'Orthopedics' },
-        ];
-        setDepartments(deptList);
-        // Fetch queue for all departments (could be improved to fetch per department)
-        let allPatients = [];
-        for (const dept of deptList) {
-          try {
-            const queue = await apiService.getDepartmentQueue(dept.id);
-            if (Array.isArray(queue)) {
-              allPatients = allPatients.concat(queue.map(p => ({ ...p, department: dept.id })));
-            }
-          } catch (e) {
-            // Ignore department fetch error
-          }
-        }
-        setPatients(allPatients);
-        setFilteredPatients(allPatients);
-      } catch (err) {
-
-      } finally {
-        setLoading(false);
+    if (DEMO_MODE) {
+      if (portalType === 'nurse') {
+        setDepartments([{ id: 'NURSE', name: 'Nurse Queue' }]);
+        setPatients(MOCK_NURSE_QUEUE);
+        setFilteredPatients(MOCK_NURSE_QUEUE);
+      } else {
+        setDepartments(MOCK_DEPARTMENTS);
+        setPatients(MOCK_PATIENTS);
+        setFilteredPatients(MOCK_PATIENTS);
       }
+    } else {
+      async function fetchDepartmentsAndQueue() {
+        setLoading(true);
+        try {
+          const deptList = [
+            { id: 'EMERGENCY', name: 'Emergency Room' },
+            { id: 'CARDIOLOGY', name: 'Cardiology' },
+            { id: 'NEUROLOGY', name: 'Neurology' },
+            { id: 'ORTHOPEDICS', name: 'Orthopedics' },
+          ];
+          setDepartments(deptList);
+          let allPatients = [];
+          for (const dept of deptList) {
+            try {
+              const queue = await apiService.getDepartmentQueue(dept.id);
+              if (Array.isArray(queue)) {
+                allPatients = allPatients.concat(queue.map(p => ({ ...p, department: dept.id })));
+              }
+            } catch (e) {}
+          }
+          setPatients(allPatients);
+          setFilteredPatients(allPatients);
+        } catch (err) {
+        } finally {
+          setLoading(false);
+        }
+      }
+      fetchDepartmentsAndQueue();
     }
-    fetchDepartmentsAndQueue();
-  }, []);
+  }, [portalType]);
 
   const getUrgencyConfig = (urgency) => {
     return urgencyConfig[urgency] || urgencyConfig.GREEN;

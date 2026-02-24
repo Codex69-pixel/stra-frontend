@@ -3,16 +3,119 @@ import { Building2, Edit2, Trash2, Plus } from 'lucide-react';
 // ...existing code...
 import apiService from '../services/api';
 
+
+// ================= MOCK DATA FOR PRESENTATION =================
+// This mock data is used for demo purposes only. Remove or disable for production.
+const MOCK_DEPARTMENTS = [
+  {
+    id: 1,
+    name: 'Cardiology',
+    code: 'CARD',
+    head: 'Dr. Alice Johnson',
+    staffCount: 18,
+    location: 'Building A, Floor 2',
+    status: 'active',
+    description: 'Heart and vascular care.'
+  },
+  {
+    id: 2,
+    name: 'Emergency',
+    code: 'EMER',
+    head: 'Dr. Bob Smith',
+    staffCount: 25,
+    location: 'Main Entrance, Ground Floor',
+    status: 'active',
+    description: '24/7 emergency services.'
+  },
+  {
+    id: 3,
+    name: 'Neurology',
+    code: 'NEUR',
+    head: 'Dr. Daniel Kim',
+    staffCount: 12,
+    location: 'Building B, Floor 3',
+    status: 'active',
+    description: 'Brain and nervous system.'
+  },
+  {
+    id: 4,
+    name: 'Pharmacy',
+    code: 'PHAR',
+    head: 'Eva Green',
+    staffCount: 10,
+    location: 'Building C, Floor 1',
+    status: 'active',
+    description: 'Medication dispensing.'
+  },
+  {
+    id: 5,
+    name: 'Pediatrics',
+    code: 'PED',
+    head: 'Dr. Frank White',
+    staffCount: 14,
+    location: 'Building D, Floor 2',
+    status: 'active',
+    description: 'Child healthcare.'
+  },
+  {
+    id: 6,
+    name: 'ICU',
+    code: 'ICU',
+    head: 'Dr. Riley Ivy',
+    staffCount: 8,
+    location: 'Building E, Floor 1',
+    status: 'active',
+    description: 'Intensive care unit.'
+  },
+  {
+    id: 7,
+    name: 'Orthopedics',
+    code: 'ORTH',
+    head: 'Dr. Henry Adams',
+    staffCount: 11,
+    location: 'Building F, Floor 2',
+    status: 'active',
+    description: 'Bone and joint care.'
+  },
+  {
+    id: 8,
+    name: 'Dermatology',
+    code: 'DERM',
+    head: 'Dr. Liam Clark',
+    staffCount: 7,
+    location: 'Building G, Floor 1',
+    status: 'active',
+    description: 'Skin care.'
+  },
+  {
+    id: 9,
+    name: 'Administration',
+    code: 'ADMIN',
+    head: 'Carol Lee',
+    staffCount: 6,
+    location: 'Admin Block',
+    status: 'active',
+    description: 'Hospital administration.'
+  },
+];
+// ================= END MOCK DATA =================
+
 export default function DepartmentManagement() {
   const [departments, setDepartments] = useState([]);
-  // Removed unused loading state
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingDepartment, setEditingDepartment] = useState(null);
+  // Toggle this to true for demo/mock mode
+  const DEMO_MODE = true;
+
 
   useEffect(() => {
-    fetchDepartments();
+    if (DEMO_MODE) {
+      setDepartments(MOCK_DEPARTMENTS);
+    } else {
+      fetchDepartments();
+    }
   }, []);
 
   const fetchDepartments = async () => {
@@ -27,11 +130,20 @@ export default function DepartmentManagement() {
     }
   };
 
+  // Search and sort: matching results move to top
   const filteredDepartments = Array.isArray(departments)
-    ? departments.filter(dept =>
-        dept?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        dept?.head?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+    ? [
+        ...departments.filter(dept =>
+          dept?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          dept?.head?.toLowerCase().includes(searchTerm.toLowerCase())
+        ),
+        ...departments.filter(dept =>
+          !(
+            dept?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            dept?.head?.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        ),
+      ]
     : [];
 
   const handleDelete = async (deptId) => {
