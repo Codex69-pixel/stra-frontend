@@ -345,7 +345,7 @@ export const STORAGE_KEYS = {
   LANGUAGE: 'language'
 };
 
-export default {
+const constants = {
   URGENCY_LEVELS,
   QUEUE_STATUS,
   USER_ROLES,
@@ -366,3 +366,4 @@ export default {
   SESSION_TIMEOUT,
   STORAGE_KEYS
 };
+export default constants;
