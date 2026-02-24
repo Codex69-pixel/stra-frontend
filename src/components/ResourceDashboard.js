@@ -20,8 +20,8 @@ export function ResourceDashboard({ onNavigate }) {
       try {
         await apiService.getResourceDashboard();
       } catch (err) {
+        // Log error to console, do not display in UI
         console.error('Error fetching resource dashboard:', err);
-        setError('Failed to load resource dashboard. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -128,12 +128,7 @@ export function ResourceDashboard({ onNavigate }) {
           paddingBottom: '24px'
         }}
       >
-        {/* Error Display */}
-        {error && (
-          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-            {error}
-          </div>
-        )}
+        {/* Error Display removed: errors are only logged to console */}
 
         {/* Admin Feature Tabs */}
         <div className="mb-6 border-b-2 border-gray-200">
