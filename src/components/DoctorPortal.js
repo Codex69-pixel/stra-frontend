@@ -8,14 +8,13 @@ import './DoctorPortal.css';
 import LoadingSpinner from './common/LoadingSpinner';
 import Prescriptions from './prescription';
 import apiService from '../services/api';
-import QueueManagement, { MOCK_NURSE_QUEUE } from './QueueManagement';
+import QueueManagement from './QueueManagement';
 import { DEMO_MODE, MOCK_PATIENTS, MOCK_LAB_RESULTS, MOCK_PATIENT_HISTORY, MOCK_TRIAGE_SUMMARY, MOCK_VITALS } from '../utils/constants';
 // ...existing code...
 // ================= END MOCK DATA =================
 
 export default function DoctorPortal() {
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const [doctorQueue, setDoctorQueue] = useState([]);
   const [clinicalNotes, setClinicalNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPrescriptions, setShowPrescriptions] = useState(false);
@@ -29,22 +28,7 @@ export default function DoctorPortal() {
   const [patientVitals, setPatientVitals] = useState(null);
 
   // Fetch unified queue (same as nurse portal)
-  const fetchDoctorQueue = async () => {
-    setLoading(true);
-    try {
-      if (DEMO_MODE) {
-        setDoctorQueue(MOCK_NURSE_QUEUE || []);
-      } else {
-        const queue = await apiService.getDoctorQueue();
-        setDoctorQueue(Array.isArray(queue) ? queue : []);
-      }
-    } catch (err) {
-      console.error('Error fetching doctor queue:', err);
-      setDoctorQueue([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // No longer needed: handled by QueueManagement component
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -166,7 +150,7 @@ export default function DoctorPortal() {
       case 'queue':
         setShowPrescriptions(false);
         setShowQueue(true);
-        fetchDoctorQueue();
+        // fetchDoctorQueue removed: handled by QueueManagement component
         break;
       case 'prescriptions':
         setShowPrescriptions(true);
