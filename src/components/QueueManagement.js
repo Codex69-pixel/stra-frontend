@@ -32,13 +32,6 @@ const urgencyConfig = {
 // ================= MOCK DATA FOR PRESENTATION =================
 // This mock data is used for demo purposes only. Remove or disable for production.
 const DEMO_MODE = true;
-const MOCK_DEPARTMENTS = [
-  { id: 'PHARMACY', name: 'Pharmacy' },
-  { id: 'EMERGENCY', name: 'Emergency Room' },
-  { id: 'CARDIOLOGY', name: 'Cardiology' },
-  { id: 'NEUROLOGY', name: 'Neurology' },
-  { id: 'ORTHOPEDICS', name: 'Orthopedics' },
-];
 export const MOCK_NURSE_QUEUE = [
   {
     id: 'N001',
