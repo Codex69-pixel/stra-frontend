@@ -8,7 +8,7 @@ import './DoctorPortal.css';
 import LoadingSpinner from './common/LoadingSpinner';
 import Prescriptions from './prescription';
 import apiService from '../services/api';
-import { MOCK_NURSE_QUEUE } from './QueueManagement';
+import QueueManagement, { MOCK_NURSE_QUEUE } from './QueueManagement';
 import { DEMO_MODE, MOCK_PATIENTS, MOCK_LAB_RESULTS, MOCK_PATIENT_HISTORY, MOCK_TRIAGE_SUMMARY, MOCK_VITALS } from '../utils/constants';
 // ...existing code...
 // ================= END MOCK DATA =================
@@ -305,32 +305,8 @@ export default function DoctorPortal() {
               <ChevronRight size={16} style={{ transform: 'rotate(180deg)', marginRight: '8px' }} />
               Back to Dashboard
             </button>
-            <h3>Doctor Queue</h3>
-            {loading ? <LoadingSpinner text="Loading queue..." /> : (
-              <ul className="doctor-queue-list">
-                {doctorQueue.length === 0 ? (
-                  <li>No patients in queue.</li>
-                ) : (
-                  doctorQueue.map((patient, idx) => (
-                    <li
-                      key={patient?.id || idx}
-                      className={`doctor-queue-item ${patient?.priority === 'High' ? 'urgent-patient' : ''}`}
-                      style={patient?.priority === 'High' ? { background: '#fee2e2', fontWeight: 'bold' } : {}}
-                    >
-                      <span>{patient?.name || `${patient?.firstName || ''} ${patient?.lastName || ''}`}</span>
-                      <span>Urgency: <span style={{ 
-                        color: patient?.priority === 'High' ? '#dc2626' : 
-                               patient?.priority === 'Medium' ? '#ca8a04' : 
-                               patient?.priority === 'Low' ? '#16a34a' : '#6b7280' 
-                      }}>
-                        {patient?.priority || 'N/A'}
-                      </span></span>
-                      <span>Status: {patient?.status || 'N/A'}</span>
-                    </li>
-                  ))
-                )}
-              </ul>
-            )}
+            {/* Use shared QueueManagement component for consistent UI */}
+            <QueueManagement portalType="doctor" />
           </div>
         ) : showPrescriptions ? (
           <div className="prescriptions-container">
