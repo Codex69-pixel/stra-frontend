@@ -7,12 +7,15 @@ import {
 import './DoctorPortal.css';
 import LoadingSpinner from './common/LoadingSpinner';
 import Prescriptions from './prescription';
-// import QueueManagement from './QueueManagement';
 import apiService from '../services/api';
+import { MOCK_NURSE_QUEUE } from './QueueManagement';
 
 // ================= MOCK DATA FOR PRESENTATION =================
 // This mock data is used for demo purposes only. Remove or disable for production.
 const DEMO_MODE = true;
+
+
+
 export const MOCK_PATIENTS = [
   {
     id: 'DP001',
@@ -96,52 +99,6 @@ export const MOCK_PATIENTS = [
   },
 ];
 
-// Mock data for Doctor Queue (for demo)
-const MOCK_DOCTOR_QUEUE = [
-  {
-    id: 'DP001',
-    name: 'John Doe',
-    urgency: 'High',
-    status: 'Waiting',
-    position: 1,
-  },
-  {
-    id: 'DP002',
-    name: 'Jane Smith',
-    urgency: 'Medium',
-    status: 'In Consultation',
-    position: 2,
-  },
-  {
-    id: 'DP003',
-    name: 'Michael Brown',
-    urgency: 'Low',
-    status: 'Waiting',
-    position: 3,
-  },
-  {
-    id: 'DP004',
-    name: 'Emily Davis',
-    urgency: 'High',
-    status: 'Waiting',
-    position: 4,
-  },
-  {
-    id: 'DP005',
-    name: 'Chris Evans',
-    urgency: 'Medium',
-    status: 'Waiting',
-    position: 5,
-  },
-  {
-    id: 'DP006',
-    name: 'Sophia Lee',
-    urgency: 'Low',
-    status: 'In Consultation',
-    position: 6,
-  },
-];
-
 // Mock lab results, history, triage, and vitals for demo
 const MOCK_LAB_RESULTS = {
   'DP001': { CBC: 'Normal', Glucose: 'High', Cholesterol: 'Borderline' },
@@ -155,6 +112,7 @@ const MOCK_LAB_RESULTS = {
   'DP009': { Spirometry: 'Normal' },
   'DP010': { Blood: 'Normal' },
 };
+
 const MOCK_PATIENT_HISTORY = {
   'DP001': ['2025-12-01: Annual checkup', '2026-01-15: Hypertension diagnosed'],
   'DP002': ['2026-01-10: Migraine episode'],
@@ -167,6 +125,7 @@ const MOCK_PATIENT_HISTORY = {
   'DP009': ['2025-12-15: Asthma review'],
   'DP010': ['2026-02-12: Infection treated'],
 };
+
 const MOCK_TRIAGE_SUMMARY = {
   'DP001': 'BP elevated, pulse normal.',
   'DP002': 'Migraine symptoms, no neuro deficit.',
@@ -179,6 +138,7 @@ const MOCK_TRIAGE_SUMMARY = {
   'DP009': 'Asthma, stable.',
   'DP010': 'Infection resolved.',
 };
+
 const MOCK_VITALS = {
   'DP001': { BP: '145/92', Pulse: 78, Temp: '36.8C' },
   'DP002': { BP: '120/80', Pulse: 72, Temp: '36.7C' },
@@ -208,12 +168,12 @@ export default function DoctorPortal() {
   const [triageSummary, setTriageSummary] = useState('');
   const [patientVitals, setPatientVitals] = useState(null);
 
-  // Fetch doctor's queue
+  // Fetch unified queue (same as nurse portal)
   const fetchDoctorQueue = async () => {
     setLoading(true);
     try {
       if (DEMO_MODE) {
-        setDoctorQueue(MOCK_DOCTOR_QUEUE);
+        setDoctorQueue(MOCK_NURSE_QUEUE || []);
       } else {
         const queue = await apiService.getDoctorQueue();
         setDoctorQueue(Array.isArray(queue) ? queue : []);
@@ -231,6 +191,9 @@ export default function DoctorPortal() {
     setSearchError('');
     setSelectedPatient(null);
     setLabResults(null);
+    setPatientHistory([]);
+    setTriageSummary('');
+    setPatientVitals(null);
     
     if (!searchName.trim()) {
       setSearchError('Please enter a patient name.');
@@ -286,6 +249,7 @@ export default function DoctorPortal() {
           } catch (err) {
             console.error('Error fetching patient details:', err);
           }
+          
           // Fetch lab results
           try {
             const labs = await apiService.getLabResults(selectedPatient.id);
@@ -294,6 +258,7 @@ export default function DoctorPortal() {
             console.error('Error fetching lab results:', err);
             setLabResults(null); 
           }
+          
           // Fetch patient history
           try {
             const history = await apiService.getPatientHistory(selectedPatient.id);
@@ -302,6 +267,7 @@ export default function DoctorPortal() {
             console.error('Error fetching patient history:', err);
             setPatientHistory([]); 
           }
+          
           // Fetch triage summary
           try {
             const triage = await apiService.performTriage({ patientId: selectedPatient.id });
@@ -310,6 +276,7 @@ export default function DoctorPortal() {
             console.error('Error fetching triage summary:', err);
             setTriageSummary(''); 
           }
+          
           // Fetch patient vitals
           try {
             const vitals = await apiService.getPatientVitals(selectedPatient.id);
@@ -321,6 +288,7 @@ export default function DoctorPortal() {
         }
       }
     }
+    
     if (selectedPatient && selectedPatient.id) {
       fetchPatientDetails();
     }
@@ -366,6 +334,8 @@ export default function DoctorPortal() {
       // TODO: Implement backend call for saving clinical notes
       // await apiService.saveClinicalNotes(selectedPatient.id, clinicalNotes);
       alert('Clinical notes saved (backend integration needed)');
+      // Clear notes after save? Optional
+      // setClinicalNotes('');
     } catch (err) {
       console.error('Error saving notes:', err);
       alert('Failed to save notes');
@@ -530,7 +500,7 @@ export default function DoctorPortal() {
               <button type="submit" className="doctor-action-btn" style={{ minWidth: 100, fontSize: 16, borderRadius: 8 }}>Search</button>
             </form>
             
-            {searchError && <div className="alert alert-error" style={{ color: '#b91c1c', marginBottom: 16 }}>{searchError}</div>}
+            {searchError && <div className="alert alert-error" style={{ color: '#b91c1c', marginBottom: 16, padding: '8px 12px', backgroundColor: '#fee2e2', borderRadius: '6px' }}>{searchError}</div>}
             
             {/* Patient Details Section */}
             {selectedPatient && (

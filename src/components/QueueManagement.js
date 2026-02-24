@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MOCK_PATIENTS } from './DoctorPortal';
+
 import { 
   Clock, Users, AlertCircle, CheckCircle, Filter, Search, 
   MoreVertical, Phone, AlertTriangle, X, Eye
@@ -39,7 +39,7 @@ const MOCK_DEPARTMENTS = [
   { id: 'NEUROLOGY', name: 'Neurology' },
   { id: 'ORTHOPEDICS', name: 'Orthopedics' },
 ];
-const MOCK_NURSE_QUEUE = [
+export const MOCK_NURSE_QUEUE = [
   {
     id: 'N001',
     name: 'Anna Carter',
@@ -134,43 +134,27 @@ const QueueManagement = ({ onNavigate, portalType }) => {
   // Fetch departments and initial queue
   useEffect(() => {
     if (DEMO_MODE) {
-      if (portalType === 'nurse') {
-        setDepartments([{ id: 'NURSE', name: 'Nurse Queue' }]);
-        setPatients(MOCK_NURSE_QUEUE);
-        setFilteredPatients(MOCK_NURSE_QUEUE);
-      } else {
-        setDepartments(MOCK_DEPARTMENTS);
-        setPatients(MOCK_PATIENTS);
-        setFilteredPatients(MOCK_PATIENTS);
-      }
+      // Use the same mock queue for both nurse and doctor portals
+      setDepartments([{ id: 'MAIN_QUEUE', name: 'Patient Queue' }]);
+      setPatients(MOCK_NURSE_QUEUE);
+      setFilteredPatients(MOCK_NURSE_QUEUE);
     } else {
-      async function fetchDepartmentsAndQueue() {
+      async function fetchUnifiedQueue() {
         setLoading(true);
         try {
-          const deptList = [
-            { id: 'EMERGENCY', name: 'Emergency Room' },
-            { id: 'CARDIOLOGY', name: 'Cardiology' },
-            { id: 'NEUROLOGY', name: 'Neurology' },
-            { id: 'ORTHOPEDICS', name: 'Orthopedics' },
-          ];
-          setDepartments(deptList);
-          let allPatients = [];
-          for (const dept of deptList) {
-            try {
-              const queue = await apiService.getDepartmentQueue(dept.id);
-              if (Array.isArray(queue)) {
-                allPatients = allPatients.concat(queue.map(p => ({ ...p, department: dept.id })));
-              }
-            } catch (e) {}
-          }
-          setPatients(allPatients);
-          setFilteredPatients(allPatients);
+          // Use the doctor queue endpoint for both portals
+          const queue = await apiService.getDoctorQueue();
+          setDepartments([{ id: 'MAIN_QUEUE', name: 'Patient Queue' }]);
+          setPatients(Array.isArray(queue) ? queue : []);
+          setFilteredPatients(Array.isArray(queue) ? queue : []);
         } catch (err) {
+          setPatients([]);
+          setFilteredPatients([]);
         } finally {
           setLoading(false);
         }
       }
-      fetchDepartmentsAndQueue();
+      fetchUnifiedQueue();
     }
   }, [portalType]);
 
@@ -198,9 +182,8 @@ const QueueManagement = ({ onNavigate, portalType }) => {
     setFilteredPatients(filtered);
   }, [selectedDept, searchTerm, urgencyFilter, patients]);
 
-  const currentQueue = selectedDept === 'ALL'
-    ? { patients }
-    : { patients: patients.filter(p => p.department === selectedDept) };
+  // Since there is only one queue, always show all patients
+  const currentQueue = { patients };
 
   const handleResetFilters = () => {
     setSelectedDept('ALL');
