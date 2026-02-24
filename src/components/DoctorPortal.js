@@ -9,148 +9,8 @@ import LoadingSpinner from './common/LoadingSpinner';
 import Prescriptions from './prescription';
 import apiService from '../services/api';
 import { MOCK_NURSE_QUEUE } from './QueueManagement';
-
-// ================= MOCK DATA FOR PRESENTATION =================
-// This mock data is used for demo purposes only. Remove or disable for production.
-const DEMO_MODE = true;
-
-
-
-export const MOCK_PATIENTS = [
-  {
-    id: 'DP001',
-    name: 'John Doe',
-    age: 34,
-    gender: 'Male',
-    diagnosis: 'Hypertension',
-    visitStatus: 'Checked In',
-  },
-  {
-    id: 'DP002',
-    name: 'Jane Smith',
-    age: 28,
-    gender: 'Female',
-    diagnosis: 'Migraine',
-    visitStatus: 'Waiting',
-  },
-  {
-    id: 'DP003',
-    name: 'Michael Brown',
-    age: 45,
-    gender: 'Male',
-    diagnosis: 'Diabetes',
-    visitStatus: 'In Consultation',
-  },
-  {
-    id: 'DP004',
-    name: 'Emily Davis',
-    age: 52,
-    gender: 'Female',
-    diagnosis: 'Asthma',
-    visitStatus: 'Checked In',
-  },
-  {
-    id: 'DP005',
-    name: 'Chris Evans',
-    age: 39,
-    gender: 'Male',
-    diagnosis: 'Back Pain',
-    visitStatus: 'Waiting',
-  },
-  {
-    id: 'DP006',
-    name: 'Sophia Lee',
-    age: 23,
-    gender: 'Female',
-    diagnosis: 'Allergy',
-    visitStatus: 'Checked In',
-  },
-  {
-    id: 'DP007',
-    name: 'David Kim',
-    age: 31,
-    gender: 'Male',
-    diagnosis: 'Sprain',
-    visitStatus: 'In Consultation',
-  },
-  {
-    id: 'DP008',
-    name: 'Olivia Green',
-    age: 27,
-    gender: 'Female',
-    diagnosis: 'Migraine',
-    visitStatus: 'Waiting',
-  },
-  {
-    id: 'DP009',
-    name: 'Lucas White',
-    age: 36,
-    gender: 'Male',
-    diagnosis: 'Asthma',
-    visitStatus: 'Checked In',
-  },
-  {
-    id: 'DP010',
-    name: 'Mia Black',
-    age: 41,
-    gender: 'Female',
-    diagnosis: 'Infection',
-    visitStatus: 'Waiting',
-  },
-];
-
-// Mock lab results, history, triage, and vitals for demo
-const MOCK_LAB_RESULTS = {
-  'DP001': { CBC: 'Normal', Glucose: 'High', Cholesterol: 'Borderline' },
-  'DP002': { MRI: 'Normal', Blood: 'Normal' },
-  'DP003': { HbA1c: '8.2%', Glucose: 'High' },
-  'DP004': { Spirometry: 'Mild obstruction' },
-  'DP005': { XRay: 'No abnormality' },
-  'DP006': { AllergyTest: 'Positive (Pollen)' },
-  'DP007': { XRay: 'Mild swelling' },
-  'DP008': { CT: 'Normal' },
-  'DP009': { Spirometry: 'Normal' },
-  'DP010': { Blood: 'Normal' },
-};
-
-const MOCK_PATIENT_HISTORY = {
-  'DP001': ['2025-12-01: Annual checkup', '2026-01-15: Hypertension diagnosed'],
-  'DP002': ['2026-01-10: Migraine episode'],
-  'DP003': ['2025-11-20: Diabetes diagnosed', '2026-02-01: Routine follow-up'],
-  'DP004': ['2025-10-05: Asthma attack'],
-  'DP005': ['2026-02-10: Back pain onset'],
-  'DP006': ['2026-01-25: Allergy symptoms'],
-  'DP007': ['2026-02-18: Sprain injury'],
-  'DP008': ['2026-01-30: Migraine episode'],
-  'DP009': ['2025-12-15: Asthma review'],
-  'DP010': ['2026-02-12: Infection treated'],
-};
-
-const MOCK_TRIAGE_SUMMARY = {
-  'DP001': 'BP elevated, pulse normal.',
-  'DP002': 'Migraine symptoms, no neuro deficit.',
-  'DP003': 'Blood sugar high, needs adjustment.',
-  'DP004': 'Asthma controlled, mild wheeze.',
-  'DP005': 'Musculoskeletal pain, no red flags.',
-  'DP006': 'Allergy confirmed, mild symptoms.',
-  'DP007': 'Sprain, mild swelling.',
-  'DP008': 'Migraine, stable.',
-  'DP009': 'Asthma, stable.',
-  'DP010': 'Infection resolved.',
-};
-
-const MOCK_VITALS = {
-  'DP001': { BP: '145/92', Pulse: 78, Temp: '36.8C' },
-  'DP002': { BP: '120/80', Pulse: 72, Temp: '36.7C' },
-  'DP003': { BP: '130/85', Pulse: 80, Temp: '36.9C' },
-  'DP004': { BP: '125/82', Pulse: 76, Temp: '36.6C' },
-  'DP005': { BP: '118/76', Pulse: 70, Temp: '36.5C' },
-  'DP006': { BP: '110/70', Pulse: 74, Temp: '36.7C' },
-  'DP007': { BP: '122/78', Pulse: 75, Temp: '36.8C' },
-  'DP008': { BP: '119/75', Pulse: 73, Temp: '36.6C' },
-  'DP009': { BP: '124/80', Pulse: 77, Temp: '36.7C' },
-  'DP010': { BP: '117/74', Pulse: 71, Temp: '36.5C' },
-};
+import { DEMO_MODE, MOCK_PATIENTS, MOCK_LAB_RESULTS, MOCK_PATIENT_HISTORY, MOCK_TRIAGE_SUMMARY, MOCK_VITALS } from '../utils/constants';
+// ...existing code...
 // ================= END MOCK DATA =================
 
 export default function DoctorPortal() {
@@ -502,102 +362,111 @@ export default function DoctorPortal() {
             
             {searchError && <div className="alert alert-error" style={{ color: '#b91c1c', marginBottom: 16, padding: '8px 12px', backgroundColor: '#fee2e2', borderRadius: '6px' }}>{searchError}</div>}
             
-            {/* Patient Details Section */}
-            {selectedPatient && (
-              <div className="patient-details-section">
-                <h3>Selected Patient</h3>
-                <div className="patient-info-grid">
-                  <div className="patient-info-item">
-                    <User size={16} />
-                    <span>Name: {selectedPatient?.name || `${selectedPatient?.firstName || ''} ${selectedPatient?.lastName || ''}`}</span>
+            {/* Patient Details Section (always show mock if none selected) */}
+            {(() => {
+              let patient = selectedPatient;
+              let showMock = false;
+              if (!patient && DEMO_MODE && MOCK_PATIENTS && MOCK_PATIENTS.length > 0) {
+                patient = MOCK_PATIENTS[0];
+                showMock = true;
+              }
+              if (!patient) return null;
+              return (
+                <div className="patient-details-section">
+                  <h3>Selected Patient</h3>
+                  <div className="patient-info-grid">
+                    <div className="patient-info-item">
+                      <User size={16} />
+                      <span>Name: {patient?.name || `${patient?.firstName || ''} ${patient?.lastName || ''}`}</span>
+                    </div>
+                    <div className="patient-info-item">
+                      <span>DOB: {patient?.dateOfBirth || patient?.dob || ''}</span>
+                    </div>
+                    <div className="patient-info-item">
+                      <span>Gender: {patient?.gender || ''}</span>
+                    </div>
+                    <div className="patient-info-item">
+                      <span>Phone: {patient?.phoneNumber || ''}</span>
+                    </div>
+                    <div className="patient-info-item">
+                      <span>Emergency Contact: {patient?.emergencyContactName || ''} ({patient?.emergencyContact || ''})</span>
+                    </div>
+                    <div className="patient-info-item">
+                      <span>Address: {patient?.address || ''}</span>
+                    </div>
+                    <div className="patient-info-item">
+                      <span>County: {patient?.county || ''}</span>
+                    </div>
+                    <div className="patient-info-item">
+                      <span>SubCounty: {patient?.subCounty || ''}</span>
+                    </div>
+                    <div className="patient-info-item">
+                      <span>Blood Group: {patient?.bloodGroup || ''}</span>
+                    </div>
+                    <div className="patient-info-item">
+                      <span>Allergies: {Array.isArray(patient?.allergies) ? patient.allergies.join(', ') : patient?.allergies || ''}</span>
+                    </div>
+                    <div className="patient-info-item">
+                      <span>Chronic Conditions: {Array.isArray(patient?.chronicConditions) ? patient.chronicConditions.join(', ') : patient?.chronicConditions || ''}</span>
+                    </div>
+                    <div className="patient-info-item">
+                      <span>Symptoms: {Array.isArray(patient?.symptoms) ? patient.symptoms.join(', ') : patient?.symptoms || ''}</span>
+                    </div>
+                    <div className="patient-info-item">
+                      <span>Chief Complaint: {patient?.chiefComplaint || ''}</span>
+                    </div>
+                    <div className="patient-info-item">
+                      <span>Vitals: {patient?.vitals ? JSON.stringify(patient.vitals) : ''}</span>
+                    </div>
+                    <div className="patient-info-item">
+                      <span>Triage Summary: {patient?.triageSummary || ''}</span>
+                    </div>
+                    <div className="patient-info-item">
+                      <span>Previous Notes: {patient?.notes || ''}</span>
+                    </div>
                   </div>
-                  <div className="patient-info-item">
-                    <span>DOB: {selectedPatient?.dateOfBirth || selectedPatient?.dob || ''}</span>
+                  {/* Lab Results Section */}
+                  <div className="patient-info-grid">
+                    <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
+                      <span><b>Lab Results:</b> {showMock ? JSON.stringify(MOCK_LAB_RESULTS[patient.id]) : (labResults ? JSON.stringify(labResults) : 'No lab results found.')}</span>
+                    </div>
                   </div>
-                  <div className="patient-info-item">
-                    <span>Gender: {selectedPatient?.gender || ''}</span>
+                  {/* Patient History Section */}
+                  <div className="patient-info-grid">
+                    <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
+                      <span><b>Patient History:</b></span>
+                      {showMock ? (
+                        <ul className="patient-history-list">
+                          {MOCK_PATIENT_HISTORY[patient.id]?.map((entry, idx) => (
+                            <li key={idx}>{entry}</li>
+                          ))}
+                        </ul>
+                      ) : patientHistory.length === 0 ? (
+                        <div>No history found.</div>
+                      ) : (
+                        <ul className="patient-history-list">
+                          {patientHistory.map((entry, idx) => (
+                            <li key={idx}>{typeof entry === 'string' ? entry : JSON.stringify(entry)}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </div>
-                  <div className="patient-info-item">
-                    <span>Phone: {selectedPatient?.phoneNumber || ''}</span>
+                  {/* Triage Summary Section */}
+                  <div className="patient-info-grid">
+                    <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
+                      <span><b>Triage Summary:</b> {showMock ? MOCK_TRIAGE_SUMMARY[patient.id] : (triageSummary || 'No triage summary found.')}</span>
+                    </div>
                   </div>
-                  <div className="patient-info-item">
-                    <span>Emergency Contact: {selectedPatient?.emergencyContactName || ''} ({selectedPatient?.emergencyContact || ''})</span>
-                  </div>
-                  <div className="patient-info-item">
-                    <span>Address: {selectedPatient?.address || ''}</span>
-                  </div>
-                  <div className="patient-info-item">
-                    <span>County: {selectedPatient?.county || ''}</span>
-                  </div>
-                  <div className="patient-info-item">
-                    <span>SubCounty: {selectedPatient?.subCounty || ''}</span>
-                  </div>
-                  <div className="patient-info-item">
-                    <span>Blood Group: {selectedPatient?.bloodGroup || ''}</span>
-                  </div>
-                  <div className="patient-info-item">
-                    <span>Allergies: {Array.isArray(selectedPatient?.allergies) ? selectedPatient.allergies.join(', ') : selectedPatient?.allergies || ''}</span>
-                  </div>
-                  <div className="patient-info-item">
-                    <span>Chronic Conditions: {Array.isArray(selectedPatient?.chronicConditions) ? selectedPatient.chronicConditions.join(', ') : selectedPatient?.chronicConditions || ''}</span>
-                  </div>
-                  <div className="patient-info-item">
-                    <span>Symptoms: {Array.isArray(selectedPatient?.symptoms) ? selectedPatient.symptoms.join(', ') : selectedPatient?.symptoms || ''}</span>
-                  </div>
-                  <div className="patient-info-item">
-                    <span>Chief Complaint: {selectedPatient?.chiefComplaint || ''}</span>
-                  </div>
-                  <div className="patient-info-item">
-                    <span>Vitals: {selectedPatient?.vitals ? JSON.stringify(selectedPatient.vitals) : ''}</span>
-                  </div>
-                  <div className="patient-info-item">
-                    <span>Triage Summary: {selectedPatient?.triageSummary || ''}</span>
-                  </div>
-                  <div className="patient-info-item">
-                    <span>Previous Notes: {selectedPatient?.notes || ''}</span>
+                  {/* Patient Vitals Section */}
+                  <div className="patient-info-grid">
+                    <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
+                      <span><b>Patient Vitals:</b> {showMock ? JSON.stringify(MOCK_VITALS[patient.id]) : (patientVitals ? JSON.stringify(patientVitals) : 'No vitals found.')}</span>
+                    </div>
                   </div>
                 </div>
-                
-                {/* Lab Results Section */}
-                <div className="patient-info-grid">
-                  <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
-                    <span><b>Lab Results:</b> {labResults ? JSON.stringify(labResults) : 'No lab results found.'}</span>
-                  </div>
-                </div>
-                
-                {/* Patient History Section */}
-                <div className="patient-info-grid">
-                  <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
-                    <span><b>Patient History:</b></span>
-                    {patientHistory.length === 0 ? (
-                      <div>No history found.</div>
-                    ) : (
-                      <ul className="patient-history-list">
-                        {patientHistory.map((entry, idx) => (
-                          <li key={idx}>
-                            {typeof entry === 'string' ? entry : JSON.stringify(entry)}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Triage Summary Section */}
-                <div className="patient-info-grid">
-                  <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
-                    <span><b>Triage Summary:</b> {triageSummary || 'No triage summary found.'}</span>
-                  </div>
-                </div>
-                
-                {/* Patient Vitals Section */}
-                <div className="patient-info-grid">
-                  <div className="patient-info-item" style={{ gridColumn: '1 / -1' }}>
-                    <span><b>Patient Vitals:</b> {patientVitals ? JSON.stringify(patientVitals) : 'No vitals found.'}</span>
-                  </div>
-                </div>
-              </div>
-            )}
+              );
+            })()}
             
             {/* Clinical Notes Section */}
             {selectedPatient && (
