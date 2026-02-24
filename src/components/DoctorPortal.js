@@ -314,16 +314,16 @@ export default function DoctorPortal() {
                   doctorQueue.map((patient, idx) => (
                     <li
                       key={patient?.id || idx}
-                      className={`doctor-queue-item ${patient?.urgency === 'High' ? 'urgent-patient' : ''}`}
-                      style={patient?.urgency === 'High' ? { background: '#fee2e2', fontWeight: 'bold' } : {}}
+                      className={`doctor-queue-item ${patient?.priority === 'High' ? 'urgent-patient' : ''}`}
+                      style={patient?.priority === 'High' ? { background: '#fee2e2', fontWeight: 'bold' } : {}}
                     >
                       <span>{patient?.name || `${patient?.firstName || ''} ${patient?.lastName || ''}`}</span>
                       <span>Urgency: <span style={{ 
-                        color: patient?.urgency === 'High' ? '#dc2626' : 
-                               patient?.urgency === 'Medium' ? '#ca8a04' : 
-                               patient?.urgency === 'Low' ? '#16a34a' : '#6b7280' 
+                        color: patient?.priority === 'High' ? '#dc2626' : 
+                               patient?.priority === 'Medium' ? '#ca8a04' : 
+                               patient?.priority === 'Low' ? '#16a34a' : '#6b7280' 
                       }}>
-                        {patient?.urgency || 'N/A'}
+                        {patient?.priority || 'N/A'}
                       </span></span>
                       <span>Status: {patient?.status || 'N/A'}</span>
                     </li>
@@ -469,21 +469,22 @@ export default function DoctorPortal() {
             })()}
             
             {/* Clinical Notes Section */}
-            {selectedPatient && (
+            {(selectedPatient || (DEMO_MODE && MOCK_PATIENTS && MOCK_PATIENTS.length > 0)) && (
               <div className="clinical-notes-section">
                 <h3>Clinical Notes</h3>
                 <textarea
                   className="clinical-notes-input"
-                  value={clinicalNotes}
+                  value={selectedPatient ? clinicalNotes : ''}
                   onChange={(e) => setClinicalNotes(e.target.value)}
                   placeholder="Enter clinical notes here..."
                   rows={4}
+                  disabled={!selectedPatient}
                 />
                 <div className="notes-actions">
                   <button
                     className="doctor-action-btn"
                     onClick={handleSave}
-                    disabled={loading}
+                    disabled={loading || !selectedPatient}
                     aria-label="Save clinical notes"
                   >
                     <Save size={16} style={{ marginRight: '8px' }} />
@@ -493,6 +494,7 @@ export default function DoctorPortal() {
                     className="doctor-action-btn secondary"
                     onClick={() => setClinicalNotes('')}
                     aria-label="Clear notes"
+                    disabled={!selectedPatient}
                   >
                     <X size={16} style={{ marginRight: '8px' }} />
                     Clear
