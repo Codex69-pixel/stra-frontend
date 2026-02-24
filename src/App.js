@@ -3,7 +3,7 @@ import { LoginScreen } from './components/LoginScreen';
 import { NurseTriage } from './components/NurseTriage';
 import QueueManagement from './components/QueueManagement';
 import { ResourceDashboard } from './components/ResourceDashboard';
-import { DoctorPortal } from './components/DoctorPortal';
+import DoctorPortal from './components/DoctorPortal';
 import { InventoryManagement } from './components/InventoryManagement';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 import AdminDashboard from './components/AdminDashboard';

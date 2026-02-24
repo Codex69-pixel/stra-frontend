@@ -13,7 +13,7 @@ import apiService from '../services/api';
 // ================= MOCK DATA FOR PRESENTATION =================
 // This mock data is used for demo purposes only. Remove or disable for production.
 const DEMO_MODE = true;
-const MOCK_PATIENTS = [
+export const MOCK_PATIENTS = [
   {
     id: 'DP001',
     name: 'John Doe',

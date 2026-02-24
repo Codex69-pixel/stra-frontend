@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { MOCK_PATIENTS } from './DoctorPortal';
 import { 
   Clock, Users, AlertCircle, CheckCircle, Filter, Search, 
   MoreVertical, Phone, AlertTriangle, X, Eye
