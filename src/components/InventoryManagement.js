@@ -11,7 +11,131 @@ import Prescriptions from './prescription';
 
 
 import apiService from '../services/api';
+import { DEMO_MODE } from '../utils/constants';
 
+// Mock inventory data for pharmacy demo
+const MOCK_INVENTORY = [
+  {
+    id: 1,
+    name: 'Paracetamol 500mg',
+    category: 'Pain Relief',
+    stock: 120,
+    reorderLevel: 50,
+    supplier: 'MedSupply Inc.',
+    cost: 0.15,
+    expiry: '2026-03-10',
+    status: 'optimal',
+    usage: 12
+  },
+  {
+    id: 2,
+    name: 'Amoxicillin 250mg',
+    category: 'Antibiotics',
+    stock: 30,
+    reorderLevel: 40,
+    supplier: 'PharmaWorld',
+    cost: 0.25,
+    expiry: '2026-02-28',
+    status: 'critical',
+    usage: 8
+  },
+  {
+    id: 3,
+    name: 'Metformin 500mg',
+    category: 'Diabetes',
+    stock: 60,
+    reorderLevel: 30,
+    supplier: 'HealthGen',
+    cost: 0.20,
+    expiry: '2026-04-15',
+    status: 'optimal',
+    usage: 6
+  },
+  {
+    id: 4,
+    name: 'Amlodipine 5mg',
+    category: 'Hypertension',
+    stock: 15,
+    reorderLevel: 20,
+    supplier: 'CardioCare',
+    cost: 0.18,
+    expiry: '2026-03-05',
+    status: 'low',
+    usage: 4
+  },
+  {
+    id: 5,
+    name: 'Omeprazole 20mg',
+    category: 'GI Disorders',
+    stock: 80,
+    reorderLevel: 30,
+    supplier: 'Digestix',
+    cost: 0.22,
+    expiry: '2026-03-25',
+    status: 'optimal',
+    usage: 7
+  },
+  {
+    id: 6,
+    name: 'Atorvastatin 10mg',
+    category: 'Cardiovascular',
+    stock: 25,
+    reorderLevel: 25,
+    supplier: 'LipidLabs',
+    cost: 0.30,
+    expiry: '2026-02-29',
+    status: 'critical',
+    usage: 5
+  },
+  {
+    id: 7,
+    name: 'Ibuprofen 200mg',
+    category: 'Pain Relief',
+    stock: 200,
+    reorderLevel: 60,
+    supplier: 'MedSupply Inc.',
+    cost: 0.12,
+    expiry: '2026-05-10',
+    status: 'optimal',
+    usage: 15
+  },
+  {
+    id: 8,
+    name: 'Ciprofloxacin 500mg',
+    category: 'Antibiotics',
+    stock: 10,
+    reorderLevel: 20,
+    supplier: 'PharmaWorld',
+    cost: 0.40,
+    expiry: '2026-03-01',
+    status: 'critical',
+    usage: 2
+  },
+  {
+    id: 9,
+    name: 'Losartan 50mg',
+    category: 'Hypertension',
+    stock: 45,
+    reorderLevel: 30,
+    supplier: 'CardioCare',
+    cost: 0.21,
+    expiry: '2026-04-20',
+    status: 'optimal',
+    usage: 5
+  },
+  {
+    id: 10,
+    name: 'Gliclazide 80mg',
+    category: 'Diabetes',
+    stock: 22,
+    reorderLevel: 25,
+    supplier: 'HealthGen',
+    cost: 0.19,
+    expiry: '2026-03-15',
+    status: 'low',
+    usage: 3
+  }
+];
 const categories = ['Pain Relief', 'Antibiotics', 'Cardiovascular', 'Diabetes', 'Hypertension', 'GI Disorders'];
 
 const STATUS_CONFIG = {
@@ -45,11 +169,16 @@ export function InventoryManagement({ onNavigate }) {
   const [sortOrder, setSortOrder] = useState('asc');
   const [inventory, setInventory] = useState([]);
   const [error, setError] = useState(null);
-    // Fetch medications from backend
+    // Fetch medications from backend or use mock data in demo mode
     useEffect(() => {
+      setLoading(true);
+      setError(null);
+      if (DEMO_MODE) {
+        setInventory(MOCK_INVENTORY);
+        setLoading(false);
+        return;
+      }
       async function fetchMedications() {
-        setLoading(true);
-        setError(null);
         try {
           const meds = await apiService.getMedications();
           setInventory(Array.isArray(meds) ? meds : []);
