@@ -187,7 +187,7 @@ export default function UserManagement() {
     } else {
       fetchUsers();
     }
-  }, []);
+  }, [DEMO_MODE]);
 
   // fetchUsers remains for error handling and production
   const fetchUsers = async () => {

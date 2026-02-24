@@ -116,7 +116,7 @@ export default function DepartmentManagement() {
     } else {
       fetchDepartments();
     }
-  }, []);
+  }, [DEMO_MODE]);
 
   const fetchDepartments = async () => {
     setError(null);
