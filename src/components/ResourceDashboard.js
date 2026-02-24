@@ -11,7 +11,7 @@ import AccountSettings from './AccountSettings';
 export function ResourceDashboard({ onNavigate }) {
   const [view, setView] = useState('users');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  // Removed unused error state
 
   useEffect(() => {
     async function fetchResourceDashboard() {

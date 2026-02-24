@@ -5,7 +5,7 @@ import apiService from "../services/api";
 export default function AdminDashboard({ onNavigate }) {
   const [userStats, setUserStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // Removed unused error state
 
   useEffect(() => {
     async function fetchData() {
