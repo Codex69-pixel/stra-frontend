@@ -72,7 +72,7 @@ export default function AccountSettings() {
       <form onSubmit={handleForgotPassword} className="space-y-4">
         <h2 className="text-lg font-semibold">Forgot Password</h2>
         <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="border rounded px-3 py-2 w-full" />
-        <button type="submit" className="bg-yellow-600 text-white px-4 py-2 rounded">Send Reset Link</button>
+        {/* Removed duplicate yellow Send Reset Link button */}
         <button type="submit" className="text-white px-4 py-2 rounded" style={{ background: 'linear-gradient(90deg, rgb(20, 184, 166), rgb(13, 148, 136))', border: 'none' }}>Send Reset Link</button>
       </form>
       {/* Reset Password */}
