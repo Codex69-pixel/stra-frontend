@@ -1,38 +1,10 @@
-import React, { useEffect, useState } from "react";
-import apiService from "../services/api";
-
 export default function ResourceManagement() {
-  const [resources, setResources] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    async function fetchResources() {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await apiService.getResourceDashboard();
-        // Defensive: ensure resources is always an array
-        if (data && data.resources && Array.isArray(data.resources.beds.units) && Array.isArray(data.resources.staff.byRole) && Array.isArray(data.resources.equipment.byType)) {
-          setResources([
-            ...data.resources.beds.units,
-            ...data.resources.staff.byRole,
-            ...data.resources.equipment.byType
-          ]);
-        } else {
-          setResources([]);
-        }
-      } catch (err) {
-        setError("Failed to load resources");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchResources();
-  }, []);
+  // No resource fetch; default view is users
+  const resources = [];
+  const loading = false;
 
   if (loading) return <div className="p-8">Loading resources...</div>;
-  if (error) return <div className="p-8 text-red-600">{error}</div>;
+  // Error display removed: errors are only logged to console
 
   return (
     <div className="p-8">
@@ -59,7 +31,11 @@ export default function ResourceManagement() {
                 <button className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-bold" onClick={() => alert('View availability for ' + res.name)}>View Availability</button>
               </td>
             </tr>
-          )) : <tr><td colSpan="4" className="text-center py-4">No resources found or backend error.</td></tr>}
+          )) : (
+            <tr>
+              <td colSpan={4} className="px-4 py-2 text-center text-gray-500">No resources available.</td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
