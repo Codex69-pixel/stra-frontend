@@ -16,7 +16,7 @@ export function ResourceDashboard({ onNavigate }) {
   useEffect(() => {
     async function fetchResourceDashboard() {
       setLoading(true);
-      setError(null);
+      // setError removed: no error state
       try {
         await apiService.getResourceDashboard();
       } catch (err) {

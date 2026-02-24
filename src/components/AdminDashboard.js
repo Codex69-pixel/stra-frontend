@@ -10,7 +10,7 @@ export default function AdminDashboard({ onNavigate }) {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      setError(null);
+      // setError removed: no error state
       try {
         // Fetch user list (for stats)
         const users = await apiService.getUsers();
