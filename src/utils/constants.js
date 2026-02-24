@@ -1,3 +1,5 @@
+// Demo mode toggle (set to true for mock/demo data)
+export const DEMO_MODE = true;
 // ================= MOCK PATIENT DATA FOR DEMO =================
 export const MOCK_PATIENTS = [
   { id: 'DP001', name: 'John Doe', gender: 'Male', dateOfBirth: '1980-01-01', phoneNumber: '555-1234', emergencyContactName: 'Jane Doe', emergencyContact: '555-5678', address: '123 Main St', county: 'County A', subCounty: 'Sub A', bloodGroup: 'A+', allergies: ['Penicillin'], chronicConditions: ['Hypertension'], symptoms: ['Headache'], chiefComplaint: 'Headache', vitals: { BP: '145/92', Pulse: 78, Temp: '36.8C' }, triageSummary: 'BP elevated, pulse normal.', notes: 'Follow up in 2 weeks.' },
