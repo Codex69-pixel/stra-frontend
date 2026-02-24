@@ -15,6 +15,7 @@ import { DEMO_MODE, MOCK_PATIENTS, MOCK_LAB_RESULTS, MOCK_PATIENT_HISTORY, MOCK_
 
 export default function DoctorPortal() {
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [patientNotes, setPatientNotes] = useState({});
   const [clinicalNotes, setClinicalNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPrescriptions, setShowPrescriptions] = useState(false);
@@ -38,12 +39,10 @@ export default function DoctorPortal() {
     setPatientHistory([]);
     setTriageSummary('');
     setPatientVitals(null);
-    
     if (!searchName.trim()) {
       setSearchError('Please enter a patient name.');
       return;
     }
-    
     setLoading(true);
     try {
       let allPatients;
@@ -53,21 +52,17 @@ export default function DoctorPortal() {
         allPatients = await apiService.getPatients();
         allPatients = Array.isArray(allPatients) ? allPatients : [];
       }
-      
       const searchKey = searchName.trim().toLowerCase();
-      
       // Find patient by name (case-insensitive, full match)
       const found = allPatients.find(
         p => (p.name && p.name.toLowerCase() === searchKey) ||
              ((p.firstName && p.lastName) && (`${p.firstName} ${p.lastName}`.toLowerCase() === searchKey))
       );
-      
       if (!found) {
         setSearchError('Patient not found. Make sure the name is correct and registered.');
         setLoading(false);
         return;
       }
-      
       setSelectedPatient(found);
     } catch (err) {
       console.error('Error searching patient:', err);
