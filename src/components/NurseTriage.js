@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import NotificationButton from './common/NotificationButton';
 import { logout } from '../utils/logout';
 import {
@@ -28,7 +28,7 @@ export function NurseTriage({ onNavigate }) {
   const [submitSuccess, setSubmitSuccess] = useState(null);
   
   // SATS discriminators based on Adult SATS Chart
-  const satsDiscriminators = [
+  const satsDiscriminators = useMemo(() => [
     // RED (Emergency) Discriminators
     { value: 'airway_threatened', label: 'Threatened airway', level: 'RED' },
     { value: 'breathing_severe', label: 'Severe respiratory distress', level: 'RED' },
@@ -61,7 +61,7 @@ export function NurseTriage({ onNavigate }) {
     { value: 'mild_pain', label: 'Mild pain', level: 'GREEN' },
     { value: 'repeat_script', label: 'Repeat prescription', level: 'GREEN' },
     { value: 'review_only', label: 'Review only', level: 'GREEN' }
-  ];
+  ], []);
 
   const [selectedDiscriminator, setSelectedDiscriminator] = useState('');
   const [discriminatorNotes, setDiscriminatorNotes] = useState('');
@@ -165,7 +165,7 @@ export function NurseTriage({ onNavigate }) {
   };
 
   // SATS chart logic based on Adult SATS criteria
-  function calculateSATS(vitals, discriminator) {
+  const calculateSATS = useCallback((vitals, discriminator) => {
     // First check discriminators - these override vital signs
     const selectedDisc = satsDiscriminators.find(d => d.value === discriminator);
     if (selectedDisc) {
@@ -321,12 +321,12 @@ export function NurseTriage({ onNavigate }) {
       description: 'Stable for routine care',
       targetTime: 'Within 4 hours'
     };
-  }
+  }, [satsDiscriminators]);
 
   // Update triage level when vitals or discriminator changes
   useEffect(() => {
     setTriageLevel(calculateSATS(formData.vitals, selectedDiscriminator));
-  }, [formData.vitals, selectedDiscriminator]);
+  }, [formData.vitals, selectedDiscriminator, calculateSATS]);
 
   // Symptom toggle handler
   const handleSymptomToggle = (symptom) => {
@@ -391,15 +391,7 @@ export function NurseTriage({ onNavigate }) {
     }));
   };
 
-  // Condition toggle handler
-  const handleConditionToggle = (condition) => {
-    setFormData(prev => ({
-      ...prev,
-      chronicConditions: prev.chronicConditions.includes(condition)
-        ? prev.chronicConditions.filter(c => c !== condition)
-        : [...prev.chronicConditions, condition]
-    }));
-  };
+
 
   // Input handler
   const handleInputChange = (e) => {
@@ -520,14 +512,7 @@ export function NurseTriage({ onNavigate }) {
 
     try {
       // Prepare final submission with triage data
-      const submissionData = {
-        ...formData,
-        triageLevel: triageLevel.level,
-        triageStatus: triageLevel.status,
-        selectedDiscriminator,
-        discriminatorNotes,
-        timestamp: new Date().toISOString()
-      };
+
       
       // Simulate API call
       await new Promise(res => setTimeout(res, 1200));
