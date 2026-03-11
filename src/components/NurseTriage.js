@@ -60,52 +60,51 @@ export function NurseTriage({ onNavigate }) {
     'Westlands', 'Langata', 'Kasarani', 'Embakasi', 'Ruiru', 'Thika', 'Naivasha', 'Other'
   ];
   
-  // SATS triage calculation
-  const [triageLevel, setTriageLevel] = useState({ level: 'GREEN', status: 'Normal', color: 'from-green-500 to-green-600' });
-
-  // SATS chart logic (simplified example)
-  function calculateSATS(vitals, discriminator) {
-    // Example rules (replace with actual SATS chart as needed)
-    if (discriminator && discriminator !== '') {
-      return { level: 'RED', status: 'Emergency (Discriminator)', color: 'from-red-500 to-red-700' };
-    }
-    if (!vitals) return { level: 'GREEN', status: 'Normal', color: 'from-green-500 to-green-600' };
-    const { temperature, systolicBp, heartRate, oxygenSaturation } = vitals;
-    if (
-      Number(oxygenSaturation) < 90 ||
-      Number(systolicBp) < 90 ||
-      Number(heartRate) > 130 ||
-      Number(temperature) > 40
-    ) {
-      return { level: 'RED', status: 'Emergency', color: 'from-red-500 to-red-700' };
-    }
-    if (
-      Number(oxygenSaturation) < 94 ||
-      Number(systolicBp) < 100 ||
-      Number(heartRate) > 110 ||
-      Number(temperature) > 38
-    ) {
-      return { level: 'ORANGE', status: 'Very Urgent', color: 'from-orange-500 to-orange-600' };
-    }
-    if (
-      Number(heartRate) > 100 ||
-      Number(temperature) > 37.5
-    ) {
-      return { level: 'YELLOW', status: 'Urgent', color: 'from-yellow-400 to-yellow-600' };
-    }
-    return { level: 'GREEN', status: 'Normal', color: 'from-green-500 to-green-600' };
-  }
-
-  // Update triage level when basic info or discriminator changes
-  React.useEffect(() => {
-    // Only calculate if names and condition are present
-    if (formData.firstName && formData.lastName && formData.chiefComplaint) {
-      setTriageLevel(calculateSATS(formData.vitals, selectedDiscriminator));
-    }
-  }, [formData.firstName, formData.lastName, formData.chiefComplaint, formData.vitals, selectedDiscriminator]);
-
   // Form data state
   const [formData, setFormData] = useState({
+      // SATS triage calculation
+      const [triageLevel, setTriageLevel] = useState({ level: 'GREEN', status: 'Normal', color: 'from-green-500 to-green-600' });
+
+      // SATS chart logic (simplified example)
+      function calculateSATS(vitals, discriminator) {
+        // Example rules (replace with actual SATS chart as needed)
+        if (discriminator && discriminator !== '') {
+          return { level: 'RED', status: 'Emergency (Discriminator)', color: 'from-red-500 to-red-700' };
+        }
+        if (!vitals) return { level: 'GREEN', status: 'Normal', color: 'from-green-500 to-green-600' };
+        const { temperature, systolicBp, heartRate, oxygenSaturation } = vitals;
+        if (
+          Number(oxygenSaturation) < 90 ||
+          Number(systolicBp) < 90 ||
+          Number(heartRate) > 130 ||
+          Number(temperature) > 40
+        ) {
+          return { level: 'RED', status: 'Emergency', color: 'from-red-500 to-red-700' };
+        }
+        if (
+          Number(oxygenSaturation) < 94 ||
+          Number(systolicBp) < 100 ||
+          Number(heartRate) > 110 ||
+          Number(temperature) > 38
+        ) {
+          return { level: 'ORANGE', status: 'Very Urgent', color: 'from-orange-500 to-orange-600' };
+        }
+        if (
+          Number(heartRate) > 100 ||
+          Number(temperature) > 37.5
+        ) {
+          return { level: 'YELLOW', status: 'Urgent', color: 'from-yellow-400 to-yellow-600' };
+        }
+        return { level: 'GREEN', status: 'Normal', color: 'from-green-500 to-green-600' };
+      }
+
+      // Update triage level when basic info or discriminator changes
+      React.useEffect(() => {
+        // Only calculate if names and condition are present
+        if (formData.firstName && formData.lastName && formData.chiefComplaint) {
+          setTriageLevel(calculateSATS(formData.vitals, selectedDiscriminator));
+        }
+      }, [formData.firstName, formData.lastName, formData.chiefComplaint, formData.vitals, selectedDiscriminator]);
     // Step 1: Patient Registration
     firstName: '',
     lastName: '',
@@ -574,7 +573,7 @@ export function NurseTriage({ onNavigate }) {
 
       <div className="w-full bg-gradient-to-br from-gray-50 to-teal-50/30 p-4 md:p-6" style={{paddingTop: '72px'}}>
         <div className="max-w-4xl mx-auto">
-          // Progress Indicator
+          {/* Progress Indicator */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-semibold text-gray-700">Step {step} of 5</span>
