@@ -15,7 +15,6 @@ import { DEMO_MODE, MOCK_PATIENTS, MOCK_LAB_RESULTS, MOCK_PATIENT_HISTORY, MOCK_
 
 export default function DoctorPortal() {
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const [patientNotes, setPatientNotes] = useState({});
   const [clinicalNotes, setClinicalNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPrescriptions, setShowPrescriptions] = useState(false);
@@ -68,7 +67,6 @@ export default function DoctorPortal() {
       console.error('Error searching patient:', err);
       setSearchError('Failed to fetch patient details.');
     } finally {
-      setLoading(false);
     }
   };
 
