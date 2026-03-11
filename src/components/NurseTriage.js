@@ -70,7 +70,7 @@ export function NurseTriage({ onNavigate }) {
       return { level: 'RED', status: 'Emergency (Discriminator)', color: 'from-red-500 to-red-700' };
     }
     if (!vitals) return { level: 'GREEN', status: 'Normal', color: 'from-green-500 to-green-600' };
-    const { temperature, systolicBp, diastolicBp, heartRate, respiratoryRate, oxygenSaturation } = vitals;
+    const { temperature, systolicBp, heartRate, oxygenSaturation } = vitals;
     if (
       Number(oxygenSaturation) < 90 ||
       Number(systolicBp) < 90 ||
@@ -180,8 +180,7 @@ export function NurseTriage({ onNavigate }) {
     const { name, value } = e.target;
     // Vitals fields
     const vitalFields = [
-      'temperature', 'systolicBp', 'diastolicBp', 'heartRate', 'respiratoryRate',
-      'oxygenSaturation', 'bloodGlucose', 'painScale', 'weight', 'height', 'avpu', 'mobility'
+      'temperature', 'systolicBp', 'heartRate', 'oxygenSaturation', 'bloodGlucose', 'painScale', 'weight', 'height', 'avpu', 'mobility'
     ];
     if (vitalFields.includes(name)) {
       setFormData(prev => ({
@@ -206,29 +205,7 @@ export function NurseTriage({ onNavigate }) {
     }
   };
 
-  // Add allergy
-  const handleAddAllergy = () => {
-    if (formData.allergyInput && formData.allergyInput.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        allergies: prev.allergies
-          ? prev.allergies + ',' + prev.allergyInput.trim()
-          : prev.allergyInput.trim(),
-        allergyInput: ''
-      }));
-    }
-  };
-
-  // Add chronic condition
-  const handleAddCondition = () => {
-    if (formData.conditionInput && formData.conditionInput.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        chronicConditions: [...prev.chronicConditions, prev.conditionInput.trim()],
-        conditionInput: ''
-      }));
-    }
-  };
+  // ...existing code...
 
   // Handle next step
   const handleNext = () => {
@@ -959,7 +936,7 @@ export function NurseTriage({ onNavigate }) {
                   </div>
                 </div>
                 
-                {/* Register Patient Button */}
+                    {/* Register Patient Button */}
                 <div className="flex flex-col items-end mt-8 gap-2">
                   {registerError && <div className="text-red-600 font-semibold mb-2">{registerError}</div>}
                   {registerSuccess && <div className="text-green-600 font-semibold mb-2">{registerSuccess}</div>}
