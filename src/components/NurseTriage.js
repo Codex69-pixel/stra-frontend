@@ -50,9 +50,59 @@ export function NurseTriage({ onNavigate }) {
     'Hypertension', 'Diabetes', 'Asthma', 'Heart Disease', 'Cancer',
     'Thyroid Disease', 'Arthritis', 'Kidney Disease'
   ];
+  const allergyList = [
+    'Penicillin', 'Peanuts', 'Latex', 'Bee Stings', 'Shellfish', 'Eggs', 'Milk', 'Wheat', 'Soy', 'Other'
+  ];
+  const countyList = [
+    'Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Kiambu', 'Uasin Gishu', 'Machakos', 'Meru', 'Other'
+  ];
+  const subCountyList = [
+    'Westlands', 'Langata', 'Kasarani', 'Embakasi', 'Ruiru', 'Thika', 'Naivasha', 'Other'
+  ];
   
-  // Triage level calculation (dummy)
-  const triageLevel = { level: 'GREEN', status: 'Normal', color: 'from-green-500 to-green-600' };
+  // SATS triage calculation
+  const [triageLevel, setTriageLevel] = useState({ level: 'GREEN', status: 'Normal', color: 'from-green-500 to-green-600' });
+
+  // SATS chart logic (simplified example)
+  function calculateSATS(vitals, discriminator) {
+    // Example rules (replace with actual SATS chart as needed)
+    if (discriminator && discriminator !== '') {
+      return { level: 'RED', status: 'Emergency (Discriminator)', color: 'from-red-500 to-red-700' };
+    }
+    if (!vitals) return { level: 'GREEN', status: 'Normal', color: 'from-green-500 to-green-600' };
+    const { temperature, systolicBp, diastolicBp, heartRate, respiratoryRate, oxygenSaturation } = vitals;
+    if (
+      Number(oxygenSaturation) < 90 ||
+      Number(systolicBp) < 90 ||
+      Number(heartRate) > 130 ||
+      Number(temperature) > 40
+    ) {
+      return { level: 'RED', status: 'Emergency', color: 'from-red-500 to-red-700' };
+    }
+    if (
+      Number(oxygenSaturation) < 94 ||
+      Number(systolicBp) < 100 ||
+      Number(heartRate) > 110 ||
+      Number(temperature) > 38
+    ) {
+      return { level: 'ORANGE', status: 'Very Urgent', color: 'from-orange-500 to-orange-600' };
+    }
+    if (
+      Number(heartRate) > 100 ||
+      Number(temperature) > 37.5
+    ) {
+      return { level: 'YELLOW', status: 'Urgent', color: 'from-yellow-400 to-yellow-600' };
+    }
+    return { level: 'GREEN', status: 'Normal', color: 'from-green-500 to-green-600' };
+  }
+
+  // Update triage level when basic info or discriminator changes
+  React.useEffect(() => {
+    // Only calculate if names and condition are present
+    if (formData.firstName && formData.lastName && formData.chiefComplaint) {
+      setTriageLevel(calculateSATS(formData.vitals, selectedDiscriminator));
+    }
+  }, [formData.firstName, formData.lastName, formData.chiefComplaint, formData.vitals, selectedDiscriminator]);
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -247,12 +297,7 @@ export function NurseTriage({ onNavigate }) {
     if (step === 1) {
       if (!formData.firstName) errors.firstName = 'First name is required.';
       if (!formData.lastName) errors.lastName = 'Last name is required.';
-      if (!formData.dob) errors.dob = 'Date of birth is required (YYYY-MM-DD).';
-      if (!formData.gender) errors.gender = 'Gender must be Male, Female, or Other.';
-      if (!formData.phoneNumber) errors.phoneNumber = 'Phone number is required.';
-      if (!formData.county) errors.county = 'County is required.';
-      if (!formData.subCounty) errors.subCounty = 'Sub-county is required.';
-      if (!formData.bloodGroup) errors.bloodGroup = 'Blood group is required.';
+      // Only names are required in step 1
     }
     
     // Step 2: No required field validation for vitals
@@ -261,14 +306,11 @@ export function NurseTriage({ onNavigate }) {
     }
     
     if (step === 3) {
-      if (!formData.chiefComplaint) errors.chiefComplaint = 'Chief complaint is required.';
-      if (!formData.symptoms || formData.symptoms.length === 0) errors.symptoms = 'At least one symptom is required.';
+      if (!formData.chiefComplaint) errors.chiefComplaint = 'Condition is required.';
+      // Only condition (chiefComplaint) is required in step 3
     }
     
-    if (step === 4) {
-      if (!formData.allergies) errors.allergies = 'Allergies information is required.';
-      if (!formData.chronicConditions || formData.chronicConditions.length === 0) errors.chronicConditions = 'At least one chronic condition is required.';
-    }
+    // Step 4: No required fields
     
     return { valid: Object.keys(errors).length === 0, errors };
   }
@@ -555,7 +597,7 @@ export function NurseTriage({ onNavigate }) {
 
       <div className="w-full bg-gradient-to-br from-gray-50 to-teal-50/30 p-4 md:p-6" style={{paddingTop: '72px'}}>
         <div className="max-w-4xl mx-auto">
-          {/* Progress Indicator */}
+          // Progress Indicator
           <div className="mb-8">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-semibold text-gray-700">Step {step} of 5</span>
@@ -565,11 +607,11 @@ export function NurseTriage({ onNavigate }) {
               {[1,2,3,4,5].map((s) => (
                 <div key={s} className="flex-1">
                   <button
-                    onClick={() => s < step && setStep(s)}
+                    onClick={() => setStep(s)}
                     className={`w-full h-2 rounded-full transition-all duration-300 ${
                       s <= step ? 'bg-gradient-to-r from-teal-600 to-teal-700' : 'bg-gray-200'
                     }`}
-                    disabled={s > step}
+                    aria-label={`Go to step ${s}`}
                   />
                 </div>
               ))}
@@ -715,29 +757,92 @@ export function NurseTriage({ onNavigate }) {
                   </div>
                   
                   <div className="input-group">
-                    <label className="input-label">County *</label>
-                    <input
-                      type="text"
-                      name="county"
-                      value={formData.county}
-                      onChange={handleInputChange}
-                      placeholder="County"
-                      className="input-field"
-                    />
-                    {errors.county && <p className="text-red-600 text-sm mt-1">{errors.county}</p>}
+                    <label className="input-label">County</label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {formData.county && formData.county.split(',').filter(c => c.trim()).map((county, idx) => (
+                        <span key={idx} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                          {county}
+                          <button type="button" style={{marginLeft: 6, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer'}} onClick={() => {
+                            setFormData(prev => ({ ...prev, county: prev.county.split(',').filter(c => c.trim() && c !== county).join(',') }));
+                          }}>×</button>
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <select
+                        name="countySelect"
+                        value=""
+                        onChange={e => {
+                          const val = e.target.value;
+                          if (val && (!formData.county || !formData.county.split(',').includes(val))) {
+                            setFormData(prev => ({ ...prev, county: prev.county ? prev.county + ',' + val : val }));
+                          }
+                        }}
+                        className="input-field flex-1"
+                      >
+                        <option value="">Select County</option>
+                        {countyList.map((county, idx) => (
+                          <option key={idx} value={county}>{county}</option>
+                        ))}
+                      </select>
+                      <input
+                        type="text"
+                        name="countyInput"
+                        value={formData.countyInput || ''}
+                        onChange={e => setFormData(prev => ({ ...prev, countyInput: e.target.value }))}
+                        placeholder="Type to add county"
+                        className="input-field flex-1"
+                      />
+                      <button type="button" className="btn btn-primary" onClick={() => {
+                        if (formData.countyInput && (!formData.county || !formData.county.split(',').includes(formData.countyInput))) {
+                          setFormData(prev => ({ ...prev, county: prev.county ? prev.county + ',' + prev.countyInput : prev.countyInput, countyInput: '' }));
+                        }
+                      }}>Add</button>
+                    </div>
                   </div>
-                  
                   <div className="input-group">
-                    <label className="input-label">Sub County *</label>
-                    <input
-                      type="text"
-                      name="subCounty"
-                      value={formData.subCounty}
-                      onChange={handleInputChange}
-                      placeholder="Sub County"
-                      className="input-field"
-                    />
-                    {errors.subCounty && <p className="text-red-600 text-sm mt-1">{errors.subCounty}</p>}
+                    <label className="input-label">Sub County</label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {formData.subCounty && formData.subCounty.split(',').filter(s => s.trim()).map((sub, idx) => (
+                        <span key={idx} className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                          {sub}
+                          <button type="button" style={{marginLeft: 6, color: '#059669', background: 'none', border: 'none', cursor: 'pointer'}} onClick={() => {
+                            setFormData(prev => ({ ...prev, subCounty: prev.subCounty.split(',').filter(s => s.trim() && s !== sub).join(',') }));
+                          }}>×</button>
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <select
+                        name="subCountySelect"
+                        value=""
+                        onChange={e => {
+                          const val = e.target.value;
+                          if (val && (!formData.subCounty || !formData.subCounty.split(',').includes(val))) {
+                            setFormData(prev => ({ ...prev, subCounty: prev.subCounty ? prev.subCounty + ',' + val : val }));
+                          }
+                        }}
+                        className="input-field flex-1"
+                      >
+                        <option value="">Select Sub County</option>
+                        {subCountyList.map((sub, idx) => (
+                          <option key={idx} value={sub}>{sub}</option>
+                        ))}
+                      </select>
+                      <input
+                        type="text"
+                        name="subCountyInput"
+                        value={formData.subCountyInput || ''}
+                        onChange={e => setFormData(prev => ({ ...prev, subCountyInput: e.target.value }))}
+                        placeholder="Type to add sub county"
+                        className="input-field flex-1"
+                      />
+                      <button type="button" className="btn btn-primary" onClick={() => {
+                        if (formData.subCountyInput && (!formData.subCounty || !formData.subCounty.split(',').includes(formData.subCountyInput))) {
+                          setFormData(prev => ({ ...prev, subCounty: prev.subCounty ? prev.subCounty + ',' + prev.subCountyInput : prev.subCountyInput, subCountyInput: '' }));
+                        }
+                      }}>Add</button>
+                    </div>
                   </div>
                   
                   <div className="input-group">
@@ -769,23 +874,42 @@ export function NurseTriage({ onNavigate }) {
                     {(formData.allergies || '').split(',').filter(a => a.trim()).map((allergy, idx) => (
                       <span key={idx} className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
                         {allergy}
+                        <button type="button" style={{marginLeft: 6, color: '#b91c1c', background: 'none', border: 'none', cursor: 'pointer'}} onClick={() => {
+                          setFormData(prev => ({ ...prev, allergies: prev.allergies.split(',').filter(a => a.trim() && a !== allergy).join(',') }));
+                        }}>×</button>
                       </span>
                     ))}
                   </div>
                   <div className="flex gap-2">
+                    <select
+                      name="allergySelect"
+                      value=""
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val && (!formData.allergies || !formData.allergies.split(',').includes(val))) {
+                          setFormData(prev => ({ ...prev, allergies: prev.allergies ? prev.allergies + ',' + val : val }));
+                        }
+                      }}
+                      className="input-field flex-1"
+                    >
+                      <option value="">Select Allergy</option>
+                      {allergyList.map((allergy, idx) => (
+                        <option key={idx} value={allergy}>{allergy}</option>
+                      ))}
+                    </select>
                     <input
                       type="text"
                       name="allergyInput"
                       value={formData.allergyInput || ''}
                       onChange={handleInputChange}
-                      placeholder="Allergy"
+                      placeholder="Type to add allergy"
                       className="input-field flex-1"
                     />
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={handleAddAllergy}
-                    >Add Allergy</button>
+                    <button type="button" className="btn btn-primary" onClick={() => {
+                      if (formData.allergyInput && (!formData.allergies || !formData.allergies.split(',').includes(formData.allergyInput))) {
+                        setFormData(prev => ({ ...prev, allergies: prev.allergies ? prev.allergies + ',' + prev.allergyInput : prev.allergyInput, allergyInput: '' }));
+                      }
+                    }}>Add</button>
                   </div>
                 </div>
                 
@@ -796,23 +920,42 @@ export function NurseTriage({ onNavigate }) {
                     {(formData.chronicConditions || []).map((condition, idx) => (
                       <span key={idx} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
                         {condition}
+                        <button type="button" style={{marginLeft: 6, color: '#7c3aed', background: 'none', border: 'none', cursor: 'pointer'}} onClick={() => {
+                          setFormData(prev => ({ ...prev, chronicConditions: prev.chronicConditions.filter(c => c !== condition) }));
+                        }}>×</button>
                       </span>
                     ))}
                   </div>
                   <div className="flex gap-2">
+                    <select
+                      name="conditionSelect"
+                      value=""
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val && (!formData.chronicConditions || !formData.chronicConditions.includes(val))) {
+                          setFormData(prev => ({ ...prev, chronicConditions: prev.chronicConditions ? [...prev.chronicConditions, val] : [val] }));
+                        }
+                      }}
+                      className="input-field flex-1"
+                    >
+                      <option value="">Select Condition</option>
+                      {chronicConditionsList.map((condition, idx) => (
+                        <option key={idx} value={condition}>{condition}</option>
+                      ))}
+                    </select>
                     <input
                       type="text"
                       name="conditionInput"
                       value={formData.conditionInput || ''}
                       onChange={handleInputChange}
-                      placeholder="Condition"
+                      placeholder="Type to add condition"
                       className="input-field flex-1"
                     />
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={handleAddCondition}
-                    >Add Condition</button>
+                    <button type="button" className="btn btn-primary" onClick={() => {
+                      if (formData.conditionInput && (!formData.chronicConditions || !formData.chronicConditions.includes(formData.conditionInput))) {
+                        setFormData(prev => ({ ...prev, chronicConditions: prev.chronicConditions ? [...prev.chronicConditions, prev.conditionInput] : [prev.conditionInput], conditionInput: '' }));
+                      }
+                    }}>Add</button>
                   </div>
                 </div>
                 
