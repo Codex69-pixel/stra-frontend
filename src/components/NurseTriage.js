@@ -106,54 +106,8 @@ export function NurseTriage({ onNavigate }) {
         }
       }, [formData.firstName, formData.lastName, formData.chiefComplaint, formData.vitals, selectedDiscriminator]);
     // Step 1: Patient Registration
-    firstName: '',
-    lastName: '',
-    dob: '',
-    gender: '',
-    phoneNumber: '',
-    emergencyContact: '',
-    emergencyContactName: '',
-    nationalId: '',
-    nhifNumber: '',
-    address: '',
-    county: '',
-    subCounty: '',
-    bloodGroup: '',
-    allergies: '',
-    allergyInput: '',
-    chronicConditions: [],
-    conditionInput: '',
-    // Step 2: Vitals (nested object for backend)
-    vitals: {
-      temperature: '',
-      systolicBp: '',
-      diastolicBp: '',
-      heartRate: '',
-      respiratoryRate: '',
-      oxygenSaturation: '',
-      bloodGlucose: '',
-      painScale: '',
-      weight: '',
-      height: '',
-      avpu: '',
-      mobility: '',
-    },
-    // Step 2: Symptoms (object for backend)
-    symptoms: {},
-    // Step 3: Additional fields
-    symptomDuration: '',
-    severity: '',
-    // Step 4: Medical History
-    medications: '',
-    surgicalHistory: '',
-    familyHistory: '',
-    // Chief complaint and notes
-    chiefComplaint: '',
-    triageNotes: '',
-    name: '' // For summary display
-  });
-
-  // Symptom toggle handler
+    // Form data state
+    const [formData, setFormData] = useState({
   const handleSymptomToggle = (symptom) => {
     setFormData(prev => ({
       ...prev,
