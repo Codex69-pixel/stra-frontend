@@ -1075,36 +1075,31 @@ export function NurseTriage({ onNavigate }) {
                   </div>
                 </div>
                 
-                {/* Allergies Section with Chips */}
+                {/* Allergies Section with Dropdown and Custom Input */}
                 <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 mt-6">
                   <h3 className="font-semibold text-gray-900 mb-2">Allergies</h3>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {allergyList.map((allergy) => (
-                      <button
-                        key={allergy}
-                        type="button"
-                        onClick={() => {
-                          if (formData.allergies.includes(allergy)) {
-                            removeItem('allergies', allergy);
-                          } else {
-                            setFormData(prev => ({
-                              ...prev,
-                              allergies: [...prev.allergies, allergy]
-                            }));
-                          }
-                        }}
-                        className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
-                          formData.allergies.includes(allergy)
-                            ? 'bg-red-500 text-white'
-                            : 'bg-white text-gray-700 border border-gray-300 hover:border-red-300'
-                        }`}
-                      >
-                        {allergy}
-                      </button>
-                    ))}
+                  <div className="flex flex-col gap-2 mb-3">
+                    <select
+                      multiple
+                      className="input-field"
+                      value={formData.allergies.filter(a => allergyList.includes(a))}
+                      onChange={e => {
+                        const selected = Array.from(e.target.selectedOptions, option => option.value);
+                        setFormData(prev => ({
+                          ...prev,
+                          allergies: [
+                            ...selected,
+                            ...prev.allergies.filter(a => !allergyList.includes(a))
+                          ]
+                        }));
+                      }}
+                    >
+                      {allergyList.map(allergy => (
+                        <option key={allergy} value={allergy}>{allergy}</option>
+                      ))}
+                    </select>
                   </div>
-                  
-                  {/* Selected allergies */}
+                  {/* Custom allergies */}
                   <div className="flex flex-wrap gap-2 mb-2">
                     {formData.allergies.filter(a => !allergyList.includes(a)).map((allergy, idx) => (
                       <span key={idx} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium flex items-center">
@@ -1119,7 +1114,6 @@ export function NurseTriage({ onNavigate }) {
                       </span>
                     ))}
                   </div>
-                  
                   {/* Add custom allergy */}
                   <div className="flex gap-2 mt-2">
                     <input
@@ -1141,35 +1135,30 @@ export function NurseTriage({ onNavigate }) {
                   </div>
                 </div>
                 
-                {/* Chronic Conditions Section with Chips */}
+                {/* Chronic Conditions Section with Dropdown and Custom Input */}
                 <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 mt-6">
                   <h3 className="font-semibold text-gray-900 mb-2">Chronic Conditions</h3>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {chronicConditionsList.map((condition) => (
-                      <button
-                        key={condition}
-                        type="button"
-                        onClick={() => {
-                          if (formData.chronicConditions.includes(condition)) {
-                            removeItem('chronicConditions', condition);
-                          } else {
-                            setFormData(prev => ({
-                              ...prev,
-                              chronicConditions: [...prev.chronicConditions, condition]
-                            }));
-                          }
-                        }}
-                        className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
-                          formData.chronicConditions.includes(condition)
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-white text-gray-700 border border-gray-300 hover:border-purple-300'
-                        }`}
-                      >
-                        {condition}
-                      </button>
-                    ))}
+                  <div className="flex flex-col gap-2 mb-3">
+                    <select
+                      multiple
+                      className="input-field"
+                      value={formData.chronicConditions.filter(c => chronicConditionsList.includes(c))}
+                      onChange={e => {
+                        const selected = Array.from(e.target.selectedOptions, option => option.value);
+                        setFormData(prev => ({
+                          ...prev,
+                          chronicConditions: [
+                            ...selected,
+                            ...prev.chronicConditions.filter(c => !chronicConditionsList.includes(c))
+                          ]
+                        }));
+                      }}
+                    >
+                      {chronicConditionsList.map(condition => (
+                        <option key={condition} value={condition}>{condition}</option>
+                      ))}
+                    </select>
                   </div>
-                  
                   {/* Custom conditions */}
                   <div className="flex flex-wrap gap-2 mb-2">
                     {formData.chronicConditions.filter(c => !chronicConditionsList.includes(c)).map((condition, idx) => (
@@ -1185,7 +1174,6 @@ export function NurseTriage({ onNavigate }) {
                       </span>
                     ))}
                   </div>
-                  
                   {/* Add custom condition */}
                   <div className="flex gap-2 mt-2">
                     <input
